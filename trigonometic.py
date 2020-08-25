@@ -1,23 +1,17 @@
 from functools import lru_cache
 from functions import factorial
-import json
-import decimal
-
-with open('constants.json') as jsonfile:
-    x = json.loads(jsonfile.read())
-
-pi = x['pi'][0]
-
+from constants import pi,e
+from powers import power
 
 def toRad(degrees):
     return (pi/180)*degrees
 
-def sin(x : float,degrees=False):
+def sin(x : float,degrees=False,iterations : int = 100):
     if degrees:
         x = toRad(x)
     #Taylor series for sin x
     total = 0
-    for i in range(100):
+    for i in range(iterations):
         alternating = (-1)**i
         denominator = factorial(2*i+1)
         alternating_denominator = alternating / denominator
@@ -26,12 +20,11 @@ def sin(x : float,degrees=False):
     return total
 
 def cos(x,degrees=False):
-    #sin^2(x)+cos^2(x) = 1 => 1-sin^2(x) 
     if degrees:
         x = toRad(x)
-    sinx = sin(x)**2
-    res = 1-sinx
-    return res**(1/2)
+    reduced_pi = pi / 2
+    return sin(reduced_pi-x)
+
 
 def tan(x,degrees=False):
     if degrees:
@@ -53,5 +46,34 @@ def csc(x,degrees=False):
         x = toRad(x)
     return 1 / sin(x)
 
+def sinh(x : float,useTaylor : bool = False,iterations: int = 100) -> float:
+    if useTaylor:
+        return sum([
+            power(x,2*n+1) / factorial(2*n+1) for n in range(iterations)
+        ])
+    return (power(e,x) - power(e,-x)) / 2
 
-print(cos(30,degrees=True))
+def cosh(x : float,useTaylor : bool = False,iterations = 100) -> float:
+    if not useTaylor:
+        return (power(e,x) + power(e,-x)) / 2
+    return sum([
+        power(x,2*n) / factorial(2*n) for n in range(iterations)
+    ])
+
+def tanh(x : float) -> float:
+    return sinh(x) / cosh(x)
+
+def coth(x : float) -> float:
+    return 1 / tanh(x)
+
+def sech(x : float) -> float:
+    return 1 / cosh(x)
+
+def csch(x : float) -> float:
+    return 1 / sinh(x)
+
+def main():
+    print(cos(pi/2))
+
+if __name__ == "__main__":
+    main()
