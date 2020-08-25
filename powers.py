@@ -1,14 +1,44 @@
 from basic import product
 from num_theory import isEven
 from basic import isInteger
+import fractions
+import functions
+from typing import Union
 
-def power(base : float,exponent : int) -> float:
+def power(base : Union[float,int],exponent : Union[int,complex]) -> Union[float,complex]:
+    """
+    The power function equivalant of the python operation a**b\n
+    it can handle any floating or integer value for a base\n
+    for an exponent it can handle any integer or complex number but when provided a floating point number,\n
+    it will convert it to an integer fraction and pass the operation to nthRoot,\n
+    it is not suggested to use floats for exponents\n
+
+    Here is how it treats complex numbers => :
+    ** e^(ix) = cos(x) + i *sin(x) #cis(x) for short
+    ** e^(i*ln(a)) = cis(ln(a))
+    ** e^(ln(a^i)) = cis(ln(a))
+    ** a^i = cis(ln(a))
+    ** (a^i)^b = (cis(ln(a)))^b
+    ** a^(bi) + a^c = (cis(ln(a)))^b + a^c
+    ** a^(bi+c) = (cis(ln(a)))^b + a^c
+
+    """
+    if type(exponent) == type(complex(0,1)):
+        s = exponent # a*i+b
+        return power(base,s.real) + power(functions.cis(functions.ln(base)),s.imag)
+
     if exponent < 0:
         return 1 / power(base,-exponent)
+
     if not isInteger(exponent):
-        print(exponent)
-        raise ValueError("Power function cannot handle decimal numbers, \n if you want to use roots use function 'powers.nthRoot' with integer values")
-    x = [base for i in range(exponent)]
+        if type(exponent) == float:
+            # b^(k/n) <=> nthroot(b^k)
+            res = fractions.Fraction(exponent) #external import to convert floating point to an integer fraction
+            return nthRoot(power(base,res.numerator),res.denominator)
+        else:
+            raise ValueError("Power operations does not support {}".format(type(exponent)))
+
+    x = [base for i in range(int(exponent))]
     return product(*x)
 
 
@@ -57,3 +87,5 @@ def nthRoot(subroot : float,n : int,iterations : int =100) -> float:
 
     return point
 
+if  __name__ == "__main__":
+    print(power(2,complex(3,4))) 

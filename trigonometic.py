@@ -1,8 +1,6 @@
-from functools import lru_cache
-from functions import factorial
+import functions
 from constants import pi,e
 from powers import power
-from functions import ln
 from powers import sqrt
 
 # Conversions
@@ -25,7 +23,7 @@ def sin(x : float,degrees=False,iterations : int = 100):
     total = 0
     for i in range(iterations):
         alternating = (-1)**i
-        denominator = factorial(2*i+1)
+        denominator = functions.factorial(2*i+1)
         alternating_denominator = alternating / denominator
         input_adjust = x**(2*i+1)
         total += alternating_denominator * input_adjust
@@ -70,9 +68,9 @@ def arcsin(x : float,iterations : int = 100,degrees : bool = False) -> float:
         raise ValueError("Math domain error not in [-1,1]")
     total = 0
     for n in range(iterations):
-        nominator_0 = factorial(2*n)
+        nominator_0 = functions.factorial(2*n)
         nominator_1 = power(x,2*n+1)
-        denominator_0 = power(power(2,n)*factorial(n),2)
+        denominator_0 = power(power(2,n)*functions.factorial(n),2)
         denominator_1 = 2*n+1
         div_0 = nominator_0 / denominator_0
         div_1 = nominator_1 / denominator_1
@@ -94,8 +92,8 @@ def arctan(x : float,iterations : int = 100,degrees : bool = False) -> float:
     """Domain : All Real"""
     total = 0
     for n in range(iterations):
-        nom_0 = power(2,2*n) * power(factorial(n),2)
-        den_0 = factorial(2*n+1)
+        nom_0 = power(2,2*n) * power(functions.factorial(n),2)
+        den_0 = functions.factorial(2*n+1)
         div_0 = nom_0 / den_0
         nom_1 = power(x,2*n+1)
         den_0 = power(1 + power(x,2),n+1)
@@ -138,7 +136,7 @@ def arccsc(x : float,iterations : int = 100,degrees : bool = False):
 def sinh(x : float,useTaylor : bool = False,iterations: int = 100) -> float:
     if useTaylor:
         return sum([
-            power(x,2*n+1) / factorial(2*n+1) for n in range(iterations)
+            power(x,2*n+1) / functions.factorial(2*n+1) for n in range(iterations)
         ])
     return (power(e,x) - power(e,-x)) / 2
 
@@ -146,7 +144,7 @@ def cosh(x : float,useTaylor : bool = False,iterations = 100) -> float:
     if not useTaylor:
         return (power(e,x) + power(e,-x)) / 2
     return sum([
-        power(x,2*n) / factorial(2*n) for n in range(iterations)
+        power(x,2*n) / functions.factorial(2*n) for n in range(iterations)
     ])
 
 def tanh(x : float) -> float:
@@ -165,40 +163,37 @@ def csch(x : float) -> float:
 
 def arsinh(x : float) -> float:
     """Domain : All Real"""
-    return ln(x+sqrt(power(x,2)+1))
+    return functions.ln(x+sqrt(power(x,2)+1))
 
 def arcosh(x : float) -> float:
     """Domain : [1, +Infinity)"""
     if x < 1:
         raise ValueError("Math domain error [1,+Infinity]")
-    return ln(x+sqrt(power(x,2)-1))
+    return functions.ln(x+sqrt(power(x,2)-1))
 
 def artanh(x : float) -> float:
     """Domain (-1 < x < 1)"""
     if not -1 < x < 1:
         raise ValueError("Math domain error not in  (-1,+1)")
-    return 0.5*ln((1+x)/(1-x))
+    return 0.5*functions.ln((1+x)/(1-x))
 
 def arcoth(x : float) -> float:
     """(-Infinity, −1) and (1, +Infinity)"""
     if x == 1 or x == -1:
         raise ValueError("Math domain error not in  (-Infinity, −1) and (1, +Infinity)")
-    return 0.5*ln((x+1)/(x-1))
+    return 0.5*functions.ln((x+1)/(x-1))
 
 def arsech(x : float) -> float:
     """Domain : (0, 1]"""
     if x >= 0 or  x > 1:
         raise ValueError("Math domain error not in (0, 1]")
-    return ln( (1+sqrt(1-power(x,2)) / x ))
+    return functions.ln( (1+sqrt(1-power(x,2)) / x ))
 
 def arcsch(x : float) -> float:
     """Domain : All Real Numbers except 0"""
     if x == 0:
         raise ValueError("Math domain error not in (All Real Numbers except 0)")
-    return ln( (1/x) + sqrt((1/power(x,2)) + 1) )
-
-def main():
-    pass
+    return functions.ln( (1/x) + sqrt((1/power(x,2)) + 1) )
 
 if __name__ == "__main__":
-    main()
+    pass

@@ -1,6 +1,5 @@
 from basic import product
 from typing import Union
-from math import floor
 
 def isEven(num : int) -> bool:
     return num%2==0
@@ -102,8 +101,5 @@ def LCM(*args: Union[int, list]) -> int:
             k += 1
     return product(*nums)
 
-def main():
-    pass
-
 if __name__ == "__main__": 
-    main()
+    pass

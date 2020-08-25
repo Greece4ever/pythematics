@@ -1,7 +1,10 @@
-from powers import power,sqrt
+import powers
 from functools import lru_cache
 from constants import e,pi
 from num_theory import isEven,isOdd
+from constants import imaginary
+from typing import Union,Tuple
+import trigonometic as trig
 
 @lru_cache(maxsize=1000)
 def factorial(n):
@@ -24,43 +27,79 @@ def fibonacci(n : int) -> int:
 
 def exp(x : float,iterations : int = 100,taylor_exapnsion=False):
     if(not taylor_exapnsion):
-        return power(e,x)
-    return sum([power(x,n) / factorial(n) for n in range(iterations)])
+        return powers.power(e,x)
+    return sum([powers.power(x,n) / factorial(n) for n in range(iterations)])
 
-def ln(x : float,iterations : int = 100) -> float:
+def ln(x : float,iterations : int = 100) -> Union[float,complex]:
+    """
+        Natural log function (log with base the constant e)
+        it can handle either a  floating point or an imaginary number
+        it uses 'infinite' sumations which you can specify the iterations
+        This is the exact formula for the natural log : https://wikimedia.org/api/rest_v1/media/math/render/svg/1d9729501b26eb85764942cb112cc9885b1a6cca
+        
+        Here is how it handles complex values :
+        \n\t=> e**(iπ) = -1
+        \n\t=> iπ*ln(e) = ln(-1)
+        \n\t=> πi = ln(-1) 
+        Now with the help of this rule (log(ab) = log(a) + log(b)):
+          => log(negative) = πi + ln(abs(negative)) 
+          # ln(-5) = ln(-1 * 5)
+          # ln(-5) = ln(-1) + ln(-5)
+    """
     if x < 0:
-        raise ValueError("Complex domain error")
+        return (imaginary * pi) + ln(abs(x),iterations=iterations)
+    if x == 0:
+        raise ValueError("Logarmithic functions are not defined at {}".format(x))
     total = 0
     for k in range(iterations):
         denominator = 1 / (2*k+1)
         apr = (x - 1) / (x + 1)
-        final = denominator * power(apr,2*k+1)
+        final = denominator * powers.power(apr,2*k+1)
         total += final
     return 2*total
 
 def log(of_num : float,base : float = 10) -> float:
+    """
+        Returns the logarithm of a number given a base (if none is proveded it defaults to 10)
+        \nFor calculations it uses the following property of logs : log(a,b) = ln(a) / ln(b)
+        \nThe 'of_num' parameter can also be a complex number (check the ln for more info)
+    """
     return ln(of_num) / ln(base)
 
 def erf(x : float) -> float:
-    MULTIPLIER = 2 / sqrt(pi)
+    MULTIPLIER = 2 / powers.sqrt(pi)
     total = 0
     for n in range(100):
         denominator = factorial(n) * (2*n+1)
-        nominator = power(-1,n) * power(x,2*n+1)
+        nominator = powers.power(-1,n) * powers.power(x,2*n+1)
         total += nominator / denominator
     return MULTIPLIER * total
 
 def erfi(x : float) -> float:
-    MULTIPLIER = 2 / sqrt(pi)
+    MULTIPLIER = 2 / powers.sqrt(pi)
     total = 0
     for n in range(100):
         denominator = factorial(n) * (2*n+1)
-        nominator = power(x,2*n+1)
+        nominator = powers.power(x,2*n+1)
         total += nominator / denominator
     return MULTIPLIER * total
 
+def quadratic(a,b,c) -> Union[Tuple[complex],Tuple[float]]:
+    if a == 0:
+        return -c / b
+    descriminant = powers.power(b,2) - 4*a*c
+    if descriminant < 0 :
+        descriminant = imaginary * powers.sqrt(abs(descriminant))
+    r_0 = (-b + descriminant) / 2*a
+    r_1 = (-b - descriminant) / 2*a
+    return (r_0,r_1)
+
+
+def cis(x : float) -> complex:
+    return trig.sin(x) + imaginary * trig.cos(x)
+
 def main():
-    print(erfi(1))
+    print(log(100))
 
 if __name__ == "__main__":
     main()
