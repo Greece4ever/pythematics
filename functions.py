@@ -41,5 +41,8 @@ def ln(x : float,iterations : int = 100) -> float:
 def log(of_num : float,base : float = 10) -> float:
     return ln(of_num) / ln(base)
 
+def myFunc(x):
+    return 1 / x + x**5
+
 if __name__ == "__main__":
     pass

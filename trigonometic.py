@@ -133,7 +133,6 @@ def arccsc(x : float,iterations : int = 100,degrees : bool = False):
     else:
         raise ValueError("Math domain error not in (x <= -1 or x >= 1)")
 
-
 # Hyperbolic Trigonometric
 
 def sinh(x : float,useTaylor : bool = False,iterations: int = 100) -> float:
@@ -200,5 +199,6 @@ def arcsch(x : float) -> float:
 
 def main():
     pass
+
 if __name__ == "__main__":
     main()

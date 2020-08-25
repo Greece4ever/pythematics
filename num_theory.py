@@ -1,4 +1,5 @@
 from basic import product
+from typing import Union
 
 def isEven(num : int) -> bool:
     return num%2==0
@@ -9,48 +10,22 @@ def isOdd(num : int) -> bool:
 def isPrime(num : int) -> bool:
     for i in range(2,int(1+num**(1/2))):
         if(num%i==0):
-            return True
-    return False
+            return False
+    return True
 
-def LCM(*args: int) -> int:
-    """
-    Takes as input arguments either a list of POSITIVE integers or POSITIVE integers LCM(int1,int2,int3...) or LCM([int1,int2,int3...])
-    Returns the least common multiple of n numbers
-        Follows Euclid's algorithm that goes like this:
-            => Store the state of the numbers in a format like this
-                {
-                    num1 : num1,
-                    num2 : num2
-                    ...
-                }
-            Now we create a loop that we keep until the values of num(i) are all 1.0 (we divide them with prime numbers in that while loop)
-            => Perform % (modulo) => num(i) % prime_number
-                - Where prime_number is a number that is selected from the loop
-                - if modulo == 0 store that prime_number in a list
-            => Finally when all Values are 1:
-                => return the product of the prime_numbers
+def GCD(*args : int) -> int:
+    # num1 // num2
+    # num1%num2
+    pass
 
-    Exampels :
-        LCM(1,2,3)
-        PROCCESS :
-            <--------------->
-            2 % 2 == 0
-            3 % 2 == 1
-            <--------------->
-            3 % 2 == 1
-            <--------------->
-            3 % 3 == 0
-        ITERATIONS : 3
-        OUTPUT : 6
 
-    """
+def LCM(*args: Union[str, list]) -> int:
     args = args[0] if len(args) == 1 else args
 
     # if the input is one number the outpout is the same number
     if (type(args) == int):
         return args
 
-    print(args)
     state = {}
     nums = []
 
@@ -70,6 +45,7 @@ def LCM(*args: int) -> int:
 
     # Continue too loop through prime numbers while the state is not True
     while not validState():
+
         isAppended = False
         DIVISORS = []
 
@@ -97,11 +73,10 @@ def LCM(*args: int) -> int:
                 DIVISORS.append(False)
         if not True in DIVISORS:
             k += 1
-    return product(nums)
-
+    return product(*nums)
 
 def main():
-    print(LCM(50,35,12))
+    print(LCM(3,4,5))
 
 
 if __name__ == "__main__": 
