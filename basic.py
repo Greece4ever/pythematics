@@ -46,3 +46,5 @@ def isInteger(num : Union[float,int]) -> bool:
     if(int(num)==float(num)):
         return True
     return False
+
+

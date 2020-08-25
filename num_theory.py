@@ -1,5 +1,6 @@
 from basic import product
 from typing import Union
+from math import floor
 
 def isEven(num : int) -> bool:
     return num%2==0
@@ -8,18 +9,44 @@ def isOdd(num : int) -> bool:
     return not isEven(num)
 
 def isPrime(num : int) -> bool:
+    if num == 1:
+        return False
+
     for i in range(2,int(1+num**(1/2))):
         if(num%i==0):
             return False
     return True
 
-def GCD(*args : int) -> int:
-    # num1 // num2
-    # num1%num2
-    pass
+def GCD_SIMPLE(num1 : int,num2 : int) -> int:
+    """Find the greatest common multiple of 2 numbers"""
+    divisor = num1 if num1 > num2 else num2
+    dividor =  num1 if num1 != divisor else num2
+    
+    remainder = divisor%dividor
+    times_in = divisor//dividor
 
+    while remainder != 0:
+        divisor = dividor
+        dividor = remainder
+        remainder = divisor%dividor
+    
+    return dividor
 
-def LCM(*args: Union[str, list]) -> int:
+def GCD(*nums : int) -> int:
+    """Find the greatest common multiple of multiple numbers numbers"""
+    g1 = 0
+    x = list(nums)
+    while len(x) > 1:
+        g1 = GCD_SIMPLE(x[0],x[1])
+        x.pop(0)
+        x.pop(0)
+        x.insert(0,g1)
+    return x[0]
+
+def LCM(*args: Union[int, list]) -> int:
+    """Takes either a series of integers or a list of integers
+        and returns the least common multiple of them
+    """
     args = args[0] if len(args) == 1 else args
 
     # if the input is one number the outpout is the same number
@@ -76,8 +103,7 @@ def LCM(*args: Union[str, list]) -> int:
     return product(*nums)
 
 def main():
-    print(LCM(3,4,5))
-
+    pass
 
 if __name__ == "__main__": 
     main()

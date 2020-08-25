@@ -1,6 +1,6 @@
-from powers import power
+from powers import power,sqrt
 from functools import lru_cache
-from constants import e
+from constants import e,pi
 from num_theory import isEven,isOdd
 
 @lru_cache(maxsize=1000)
@@ -41,8 +41,26 @@ def ln(x : float,iterations : int = 100) -> float:
 def log(of_num : float,base : float = 10) -> float:
     return ln(of_num) / ln(base)
 
-def myFunc(x):
-    return 1 / x + x**5
+def erf(x : float) -> float:
+    MULTIPLIER = 2 / sqrt(pi)
+    total = 0
+    for n in range(100):
+        denominator = factorial(n) * (2*n+1)
+        nominator = power(-1,n) * power(x,2*n+1)
+        total += nominator / denominator
+    return MULTIPLIER * total
+
+def erfi(x : float) -> float:
+    MULTIPLIER = 2 / sqrt(pi)
+    total = 0
+    for n in range(100):
+        denominator = factorial(n) * (2*n+1)
+        nominator = power(x,2*n+1)
+        total += nominator / denominator
+    return MULTIPLIER * total
+
+def main():
+    print(erfi(1))
 
 if __name__ == "__main__":
-    pass
+    main()
