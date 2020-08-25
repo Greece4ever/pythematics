@@ -13,12 +13,20 @@ def exp(x : float,iterations : int = 100,taylor_exapnsion=False):
         return power(e,x)
     return sum([power(x,n) / factorial(n) for n in range(iterations)])
 
-def ln(x,iterations=100):
-    #ln(1+x)
-    sumarray = [
-        power(-1,n+1)*(power(x,n) / n) for n in range(1,iterations)
-    ]
-    return sum(sumarray)
+def ln(x : float,iterations : int = 100) -> float:
+    if x < 0:
+        raise ValueError("Complex domain error")
+    total = 0
+    for k in range(iterations):
+        denominator = 1 / (2*k+1)
+        apr = (x - 1) / (x + 1)
+        final = denominator * power(apr,2*k+1)
+        total += final
+    return 2*total
+
+def log(of_num : float,base : float = 10) -> float:
+    return ln(of_num) / ln(base)
+
 
 if __name__ == "__main__":
-    print(ln(e-1))    
+    print(log(8,2))

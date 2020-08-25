@@ -2,6 +2,8 @@ from functools import lru_cache
 from functions import factorial
 from constants import pi,e
 from powers import power
+from functions import ln
+from powers import sqrt
 
 def toRad(degrees):
     return (pi/180)*degrees
@@ -24,7 +26,6 @@ def cos(x,degrees=False):
         x = toRad(x)
     reduced_pi = pi / 2
     return sin(reduced_pi-x)
-
 
 def tan(x,degrees=False):
     if degrees:
@@ -71,6 +72,10 @@ def sech(x : float) -> float:
 
 def csch(x : float) -> float:
     return 1 / sinh(x)
+
+def arsinh(x : float) -> float:
+    return ln(x+sqrt(power(x,2)+1))
+
 
 def main():
     print(cos(pi/2))
