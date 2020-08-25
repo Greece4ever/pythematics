@@ -5,10 +5,20 @@ from powers import power
 from functions import ln
 from powers import sqrt
 
+# Conversions
+
 def toRad(degrees):
+    """Degrees to rad"""
     return (pi/180)*degrees
 
+def toDegrees(rad):
+    """Rad to degrees"""
+    return (180 / pi) * rad
+
+# Trigonometric
+
 def sin(x : float,degrees=False,iterations : int = 100):
+    """Domain : All Real"""
     if degrees:
         x = toRad(x)
     #Taylor series for sin x
@@ -22,30 +32,109 @@ def sin(x : float,degrees=False,iterations : int = 100):
     return total
 
 def cos(x,degrees=False):
+    """Domain : All Real"""
     if degrees:
         x = toRad(x)
     reduced_pi = pi / 2
     return sin(reduced_pi-x)
 
 def tan(x,degrees=False):
+    """Domain : Everything but cos(x) != 0 """
     if degrees:
         x = toRad(x)
     return sin(x) / cos(x)
 
 def cot(x,degrees=False):
+    """Domain : Everything but sin(x) != 0 """
     if degrees:
         x = toRad(x)
     return 1 / tan(x)
 
 def sec(x,degrees=False):
+    """Domain : Everything but cos(x) != 0 """
     if degrees:
         x = toRad(x)
     return 1 / cos(x)
 
 def csc(x,degrees=False):
+    """Domain : Everything but sin(x) != 0 """
     if degrees:
         x = toRad(x)
     return 1 / sin(x)
+
+# Inverse Trigonometric
+
+def arcsin(x : float,iterations : int = 100,degrees : bool = False) -> float:
+    """Domain (-1 <= x <= 1)"""
+    if not (-1 <= x <= 1):
+        raise ValueError("Math domain error not in [-1,1]")
+    total = 0
+    for n in range(iterations):
+        nominator_0 = factorial(2*n)
+        nominator_1 = power(x,2*n+1)
+        denominator_0 = power(power(2,n)*factorial(n),2)
+        denominator_1 = 2*n+1
+        div_0 = nominator_0 / denominator_0
+        div_1 = nominator_1 / denominator_1
+        total += div_1 * div_0
+    if degrees:
+        total = toDegrees(total)
+    return total
+
+def arccos(x : float,iterations : int = 100,degrees : bool = False) -> float:
+    """Domain (-1 <= x <= 1)"""
+    if not (-1 <= x <= 1):
+        raise ValueError("Math domain error not in [-1,1]")
+    result = (pi / 2) - arcsin(x,iterations=iterations)
+    if degrees:
+        result = toDegrees(result)
+    return result
+
+def arctan(x : float,iterations : int = 100,degrees : bool = False) -> float:
+    """Domain : All Real"""
+    total = 0
+    for n in range(iterations):
+        nom_0 = power(2,2*n) * power(factorial(n),2)
+        den_0 = factorial(2*n+1)
+        div_0 = nom_0 / den_0
+        nom_1 = power(x,2*n+1)
+        den_0 = power(1 + power(x,2),n+1)
+        div_1 = nom_1 / den_0
+        final = div_0 * div_1
+        total += final
+    if degrees:
+        total = toDegrees(total)
+    return total
+
+def arccot(x : float,iterations : int = 100,degrees : bool = False):
+    """Domain : All Real"""
+    result = (pi / 2) - arctan(x,iterations=iterations)
+    if degrees:
+        result = toDegrees(result)
+    return result
+
+def arcsec(x : float,iterations : int = 100,degrees : bool = False):
+    """Domain : (x <= -1 or x >= 1)"""
+    if (x <= -1) or (x >= 1):
+        res =  arccos(1/x,iterations=iterations)
+        if degrees:
+            res = toDegrees(res)
+        return res
+    else:
+        raise ValueError("Math domain error not in (x <= -1 or x >= 1)")
+
+def arccsc(x : float,iterations : int = 100,degrees : bool = False):
+    """Domain : (x <= -1 or x >= 1)"""
+    if (x <= -1) or (x >= 1):
+        result = ( pi / 2 ) - arcsec(x)
+        if degrees:
+            result = toDegrees(result)
+        return result
+    else:
+        raise ValueError("Math domain error not in (x <= -1 or x >= 1)")
+
+
+# Hyperbolic Trigonometric
 
 def sinh(x : float,useTaylor : bool = False,iterations: int = 100) -> float:
     if useTaylor:
@@ -73,12 +162,43 @@ def sech(x : float) -> float:
 def csch(x : float) -> float:
     return 1 / sinh(x)
 
+# Inverse Hyperbolic
+
 def arsinh(x : float) -> float:
+    """Domain : All Real"""
     return ln(x+sqrt(power(x,2)+1))
 
+def arcosh(x : float) -> float:
+    """Domain : [1, +Infinity)"""
+    if x < 1:
+        raise ValueError("Math domain error [1,+Infinity]")
+    return ln(x+sqrt(power(x,2)-1))
+
+def artanh(x : float) -> float:
+    """Domain (-1 < x < 1)"""
+    if not -1 < x < 1:
+        raise ValueError("Math domain error not in  (-1,+1)")
+    return 0.5*ln((1+x)/(1-x))
+
+def arcoth(x : float) -> float:
+    """(-Infinity, −1) and (1, +Infinity)"""
+    if x == 1 or x == -1:
+        raise ValueError("Math domain error not in  (-Infinity, −1) and (1, +Infinity)")
+    return 0.5*ln((x+1)/(x-1))
+
+def arsech(x : float) -> float:
+    """Domain : (0, 1]"""
+    if x >= 0 or  x > 1:
+        raise ValueError("Math domain error not in (0, 1]")
+    return ln( (1+sqrt(1-power(x,2)) / x ))
+
+def arcsch(x : float) -> float:
+    """Domain : All Real Numbers except 0"""
+    if x == 0:
+        raise ValueError("Math domain error not in (All Real Numbers except 0)")
+    return ln( (1/x) + sqrt((1/power(x,2)) + 1) )
 
 def main():
-    print(cos(pi/2))
-
+    pass
 if __name__ == "__main__":
     main()

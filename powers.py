@@ -57,4 +57,3 @@ def nthRoot(subroot : float,n : int,iterations : int =100) -> float:
 
     return point
 
-
