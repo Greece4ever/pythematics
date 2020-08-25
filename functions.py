@@ -7,25 +7,43 @@ from typing import Union,Tuple
 import trigonometic as trig
 
 @lru_cache(maxsize=1000)
-def factorial(n):
+def factorial(n : int) -> int:
+    """
+    Returns the product of all the numbers in range(1,n)\n
+    ** Uses the built in functool's module lru_cache decorator 
+    """
     if n in (1,0):
         return 1
     return n * factorial(n-1)
 
 
 @lru_cache(maxsize=1000)
-def doubleFactorial(n):
+def doubleFactorial(n : int) -> int:
+    """ if n is even it returns the sum of all the even numbers\n
+        if n is odd it returns the sum of all the odd numbers\n
+        in the range(1,n)\n
+       ** Uses the built in functool's module lru_cache decorator 
+    """
     if n in (1,0):
         return 1
     return n * doubleFactorial(n-2)
 
 @lru_cache(maxsize=1000)
 def fibonacci(n : int) -> int:
+    """Returns the fibbonacci function at a specific point\n
+       ** Uses the built in functool's module lru_cache decorator 
+    """
     if n in (0,1):
         return 1
     return fibonacci(n-1) + fibonacci(n-2)
 
 def exp(x : float,iterations : int = 100,taylor_exapnsion=False):
+    """Calulates the exponential function,\n
+        if taylor_exapnsion is set to True it will do what it says,\n
+        use the taylor expansion of the exp function for calculations,\n
+        else it will use the stored constant e and raise it to the power,\n
+        if you set taylor_exapnsion=True you can specify how many times to iterate \n
+    """
     if(not taylor_exapnsion):
         return powers.power(e,x)
     return sum([powers.power(x,n) / factorial(n) for n in range(iterations)])
@@ -67,6 +85,7 @@ def log(of_num : float,base : float = 10) -> float:
     return ln(of_num) / ln(base)
 
 def erf(x : float) -> float:
+    """Calculates the error function at a specific point"""
     MULTIPLIER = 2 / powers.sqrt(pi)
     total = 0
     for n in range(100):
@@ -76,6 +95,7 @@ def erf(x : float) -> float:
     return MULTIPLIER * total
 
 def erfi(x : float) -> float:
+    """Calculates  the imaginary error function at a specific point"""
     MULTIPLIER = 2 / powers.sqrt(pi)
     total = 0
     for n in range(100):
@@ -85,6 +105,12 @@ def erfi(x : float) -> float:
     return MULTIPLIER * total
 
 def quadratic(a,b,c) -> Union[Tuple[complex],Tuple[float]]:
+    """
+        Gives all complex roots of a qudratic equations,
+        if the equation is linear (a==0) it will return 1 real root,
+        if it is qudratic it will return a tuple of the 2 anwsers,
+        which are either both going to be floats or complex
+    """
     if a == 0:
         return -c / b
     descriminant = powers.power(b,2) - 4*a*c
@@ -96,6 +122,9 @@ def quadratic(a,b,c) -> Union[Tuple[complex],Tuple[float]]:
 
 
 def cis(x : float) -> complex:
+    """Returns the following operation : \n
+        cos(x) + complex(0,1) * sin(x)
+    """
     return trig.sin(x) + imaginary * trig.cos(x)
 
 def main():

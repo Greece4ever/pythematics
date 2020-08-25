@@ -36,6 +36,7 @@ def comaSplitNumber(num : Union[int,float]) -> str:
     return return_type
 
 def isNumber(args) -> bool:
+    """Returns True if the value can be converted to a floating point"""
     try:
         int(args)
         return True
@@ -43,6 +44,9 @@ def isNumber(args) -> bool:
         return False
 
 def isInteger(num : Union[float,int]) -> bool:
+    """Returns True if the int(num) is equal to float(num)\n
+       it only handles numbers and will not care about other types
+    """
     if(int(num)==float(num)):
         return True
     return False

@@ -2,12 +2,17 @@ from basic import product
 from typing import Union
 
 def isEven(num : int) -> bool:
+    """Returns True if a number can be divded by 2"""
     return num%2==0
 
 def isOdd(num : int) -> bool:
+    """Returns True if a number cannot be divded by 2"""
     return not isEven(num)
 
 def isPrime(num : int) -> bool:
+    """Returns True if a number can divide num in the \n
+       ** range(2,int(1+num**(1/2))) **
+       """
     if num == 1:
         return False
 
@@ -32,7 +37,11 @@ def GCD_SIMPLE(num1 : int,num2 : int) -> int:
     return dividor
 
 def GCD(*nums : int) -> int:
-    """Find the greatest common multiple of multiple numbers numbers"""
+    """Uses Euclid's algorithm for finding the \n
+       Greatest Common Multiple of a series of numbers, \n
+       you can either pass arguments normally GCD(num1,num2,num3) \n
+       or as a list using the * notation GCD(*myArray)
+    """
     g1 = 0
     x = list(nums)
     while len(x) > 1:
@@ -43,8 +52,9 @@ def GCD(*nums : int) -> int:
     return x[0]
 
 def LCM(*args: Union[int, list]) -> int:
-    """Takes either a series of integers or a list of integers
-        and returns the least common multiple of them
+    """
+        Given an array of integers it can find the \n
+        Least common multiple of those numbers
     """
     args = args[0] if len(args) == 1 else args
 

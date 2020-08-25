@@ -196,4 +196,4 @@ def arcsch(x : float) -> float:
     return functions.ln( (1/x) + sqrt((1/power(x,2)) + 1) )
 
 if __name__ == "__main__":
-    pass
+    print(sin(90,degrees=True))
