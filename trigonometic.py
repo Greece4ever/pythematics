@@ -1,4 +1,5 @@
 from functools import lru_cache
+from functions import factorial
 import json
 import decimal
 
@@ -7,11 +8,6 @@ with open('constants.json') as jsonfile:
 
 pi = x['pi'][0]
 
-@lru_cache(maxsize=1000)
-def factorial(n):
-    if n in (1,0):
-        return 1
-    return n * factorial(n-1)
 
 def toRad(degrees):
     return (pi/180)*degrees
