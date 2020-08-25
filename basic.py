@@ -10,6 +10,7 @@ def product(*args : Union[float,int]) -> Union[float,int]:
         prod*=num
     return prod
 
+
 def comaSplitNumber(num : Union[int,float]) -> str:
     """Given an integer or a floating number it returns
        a human readable string splitting the digits with commas
@@ -34,4 +35,14 @@ def comaSplitNumber(num : Union[int,float]) -> str:
         return_type+=return_type[-1]
     return return_type
 
+def isNumber(args) -> bool:
+    try:
+        int(args)
+        return True
+    except:
+        return False
 
+def isInteger(num : Union[float,int]) -> bool:
+    if(int(num)==float(num)):
+        return True
+    return False

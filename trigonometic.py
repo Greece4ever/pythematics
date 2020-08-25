@@ -5,9 +5,6 @@ import decimal
 with open('constants.json') as jsonfile:
     x = json.loads(jsonfile.read())
 
-
-print(x)
-
 pi = x['pi'][0]
 
 @lru_cache(maxsize=1000)
