@@ -53,8 +53,9 @@ def GCD(*nums : int) -> int:
 
 def LCM(*args: Union[int, list]) -> int:
     """
-        Given an array of integers it can find the \n
-        Least common multiple of those numbers
+        Given an array of integers or integers passed as arguments it can find the \n
+        Least common multiple of those numbers, The smallest positive integer 'num_target' such that : \n
+        (item%num_target==0 for item in args )
     """
     args = args[0] if len(args) == 1 else args
 
