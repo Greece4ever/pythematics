@@ -5,14 +5,14 @@ class Vector:
     def __init__(self,array):
         for item in array:
             if not isNumber(item):
-                raise ValueError("Vector arguments must be a list of integers not {}".format(type(item)))
+                raise ValueError("Vector arguments must be a list of {} or {} not {}".format(int,float,type(item)))
         self.matrix = array
         self.rows = len(self.matrix)
         self.collumns = 1
 
     def __str__(self):
         s1 =  str(self.matrix).replace(",",",\n").replace("]","\n]").replace("[","[\n ")
-        s2 = "\n {} x {} Vector array".format(self.rows,self.collumns)
+        s2 = "\n {} x {} Vector array\n".format(self.rows,self.collumns)
         return s1 + s2
 
     def getMatrix(self):
@@ -23,19 +23,13 @@ class Vector:
 
     def __add__(self,value):
         empty = []
-        if isNumber(value): #Scalar
-            for item in self.matrix:
-                empty.append(value+item)
-            return Vector(empty)
-
-        # Vector addition
-
-        elif type(value == Vector):
+        if type(value) == Vector:
             if value.getSize() != self.getSize():
                 raise ValueError("Cannot multiply non equal-size collumns ({} with {})".format(value.getSize(),self.getSize()))
             for i in range(self.getSize()):
                 empty.append(value.getMatrix()[i] + self.getMatrix()[i])
             return Vector(empty)
+        raise TypeError("Cannot perform addition on Vector with {}".format(type(value)))
 
     def __sub__(self,value):
         empty = []
@@ -48,6 +42,8 @@ class Vector:
         else:
             raise ValueError("Cannot Perform subtraction : {} with {}".format(type(self),type(value)))
 
+    def __len__(self):
+        return self.rows
 
     def __mul__(self,value):
         """Vector Multiplication by scalar
@@ -65,8 +61,11 @@ class Vector:
             for num in range(self.getSize()):
                 empty.append(value.getMatrix()[num] * self.getMatrix()[num])
             return sum(empty)
-        else:
-            raise ValueError("Cannot Multiply {} with {}".format(type(self),type(value)))
+
+    def __rmul__(self,scalar : Union[int,float]):
+        if type(scalar) in (int,float):
+            return self.__mul__(scalar)
+        raise TypeError("Cannot perform '*' operation on Vector with {}")
 
     def dot(self,Vector) -> Union[float,int]:
         return self.__mul__(Vector) 
@@ -109,6 +108,7 @@ class Matrix:
         self.matrix = matrix
         self.rows = len(self.matrix)
         self.collumns = self.ROW_LENGTHS[0]
+        self.isSquare = self.rows == self.collumns
 
         self.cols = []
         for j in range(self.ROW_LENGTHS[0]):
@@ -125,6 +125,9 @@ class Matrix:
 
     def colls(self,index):
         return self.cols[index]
+    
+    def is_square(self):
+        return self.isSquare
 
     def collsAll(self):
         return self.cols
@@ -138,7 +141,7 @@ class Matrix:
 
     def __str__(self):
         """Returns a visual representation of the Matrix"""
-        x = self.matrix
+        x = [item[:] for item in self.matrix]
         y = []
         yy = []
         for iteration in range(self.collumns):
@@ -224,6 +227,34 @@ class Matrix:
             j+=1
         return Matrix(new_matrix)
 
+
+def removeCollumn(matrix : Matrix,index : int) -> Matrix:
+    """Returns a reduced collumn version of a Matrix"""
+    raw_matrix = [item[:] for item in matrix.rawMatrix()]
+    for row in raw_matrix:
+        row.pop(index)
+    return Matrix(raw_matrix)
+
+def determinant(matrix : Matrix) -> float:
+    dimensions = matrix.__len__()
+    if not matrix.is_square():
+        raise ValueError("Cannot compute determinant of non square matrix : {}".format(dimensions))
+    if dimensions[0] == 2:
+        return matrix.rawMatrix()[0][0] * matrix.rawMatrix()[-1][-1] - matrix.rawMatrix()[0][-1]* matrix.rawMatrix()[-1][0]
+    raw_matrix = matrix.rawMatrix()
+    tmp = [item[:] for item in raw_matrix]
+    tmp.pop(0)
+    i = 0 
+    STORAGE = []
+    for i in range(matrix.__len__()[0]): #Loop throw the first row
+        y = removeCollumn(Matrix(tmp),i)
+        multiplier = raw_matrix[0][i] if (i+1)%2!=0 else -raw_matrix[0][i]
+        STORAGE.append(multiplier * determinant(y))
+        i+=1
+    return sum(STORAGE)
+
+
+
 if __name__ == "__main__":
     # A = Matrix([
     #         [436,9,10,11,7], #Number of row
@@ -234,15 +265,11 @@ if __name__ == "__main__":
     #         [453,93,16,15,64],
     #         ])
 
-    B = Matrix([ #2x4
-        [1,2,3],
-        [4,5,6]
+    A = Matrix([
+        [1,3,5,9],
+        [1,3,1,7],
+        [4,3,9,7],
+        [5,2,0,9]
     ])
 
-    C = Matrix([ 
-        [7,8],
-        [7,8]
-    ])
-
-    Y = 5 * C
-    print(C*C)
+    print(determinant(A))
