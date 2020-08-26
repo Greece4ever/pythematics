@@ -51,4 +51,13 @@ def isInteger(num : Union[float,int]) -> bool:
         return True
     return False
 
+def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
+    """
+        Given a function and 2 points in the x axis,\n
+        it returns a boolean on wheter there is a root,\n
+        in that interval
+    """
+    if (function(x_0)*function(x_1)) < 0:
+        return True
+    return False
 

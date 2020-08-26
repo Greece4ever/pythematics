@@ -4,6 +4,7 @@ from basic import isInteger
 import fractions
 import functions
 from typing import Union
+import trigonometic as trg
 
 def power(base : Union[float,int],exponent : Union[int,complex]) -> Union[float,complex]:
     """
@@ -41,22 +42,22 @@ def power(base : Union[float,int],exponent : Union[int,complex]) -> Union[float,
     x = [base for i in range(int(exponent))]
     return product(*x)
 
-
-def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
-    if (function(x_0)*function(x_1)) < 0:
-        return True
-    return False
-
-
 def sqrt_subfunction(x,c):
+    """Function used to estimate the sqrt"""
     return power(x,2) - c
 
-
-def sqrt(x : float,iterations : int = 100) -> float:
+def sqrt(x : float,iterations : int = 100,catchNegativeRoot=False) -> Union[float,complex]:
+    """
+        Uses Newtown's method for calculating the square root of a specific number,\n
+        you can specify with 'iterations' how many times you want to repeat the algorithm,\n
+        if the input argument is less than 0 it will return a complex number
+    """
     if x <= 0:
         if(x==0):
             return 0.0
-        raise ValueError("Value {} is less than 0".format(x))
+        if catchNegativeRoot:
+            raise ValueError("Value '{}' is not in the real number range".format(x))
+        return complex(0,1) * sqrt(abs(x))
 
     point = 1
     for i in range(iterations):
@@ -65,15 +66,22 @@ def sqrt(x : float,iterations : int = 100) -> float:
     return point
 
 def nth_subfunction(x,exponent,c):
-        return power(x,exponent) - c
+    """function used for the calculation of the nth root acts as a derivative"""
+    return power(x,exponent) - c
 
-def nthRoot(subroot : float,n : int,iterations : int =100) -> float:
-    # f(x) = x**n - c
-    # f'(x) = n*x**(n-1) 
+def nthRoot(subroot : float,n : int,iterations : int = 100,catchNegativeRoot=False) -> float:
+    """
+        Uses Newtown's method for calculating the nth root function of a specific number,\n
+        you can specify with 'iterations' how many times you want to repeat the algorithm,\n
+        You can specify whether you want to throw an error when the result is complex,\n
+        If not specified it will return the complex solution
+    """
     if(isEven(n)) or n==0:
         if n==0:
             return 0.0
         if subroot < 0:
+            if not catchNegativeRoot:
+                return trg.complexRoot(n) * nthRoot(abs(subroot),n,iterations=iterations)
             raise ValueError("Even root must contain only positive floating values not {}".format(subroot))
     
     def diffeq(x):
@@ -88,4 +96,4 @@ def nthRoot(subroot : float,n : int,iterations : int =100) -> float:
     return point
 
 if  __name__ == "__main__":
-    print(power(2,complex(3,4))) 
+    pass
