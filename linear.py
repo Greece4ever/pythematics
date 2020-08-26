@@ -93,31 +93,33 @@ class Matrix:
         if type(matrix) != list:
             raise ValueError("Matrix must be an array of arrays.")
         
-        ROW_LENGTHS = []
+        self.ROW_LENGTHS = []
 
         for row in matrix:
             if type(row) == list:
-                ROW_LENGTHS.append(len(row))
+                self.ROW_LENGTHS.append(len(row))
                 for num in row:
                     if not isNumber(num):
                         raise TypeError("Row : {} , does not contain an argument or {} or {} but instead {}!".format(matrix.index(row),type(1),type(1.0),type(num)))
             else:
                 raise ValueError("Every argument inside the basic array which is considered as a row should be of type {}".format(type([])))
-        if len(ROW_LENGTHS) != ROW_LENGTHS.count(ROW_LENGTHS[0]):
-            raise ValueError("All rows of a matrix shall only be of same size.")
+        if len(self.ROW_LENGTHS) != self.ROW_LENGTHS.count(self.ROW_LENGTHS[0]):
+            raise ValueError("All rows of a matrix shall only be of same size. not {}".format(self.ROW_LENGTHS))
 
         self.matrix = matrix
         self.rows = len(self.matrix)
-        self.collumns = ROW_LENGTHS[0]
+        self.collumns = self.ROW_LENGTHS[0]
 
         self.cols = []
-        for j in range(ROW_LENGTHS[0]):
+        for j in range(self.ROW_LENGTHS[0]):
             self.cols.append([])
 
         for row in self.matrix:
+            i = 0
             for value in row:
-                self.cols[row.index(value)].append(value)
-    
+                self.cols[i].append(value)
+                i+=1
+
     def rawMatrix(self):
         return self.matrix
 
@@ -129,9 +131,6 @@ class Matrix:
 
     def row(self,index):
         return self.matrix[index]
-
-    def printRaw(self):
-        return str(self.matrix).replace(",","\t").replace("]","]\n").replace("[[","[\n\t [")
 
     def __len__(self):
         """Returns a tuple containng number of rows and collumns (rows,collumns)"""
@@ -146,7 +145,7 @@ class Matrix:
             y.append(f"\tC{iteration+1}")
             yy.append("\t__")
         print("".join(y))
-        print("".join(yy))
+        # print("".join(yy))
         j = 1
         for item in x:
             if j > 9:
@@ -156,15 +155,17 @@ class Matrix:
             item[0] = f'\t{item[0]}'
             print(f' R{j}|',"\t".join(str(val) for val in item))
             j+=1
-        return f'\n{self.rows} x {self.collumns} Matrix'
+        return f'\n{self.rows} x {self.collumns} Matrix\n'
 
     def __rmul__(self,scalar):
         """Matrix multiplication by scalar"""
         if type(scalar) in (int,float):
             new_matrix = [[] for i in range(self.rows)] #Add the rows
+            i = 0
             for row in self.matrix:
                 for constant in row:
-                    new_matrix[self.matrix.index(row)].append(constant * scalar)
+                    new_matrix[i].append(constant * scalar)
+                i+=1
             return Matrix(new_matrix)
         else:
             raise TypeError("You may only multiply a {} object with either a {} or a {}".format(type(self),int,float))
@@ -178,9 +179,13 @@ class Matrix:
         if self.__len__() != Matrx.__len__():
             raise ValueError("Rows and Collumns must be equal! {} != {}".format(self.__len__(),Matrx.__len__()))
         new_matrix = [[] for row in range(self.rows)]
+        i = 0
         for row in self.matrix:
+            k = 0 
             for num in row:
-                new_matrix[self.matrix.index(row)].append(num+Matrx.rawMatrix()[self.matrix.index(row)][row.index(num)])
+                new_matrix[i].append(num+Matrx.rawMatrix()[i][k])
+                k +=1
+            i+=1
         return Matrix(new_matrix)
 
     def __sub__(self,Matrx):
@@ -189,47 +194,55 @@ class Matrix:
         if self.__len__() != Matrx.__len__():
             raise ValueError("Rows and Collumns must be equal! {} != {}".format(self.__len__(),Matrx.__len__()))
         new_matrix = [[] for row in range(self.rows)]
+        i = 0
         for row in self.matrix:
+            k = 0 
             for num in row:
-                new_matrix[self.matrix.index(row)].append(num-Matrx.rawMatrix()[self.matrix.index(row)][row.index(num)])
+                new_matrix[i].append(num-Matrx.rawMatrix()[i][k])
+                k +=1
+            i+=1
         return Matrix(new_matrix)
 
     def __mul__(self,value):
+        if type(value) in (int,float):
+            return self.__rmul__(value)
         row_0 = self.__len__()
         col_0 = value.__len__()
-        if row_0[1] != col_0[0]:
-            raise ValueError(f"\nCannot multiply a {row_0[0]} x {row_0[1]} with a {col_0[0]} x {col_0[0]} Matrix,\nMatrix 1 must have the same number of rows as the number of collumns in Matrix 2 \n({row_0[1]} != {col_0[0]})")
+        if row_0[1] != col_0[0]: 
+            raise ValueError(f"\nCannot multiply a {row_0[0]} x {row_0[1]} with a {col_0[0]} x {col_0[1]} Matrix,\nMatrix 1 must have the same number of rows as the number of collumns in Matrix 2 \n({row_0[1]} != {col_0[0]})")
         new_matrix = [[] for i in range(row_0[0])]
         COLS_M2 = value.collsAll()
-        print(new_matrix)
+        j = 0
         for row in self.matrix:
-            num_row = self.matrix.index(row)
-            CACHE = []
-            for number in row:
-                index = row.index(number)
-                CACHE.append(number * COLS_M2[num_row])
-        
-        return row_0,col_0
+            for collumn in COLS_M2:
+                iterations = 0
+                total = 0
+                for scalar in collumn:
+                    total += scalar*row[iterations]
+                    iterations+=1
+                new_matrix[j].append(total)
+            j+=1
+        return Matrix(new_matrix)
 
 if __name__ == "__main__":
-    A = Matrix([
-            [436,9,10,11,7], #Number of row
-            [437,9,10,11,3],
-            [438,9,10,11,4],
-            [430,9,10,11,5],
-            [434,9,10,11,6],
-            [453,93,16,15,64],
-            ])
-    B = Matrix([
-        [3,4,5,6],
-        [8,9,10,11]
+    # A = Matrix([
+    #         [436,9,10,11,7], #Number of row
+    #         [437,9,10,11,3],
+    #         [438,9,10,11,4],
+    #         [430,9,10,11,5],
+    #         [434,9,10,11,6],
+    #         [453,93,16,15,64],
+    #         ])
+
+    B = Matrix([ #2x4
+        [1,2,3],
+        [4,5,6]
     ])
 
-    C = Matrix([
-        [3],
-        [4],
-        [5],
-        [6]
+    C = Matrix([ 
+        [7,8],
+        [7,8]
     ])
 
-    print(B*C)
+    Y = 5 * C
+    print(C*C)
