@@ -307,4 +307,4 @@ def complexRoot(n):
     return cos(pi/n) + complex(0,1) * sin(pi / n)
 
 if __name__ == "__main__":
-    print(complexRoot(4))
+    pass

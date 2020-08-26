@@ -76,15 +76,63 @@ class Vector:
 
 class Matrix:
     """
-    [[],[],[],[]]
+    [[1,2,3,4,5],[3,5,5,3],[3,4,5,6],[4,5,6,4]]
     """
-    def __init__(self,array):
+    def __init__(self,matrix):
+        """Takes an array of arrays of numbers
+            The arrays inside the array as seen as the rows
+        """
+        if type(matrix) != list:
+            raise ValueError("Matrix must be an array of arrays.")
+        
+        ROW_LENGTHS = []
 
- 
+        for row in matrix:
+            if type(row) == list:
+                ROW_LENGTHS.append(len(row))
+                for num in row:
+                    if not isNumber(num):
+                        raise ValueError("Row : {} , does not contain an argument or {} or {} but instead {}!".format(matrix.index(row),type(1),type(1.0),type(num)))
+            else:
+                raise ValueError("Every argument inside the basic array which is considered as a row should be of type {}".format(type([])))
+        if len(ROW_LENGTHS) != ROW_LENGTHS.count(ROW_LENGTHS[0]):
+            raise ValueError("All rows of a matrix shall only be of same size.")
 
-z = Vector([3,4,5,4,5,6])
-x = Vector([4,5,6,7,4,5])
-f = Vector([2,3,4,5,1,5])
-g = Vector([4,7,6,5,4,5])
+        self.matrix = matrix
+        self.rows = len(self.matrix)
+        self.collumns = ROW_LENGTHS[0]
+    
+    def __str__(self):
+        import itertools
+        x = self.matrix
+        y = []
+        yy = []
+        for iteration in range(self.collumns):
+            y.append(f"\tC{iteration+1}")
+            yy.append("\t__")
+        print("".join(y))
+        print("".join(yy))
+        j = 1
+        for item in x:
+            if j > 9:
+                print("\n   .........")
+                print(f' R{len(x)}|',*x[-1])
+                break
+            item[0] = f'\t{item[0]}'
+            print(f' R{j}|',"\t".join(str(val) for val in item))
+            j+=1
+        return f'\n{self.rows} x {self.collumns} Matrix'
 
-print(z*x*f*g)
+A = Matrix([
+           [43,9,10,11,7],
+           [43,9,10,11,3],
+           [43,9,10,11,4],
+           [43,9,10,11,5],
+           [43,9,10,11,6],
+           [43,9,10,11,7],
+           [43,9,10,11,7],
+           [43,9,10,11,7],
+
+           ])
+
+print(A)
