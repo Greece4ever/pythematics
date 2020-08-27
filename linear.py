@@ -433,8 +433,10 @@ def inverse(matrix : Matrix) -> Matrix:
             [[raw[-1][-1],-raw[0][-1]],
             [-raw[-1][0],raw[0][0]]
         ])
-
-    inverse_determinant = 1 /  determinant(matrix)
+    try:
+        inverse_determinant = 1 /  determinant(matrix)
+    except:
+        raise ZeroDivisionError("Determinant is 0")
     return inverse_determinant * adjugate(MatrixOfCofactors(MatrixOfMinors(matrix)))
 
 
@@ -487,12 +489,8 @@ def Trace(matrix : Matrix) -> Union[int,float]:
 
 if __name__ == "__main__":
     A = Matrix([
-            [436,9,10,11,7], #Number of row
-            [437,9,10,11,3],
-            [438,9,10,11,4],
-            [430,9,10,11,5],
-            [434,9,10,11,6],
-            [453,93,16,15,64],
+            [1,2],
+            [4,5]
             ])
 
 
