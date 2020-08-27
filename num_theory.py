@@ -1,5 +1,6 @@
 from basic import product
 from typing import Union
+import functions
 
 def isEven(num : int) -> bool:
     """Returns True if a number can be divded by 2"""
@@ -112,5 +113,9 @@ def LCM(*args: Union[int, list]) -> int:
             k += 1
     return product(*nums)
 
+def kCn(k : int,n : int) -> Union[int,float]:
+    # (7,3)
+    return functions.factorial(k) / (functions.factorial(n) * functions.factorial(k-n) ) 
+
 if __name__ == "__main__": 
-    pass
+    print(kCn(7,3))

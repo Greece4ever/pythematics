@@ -2,6 +2,24 @@
     Contains a series of functions and custom classes,\n
     concerning the base of linear algebra,
     Matrices and Vectors
+
+    Here are the operations:
+    -- Vectors : 
+        ** Vector Dot 
+        ** Vector Cross (3D ONLY)
+        ** Vector Addition and Subtraction
+        ** Vector-Scalar Operations
+    -- Matrices:
+        ** Matrix Multiplication
+        ** Matrix Addition and subtraction
+        ** Matrix-Scalar Operations
+        ** Trace
+        ** Identity Matrix Generator
+        ** Determinant
+        ** Inverse Matrix
+            ** Cofactors
+            ** adjugate (transpose)
+            ** Minors
 """
 
 

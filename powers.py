@@ -1,5 +1,15 @@
+"""
+    Computes powers and roots of specified numbers using Newton's approximation,
+    it also handle operation with imaginary numbers
+
+    Detail:
+        ** Power : real float,int base
+
+"""
+
+
+
 from basic import product
-from num_theory import isEven
 from basic import isInteger
 import fractions
 import functions
@@ -14,14 +24,15 @@ def power(base : Union[float,int],exponent : Union[int,complex]) -> Union[float,
     it will convert it to an integer fraction and pass the operation to nthRoot,\n
     it is not suggested to use floats for exponents\n
 
-    Here is how it treats complex numbers => :
-    ** e^(ix) = cos(x) + i *sin(x) #cis(x) for short
-    ** e^(i*ln(a)) = cis(ln(a))
-    ** e^(ln(a^i)) = cis(ln(a))
-    ** a^i = cis(ln(a))
-    ** (a^i)^b = (cis(ln(a)))^b
-    ** a^(bi) + a^c = (cis(ln(a)))^b + a^c
-    ** a^(bi+c) = (cis(ln(a)))^b + a^c
+    Here is how it treats complex numbers (exponents) => :
+        ** e^(ix) = cos(x) + i *sin(x) #cis(x) for short
+        ** e^(i*ln(a)) = cis(ln(a))
+        ** e^(ln(a^i)) = cis(ln(a))
+        ** a^i = cis(ln(a))
+        ** (a^i)^b = (cis(ln(a)))^b
+        ** a^(bi) + a^c = (cis(ln(a)))^b + a^c
+        ** a^(bi+c) = (cis(ln(a)))^b + a^c
+    Complex Base number is treated normally like an integer
 
     """
     if type(exponent) == type(complex(0,1)):
@@ -58,7 +69,6 @@ def sqrt(x : float,iterations : int = 100,catchNegativeRoot=False) -> Union[floa
         if catchNegativeRoot:
             raise ValueError("Value '{}' is not in the real number range".format(x))
         return complex(0,1) * sqrt(abs(x))
-
     point = 1
     for i in range(iterations):
         function_difference = sqrt_subfunction(point,x) / (2*point)
@@ -76,7 +86,7 @@ def nthRoot(subroot : float,n : int,iterations : int = 100,catchNegativeRoot=Fal
         You can specify whether you want to throw an error when the result is complex,\n
         If not specified it will return the complex solution
     """
-    if(isEven(n)) or n==0:
+    if(n%2==0) or n==0:
         if n==0:
             return 0.0
         if subroot < 0:
@@ -96,4 +106,4 @@ def nthRoot(subroot : float,n : int,iterations : int = 100,catchNegativeRoot=Fal
     return point
 
 if  __name__ == "__main__":
-    pass
+    print(power(complex(2,1),complex(0,1)))

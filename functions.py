@@ -55,7 +55,7 @@ def ln(x : float,iterations : int = 100) -> Union[float,complex]:
         it uses 'infinite' sumations which you can specify the iterations
         This is the exact formula for the natural log : https://wikimedia.org/api/rest_v1/media/math/render/svg/1d9729501b26eb85764942cb112cc9885b1a6cca
         
-        Here is how it handles complex values :
+        Here is how it handles negative values : TLDR (log(negative) = πi + ln(abs(negative)) )
         \n\t=> e**(iπ) = -1
         \n\t=> iπ*ln(e) = ln(-1)
         \n\t=> πi = ln(-1) 
@@ -64,6 +64,15 @@ def ln(x : float,iterations : int = 100) -> Union[float,complex]:
           # ln(-5) = ln(-1 * 5)
           # ln(-5) = ln(-1) + ln(-5)
     """
+    if type(x) == complex:
+        #z = a + bi
+        real = x.real
+        imag = x.imag
+        suma = powers.power(real,2) + powers.power(imag,2)
+        reduced_log = ln(suma) / 2
+        inverseTan = complex(0,1) * trig.arctan(imag / real)
+        return reduced_log + inverseTan
+
     if x < 0:
         return (imaginary * pi) + ln(abs(x),iterations=iterations)
     if x == 0:
@@ -131,4 +140,4 @@ def main():
     print(log(100))
 
 if __name__ == "__main__":
-    main()
+    print(ln(complex(3,4)))

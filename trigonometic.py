@@ -21,6 +21,9 @@ def sin(x : float,degrees=False,iterations : int = 100):
         You can also specify how many times you want to iterate\n
         it uses Taylor expansions and trigonometric identities for caluclations
         """
+    if type(x) == complex:
+        com = complex(0,1) * x
+        return (powers.power(e,com) - powers.power(e,-com)) / 2
     if degrees:
         x = toRad(x)
     #Taylor series for sin x
