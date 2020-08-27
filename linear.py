@@ -21,9 +21,13 @@ class Vector:
         self.collumns = 1
 
     def __str__(self):
-        s1 =  str(self.matrix).replace(",",",\n").replace("]","\n]").replace("[","[\n ")
-        s2 = "\n {} x {} Vector array\n".format(self.rows,self.collumns)
-        return s1 + s2
+        print("")
+        i = 1
+        for item in self.matrix:
+            print(f'R{i}| {item:>3}')
+            i+=1
+        s2 = "\n{} x {} Vector array\n".format(self.rows,self.collumns)
+        return s2
 
     def getMatrix(self):
         return self.matrix
@@ -390,6 +394,36 @@ def inverse(matrix : Matrix) -> Matrix:
     return inverse_determinant * adjugate(MatrixOfCofactors(MatrixOfMinors(matrix)))
 
 
+def cross(vector_1 : Vector,vector_2 : Vector) -> Vector:
+    if (type(vector_1),type(vector_2)).count(Vector) != 2:
+        raise TypeError("Both arguments must be Vectors not {} and {}".format(type(vector_1),type(vector_2)))
+    if (len(vector_1.getMatrix()),len(vector_2.getMatrix())).count(3) != 2:
+        raise ValueError("Cannot perform cross product on non 3-dimensional Vectors : ({},{})".format(len(vector_1.getMatrix()),len(vector_2.getMatrix())))
+    A = [vector_1.getMatrix(),vector_2.getMatrix()]
+    DETERMINANTS = []
+    for i in range(3):
+        if (i+1)%2==0:
+            DETERMINANTS.append(-determinant(removeCollumn(Matrix(A),i)))
+            continue
+        DETERMINANTS.append(determinant(removeCollumn(Matrix(A),i)))
+    return Vector(DETERMINANTS)
+
+
+
+
+# def rank(matrix : Matrix) -> int:
+#     collumns = matrix.collsAll()
+#     for collumn in collumns:
+#         for other_collumn in collumns:
+#             if other_collumn==collumn:
+#                 continue
+#             CACHE = []
+#             i = 0 
+#             for num in other_collumn:
+#                 CACHE.append(collumn[i]%num)
+#                 i+=1
+#             print(f'{collumn} with {other_collumn} is {CACHE}')
+
 
 if __name__ == "__main__":
     # A = Matrix([
@@ -402,12 +436,13 @@ if __name__ == "__main__":
     #         ])
 
     A = Matrix([
-        [1,2,3],
-        [4,5,6],
-        [7,8,9]
+        [2,1,5],
+        [4,2,6],
+        [6,3,7]
     ])
 
-    print(A)
-
+    a = Vector([3,5,-7])
+    b = Vector([3,4,5])
+    print(rank(A))
 
 
