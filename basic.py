@@ -1,3 +1,12 @@
+"""
+    Module containing some basic Math operations-functions:
+        ** product(*args) # Returns the product of specified numbers
+        ** comaSplitNumber(num : int or float) #Returns a human readble string splitting a large number with commas
+        ** isNumber(arg) -> bool #Returns a boolean on wheter an argument can be converted to a float
+        ** isInteger(num) -> bool # Returns a boolean on wheter int(num) == float(num)
+        ** isRoot(function,x1,x2) -> bool # Given a function and 2 points, returns a boolean on wheter there is a root in that interval
+"""
+
 from typing import Union
 
 def product(*args : Union[float,int]) -> Union[float,int]:
@@ -35,10 +44,10 @@ def comaSplitNumber(num : Union[int,float]) -> str:
         return_type+=return_type[-1]
     return return_type
 
-def isNumber(args) -> bool:
+def isNumber(arg) -> bool:
     """Returns True if the value can be converted to a floating point"""
     try:
-        int(args)
+        int(arg)
         return True
     except:
         return False

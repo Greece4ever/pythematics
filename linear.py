@@ -208,23 +208,51 @@ class Matrix:
 
     def __str__(self):
         """Returns a visual representation of the Matrix"""
-        x = [item[:] for item in self.matrix]
-        y = []
-        for iteration in range(self.collumns):
-            y.append(f"\tC{iteration+1}")
-        print("\n")
-        print("".join(y))
         print("")
-        # print("".join(yy))
+        x = [item[:] for item in self.matrix]
+        k = 0
+        for item in x:
+            j = 0
+            if len(item) > 8:
+                x[k] = item[1:9]
+                x[k].append("...")
+                x[k].append(self.cols[-1][j])
+                j+=1
+            k+=1
+        k = 0        
+        y = []    
+        for iteration in range(self.collumns):
+            if iteration >=8:
+                y.append("...")
+                y.append(f'C{self.collumns}')
+                break
+            y.append(f"C{iteration+1}")
+        x.insert(0,y)
         j = 1
         for item in x:
             if j > 9:
                 print("\n   .........")
-                print(f' R{len(x)}|',*x[-1])
+                print(f' R{len(x)-1}|',*x[-1])
                 break
             item[0] = f'\t{item[0]}'
-            print(f' R{j} |',"\t".join(f'{val:>3}' for val in item))
+            if j==1:
+                print(' CI |',"\t".join(f'{val:>3}' for val in item))
+                j+=1
+                continue
+            print(f' R{j-1} |',"\t".join(f'{val:>3}' for val in item))
             j+=1
+        # i = 0
+        # for item in x:
+        #     if i!=0:
+        #         print(f'R{i+1}|',"\t".join([f'{val:>3}' for val in item]))
+        #     else:
+        #         print('   ',"\t".join([f'{val:>3}' for val in item]))
+        #         print("")
+        #     i+=1
+        # i = 0
+        # for item in x:
+        #     print(f' R{i+1} |',*[f'{val:>3}' for val in item])
+        #     i+=1
         return f'\n{self.rows} x {self.collumns} Matrix\n'
 
     def __rmul__(self,scalar):
@@ -468,13 +496,11 @@ if __name__ == "__main__":
     #         ])
 
     A = Matrix([
-        [1,3,5,9],
+        [-5,3,5,9],
         [1,3,1,7],
-        [4,3,9,7],
-        [5,2,0,9]
+        [3,3,9,7],
+        [2,2,0,9]
     ])
 
-    a = Vector([3,5,-7])
-    b = Vector([3,4,5])
+    print(IdenityMatrix(3))
 
-    print(Trace(A))
