@@ -1,3 +1,18 @@
+"""
+    Module containing some popular mathematical functions,\n
+    that either have no specific category or were just forced here:
+        ** exp(x) (Taylor Expansion or just e**x) #float -> float
+        ** ln(x) #float (positive or not),complex -> float,Complex
+        ** log(x) look above
+        ** factorial(n) #Integer -> Integer
+        ** doubleFactorial(n) #Integer -> Integer
+        ** fibonacci(n) #Integer -> Integer
+        ** erf(x) #float -> float
+        ** erfi(x) #Complex version
+        ** cis(x) # cos(x) + i*sin(x)
+        ** quadratic(x) #float,int -> float,complex (linear or quadratic)
+"""
+
 import powers
 from functools import lru_cache
 from constants import e,pi

@@ -1,6 +1,51 @@
+"""
+    Submodule for calculations involing trigonometric functions,\n
+    It calculates all the functions from scratch,\n
+    using some form of 'infinite' summation (Taylor Expansion most of the time)\n
+
+    It can also handle complex numbers in non inverse functions (arc functions):
+        ** for more information on how they are computed see https://www.youtube.com/watch?v=CjQTWtW_x9o
+
+    
+    Here is a detailed list of what is here:
+        - Conversions:
+            Degrees TO Rad
+            Rad TO Degrees
+        - Trigonometric (Real or Complex):
+            ** sin(x) 
+            ** cos(x) 
+            ** tan(x) 
+            ** cot(x) 
+            ** sec(x) 
+            ** csc(x) 
+        - Inverse Trigonometric (Real Only for accurate results):
+            ** arcsin(x)
+            ** arccos(x)
+            ** arctan(x)
+            ** arccot(x)
+            ** arcsec(x) 
+            ** arccsc(x)  
+        -- Hyperbolic Trigonometric (Real and Imaginary):
+            ** sinh(x)
+            ** cosh(x)
+            ** tanh(x)
+            ** coth(x)
+            ** csch(x)
+            ** sech(x)
+        - Inverse Hyperbolic (Real only for accurate results):
+            ** arsinh(x)
+            ** arcosh(x)
+            ** artanh(x)
+            ** arcoth(x)
+            ** arcsch(x)
+            ** arsech(x)
+"""
+
+
 import functions
 from constants import pi,e
 import powers
+from typing import Union
 
 # Conversions
 
@@ -14,16 +59,17 @@ def toDegrees(rad):
 
 # Trigonometric
 
-def sin(x : float,degrees=False,iterations : int = 100):
+def sin(x : Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
     """ Trigonometric function : Sine\n
         Domain : All Real\n
         You can specify whether you want to use degrees or radians\n
         You can also specify how many times you want to iterate\n
-        it uses Taylor expansions and trigonometric identities for caluclations
+        it uses Taylor expansions and trigonometric identities for caluclations\n
+        This asian explains how it treats complex numbers : https://www.youtube.com/watch?v=CjQTWtW_x9o
         """
     if type(x) == complex:
         com = complex(0,1) * x
-        return (powers.power(e,com) - powers.power(e,-com)) / 2
+        return (powers.power(e,com) - powers.power(e,-com)) / 2 * complex(0,1)
     if degrees:
         x = toRad(x)
     #Taylor series for sin x
@@ -36,19 +82,23 @@ def sin(x : float,degrees=False,iterations : int = 100):
         total += alternating_denominator * input_adjust
     return total
 
-def cos(x,degrees=False,iterations : int = 100):
+def cos(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
     """ Trigonometric function : Cosine\n
         Domain : All Real\n
         You can specify whether you want to use degrees or radians\n
         You can also specify how many times you want to iterate\n
         it uses Taylor expansions and trigonometric identities for caluclations
         """
+    if type(x) == complex:
+        com = complex(0,1) * x
+        return (powers.power(e,com) - powers.power(e,-com)) / 2
+
     if degrees:
         x = toRad(x)
     reduced_pi = pi / 2
     return sin(reduced_pi-x,iterations=iterations)
 
-def tan(x,degrees=False,iterations : int = 100):
+def tan(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
     """ Trigonometric function : Tangent\n
         Domain : All numbers whose cos(x) is not 0\n
         You can specify whether you want to use degrees or radians\n
@@ -59,7 +109,7 @@ def tan(x,degrees=False,iterations : int = 100):
         x = toRad(x)
     return sin(x,iterations=iterations) / cos(x,iterations=iterations)
 
-def cot(x,degrees=False,iterations : int = 100):
+def cot(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
     """ Trigonometric function : Cotangent\n
         Domain : All numbers whose sin(x) is not 0\n
         You can specify whether you want to use degrees or radians\n
@@ -70,7 +120,7 @@ def cot(x,degrees=False,iterations : int = 100):
         x = toRad(x)
     return 1 / tan(x,iterations=iterations)
 
-def sec(x,degrees=False,iterations : int = 100):
+def sec(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
     """ Trigonometric function : Secant\n
         Domain : All numbers whose cos(x) is not 0\n
         You can specify whether you want to use degrees or radians\n
@@ -81,7 +131,7 @@ def sec(x,degrees=False,iterations : int = 100):
         x = toRad(x)
     return 1 / cos(x,iterations=iterations)
 
-def csc(x,degrees=False,iterations : int = 100):
+def csc(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
     """ Trigonometric function : Cosecant\n
         Domain : All numbers whose sin(x) is not 0\n
         You can specify whether you want to use degrees or radians\n
@@ -183,6 +233,7 @@ def arcsec(x : float,iterations : int = 100,degrees : bool = False):
     else:
         raise ValueError("Math domain error not in (x <= -1 or x >= 1)")
 
+
 def arccsc(x : float,iterations : int = 100,degrees : bool = False):
     """
         Inverse Trigonometric function : Arccosecant\n
@@ -198,6 +249,7 @@ def arccsc(x : float,iterations : int = 100,degrees : bool = False):
         return result
     else:
         raise ValueError("Math domain error not in (x <= -1 or x >= 1)")
+
 
 # Hyperbolic Trigonometric
 
@@ -307,7 +359,8 @@ def arcsch(x : float) -> float:
     return functions.ln( (1/x) + powers.sqrt((1/powers.power(x,2)) + 1) )
 
 def complexRoot(n):
+    """For negative Nth roots"""
     return cos(pi/n) + complex(0,1) * sin(pi / n)
 
 if __name__ == "__main__":
-    pass
+    print(sin(pi /2))

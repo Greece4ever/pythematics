@@ -60,4 +60,3 @@ def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
     if (function(x_0)*function(x_1)) < 0:
         return True
     return False
-

@@ -22,8 +22,6 @@
             ** Minors
 """
 
-
-
 from basic import isNumber
 from typing import Union
 

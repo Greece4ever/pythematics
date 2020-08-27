@@ -7,8 +7,6 @@
 
 """
 
-
-
 from basic import product
 from basic import isInteger
 import fractions
