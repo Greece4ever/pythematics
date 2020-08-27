@@ -1,6 +1,8 @@
 from basic import isNumber
 from typing import Union
 
+WHITESPACE = ' '
+
 class Vector:
     def __init__(self,array):
         for item in array:
@@ -101,7 +103,7 @@ class Matrix:
                     if not isNumber(num):
                         raise TypeError("Row : {} , does not contain an argument or {} or {} but instead {}!".format(matrix.index(row),type(1),type(1.0),type(num)))
             else:
-                raise ValueError("Every argument inside the basic array which is considered as a row should be of type {}".format(type([])))
+                raise ValueError("Every argument inside the base array which is considered as a row should be of type {} not {}".format(list,type(matrix)))
         if len(self.ROW_LENGTHS) != self.ROW_LENGTHS.count(self.ROW_LENGTHS[0]):
             raise ValueError("All rows of a matrix shall only be of same size. not {}".format(self.ROW_LENGTHS))
 
@@ -148,6 +150,7 @@ class Matrix:
             y.append(f"\tC{iteration+1}")
             yy.append("\t__")
         print("".join(y))
+        print("\b")
         # print("".join(yy))
         j = 1
         for item in x:
@@ -156,7 +159,7 @@ class Matrix:
                 print(f' R{len(x)}|',*x[-1])
                 break
             item[0] = f'\t{item[0]}'
-            print(f' R{j}|',"\t".join(str(val) for val in item))
+            print(f' R{j}|',"\t".join(f'{val:>5}' for val in item))
             j+=1
         return f'\n{self.rows} x {self.collumns} Matrix\n'
 
@@ -254,6 +257,79 @@ def determinant(matrix : Matrix) -> float:
     return sum(STORAGE)
 
 
+def MatrixOfCofactors(matrix : Matrix) -> float:
+    array = [item[:] for item in matrix.rawMatrix()]
+    new_array = [[] for item in matrix.rawMatrix()]
+    i = 0
+    positive = True
+    positive_col = True
+    for row in array:
+        j = 0
+        for number in row:
+            if positive:
+                new_array[i].append(number)
+            else:
+                new_array[i].append(-number)
+
+            if j+1 != len(row):
+                positive = not positive
+            
+            else:
+                positive_col = not positive_col
+                positive = positive_col
+            j+=1
+        i+=1
+    return Matrix(new_array)
+
+
+def adjugate(matrix : Matrix) -> float:
+    array = [item[:] for item in matrix.rawMatrix()]
+    arrays = [[] for item in matrix.rawMatrix()]
+    for row in array:
+        i = 0
+        for num in row:
+            arrays[i].append(num)
+            i+=1
+    return Matrix(arrays)
+
+
+def MatrixOfMinors(matrix : Matrix) -> Matrix:
+    matrix_len = matrix.__len__()
+    if not matrix.is_square():
+        raise ValueError("Cannot perfrom Matrix of minors on non-square matrix : {}".format(matrix_len))
+    matrix_array = [row[:] for row in matrix.rawMatrix()]
+    j=0
+    DETERMINANTS = [[] for row in matrix.rawMatrix()]
+    for row in matrix_array:
+        i = 0 
+        reduced = [item[:] for item in matrix_array]
+        reduced.pop(j)
+        for num in row:
+            x = removeCollumn(Matrix(reduced),i)
+            DETERMINANTS[j].append(determinant(x))
+            i+=1
+        j+=1
+    return Matrix(DETERMINANTS)
+
+def inverse(matrix : Matrix) -> Matrix:
+    """
+        => Find 'Matrix of Minors'; #New Matrix with the determinants of each item of the array
+        => Find Matrix of co-factors of the previous Matrix; #Alternating chessboard sign
+        => Transpose (adjugate) that Matrix
+        => Multiply by 1 / determinant
+    """
+    assert matrix.is_square() , "Cannot Invert non square matrix : {}".format(matrix.__len__())
+    if matrix.__len__()[0] == 2:
+        raw = matrix.rawMatrix()
+        return (1 / determinant(matrix)) * Matrix(
+            [[raw[-1][-1],-raw[0][-1]],
+            [-raw[-1][0],raw[0][0]]
+        ])
+
+    inverse_determinant = 1 /  determinant(matrix)
+    return inverse_determinant * adjugate(MatrixOfCofactors(MatrixOfMinors(matrix)))
+
+
 
 if __name__ == "__main__":
     # A = Matrix([
@@ -266,10 +342,11 @@ if __name__ == "__main__":
     #         ])
 
     A = Matrix([
-        [1,3,5,9],
-        [1,3,1,7],
-        [4,3,9,7],
-        [5,2,0,9]
+        [7,2],
+        [17,5],
     ])
 
-    print(determinant(A))
+    print(inverse(A))
+
+
+
