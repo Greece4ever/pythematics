@@ -207,7 +207,7 @@ class Matrix:
                 print(f' R{len(x)}|',*x[-1])
                 break
             item[0] = f'\t{item[0]}'
-            print(f' R{j} |',"\t".join(f'{val:>2}' for val in item))
+            print(f' R{j} |',"\t".join(f'{val:>3}' for val in item))
             j+=1
         return f'\n{self.rows} x {self.collumns} Matrix\n'
 
@@ -408,22 +408,38 @@ def cross(vector_1 : Vector,vector_2 : Vector) -> Vector:
         DETERMINANTS.append(determinant(removeCollumn(Matrix(A),i)))
     return Vector(DETERMINANTS)
 
+def IdenityMatrix(dimensions : int) -> Matrix:
+    if dimensions <= 1:
+        raise ValueError("Dimensions must be at least 2 (not {}).".format(dimensions))
+    matrix = []
+    for i in range(dimensions):
+        row = []
+        for k in range(dimensions):
+            if k == i:
+                row.append(1)
+                continue
+            row.append(0)
+        matrix .append(row)
+    return Matrix(matrix)
 
-
-
-# def rank(matrix : Matrix) -> int:
-#     collumns = matrix.collsAll()
-#     for collumn in collumns:
-#         for other_collumn in collumns:
-#             if other_collumn==collumn:
-#                 continue
-#             CACHE = []
-#             i = 0 
-#             for num in other_collumn:
-#                 CACHE.append(collumn[i]%num)
-#                 i+=1
-#             print(f'{collumn} with {other_collumn} is {CACHE}')
-
+def Trace(matrix : Matrix) -> Union[int,float]:
+    """Returns the sum of the diagnals of a matrix"""
+    if type(matrix) != Matrix:
+        raise TypeError("Cannot only perform 'Trace' operation on {} (not {})".format(Matrix,type(matrix)))
+    if not matrix.is_square():
+        raise ValueError("Cannot only perform 'Trace' operation square matrices (not {})".format(matrix.__len__()))
+    raw_matrix = matrix.rawMatrix()
+    diagnals = []
+    i = 0 #Track of row_matrix.index(row)
+    for row in raw_matrix: 
+        j = 0
+        for num in row:
+            if j==i:
+                diagnals.append(num)
+                break
+            j+=1
+        i+=1
+    return sum(diagnals)
 
 if __name__ == "__main__":
     # A = Matrix([
@@ -436,13 +452,15 @@ if __name__ == "__main__":
     #         ])
 
     A = Matrix([
-        [2,1,5],
-        [4,2,6],
-        [6,3,7]
+        [1,3,5,9],
+        [1,3,1,7],
+        [4,3,9,7],
+        [5,2,0,9]
     ])
 
     a = Vector([3,5,-7])
     b = Vector([3,4,5])
-    print(rank(A))
+
+    print(Trace(A))
 
 
