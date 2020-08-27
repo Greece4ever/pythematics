@@ -478,5 +478,3 @@ if __name__ == "__main__":
     b = Vector([3,4,5])
 
     print(Trace(A))
-
-

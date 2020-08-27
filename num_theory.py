@@ -1,3 +1,13 @@
+"""
+    Module containing functions involed in number theory:
+        ** isEven(x) x%2==0
+        ** isOdd(x) x%2!=0
+        ** isPrime(x)
+        ** GCD(*nums) #Euclid's Algorithm for Greatest Common Divisior
+        ** LCM(*nums) #Probably Another algorithm of Euclid, getting the Least Common Multiple
+        ** kCn(k,n) #k chose n, the binomial coefficient
+"""
+
 from basic import product
 from typing import Union
 import functions

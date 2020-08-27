@@ -3,7 +3,15 @@
     it also handle operation with imaginary numbers
 
     Detail:
-        ** Power : real float,int base
+        ** Power : 
+            ** Base : float or complex
+            ** Exponent : float or complex
+            returns base to the power of exponent
+        ** sqrt :
+            x : float or int
+            return the square root of x
+        ** nthRoot :
+            A generilization of the sqrt function
 
 """
 
@@ -14,13 +22,19 @@ import functions
 from typing import Union
 import trigonometic as trg
 
-def power(base : Union[float,int],exponent : Union[int,complex]) -> Union[float,complex]:
+def floatPow(base,exponent):
+    """For handling float powers"""
+    total = 1
+    constLog = functions.ln(base)
+    for i in reversed(range(1,100)):
+        total = 1 + total * exponent * constLog / i
+    return total
+
+def power(base : Union[float,complex],exponent : Union[float,complex]) -> Union[float,complex]:
     """
     The power function equivalant of the python operation a**b\n
     it can handle any floating or integer value for a base\n
-    for an exponent it can handle any integer or complex number but when provided a floating point number,\n
-    it will convert it to an integer fraction and pass the operation to nthRoot,\n
-    it is not suggested to use floats for exponents\n
+    for an exponent it can handle any integer or float or complex number ,\n
 
     Here is how it treats complex numbers (exponents) => :
         ** e^(ix) = cos(x) + i *sin(x) #cis(x) for short
@@ -39,15 +53,12 @@ def power(base : Union[float,int],exponent : Union[int,complex]) -> Union[float,
 
     if exponent < 0:
         return 1 / power(base,-exponent)
-
     if not isInteger(exponent):
         if type(exponent) == float:
-            # b^(k/n) <=> nthroot(b^k)
-            res = fractions.Fraction(exponent) #external import to convert floating point to an integer fraction
-            return nthRoot(power(base,res.numerator),res.denominator)
+            return floatPow(base,exponent)
         else:
             raise ValueError("Power operations does not support {}".format(type(exponent)))
-
+    
     x = [base for i in range(int(exponent))]
     return product(*x)
 
@@ -104,4 +115,4 @@ def nthRoot(subroot : float,n : int,iterations : int = 100,catchNegativeRoot=Fal
     return point
 
 if  __name__ == "__main__":
-    print(power(complex(2,1),complex(0,1)))
+    pass

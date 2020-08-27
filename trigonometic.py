@@ -41,7 +41,6 @@
             ** arsech(x)
 """
 
-
 import functions
 from constants import pi,e
 import powers
