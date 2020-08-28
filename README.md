@@ -18,9 +18,9 @@ To be more specific here is the list of all sub-modules (the names describe what
 - **```constants.py```** Keeps some constants in storage
 
 
-|  You can easily install **pythematics** using pip
+  You can easily install **pythematics** using pip
 
-```
+```python
 pip install pythematics 
 ```
 ## Basic functions
