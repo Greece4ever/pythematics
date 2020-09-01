@@ -135,9 +135,4 @@ def nthRootNewton(subroot : float,n : int,iterations : int = 100,catchNegativeRo
     return point
 
 if  __name__ == "__main__":
-    import time
-    t_0 = time.time()
-    for i in range(1000): 
-        sqrt(i)
-    t_1 = time.time()
-    print(t_1-t_0)
+    pass

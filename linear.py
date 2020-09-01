@@ -13,6 +13,7 @@
         ** Matrix Multiplication
         ** Matrix Addition and subtraction
         ** Matrix-Scalar Operations
+        ** Matrix-Vector Operations
         ** Trace
         ** Identity Matrix Generator
         ** Determinant
@@ -91,6 +92,11 @@ class Vector:
             for num in range(self.getSize()):
                 empty.append(value.getMatrix()[num] * self.getMatrix()[num])
             return sum(empty)
+        elif type(value) == Matrix:
+            vector_to_matrix = Matrix([[item] for item in self.getMatrix()])
+            return vector_to_matrix * value
+
+        raise TypeError("Cannot multiply Vector with {}".format(type(value)))
 
     def __rmul__(self,scalar : Union[int,float]):
         if type(scalar) in (int,float):
@@ -99,6 +105,9 @@ class Vector:
 
     def dot(self,Vector) -> Union[float,int]:
         return self.__mul__(Vector) 
+
+    def cross(self,Vector : 'Vector') -> 'Vector':
+        return cross(self,Vector)
     
     # def cross(self,Vector)
 
@@ -265,8 +274,9 @@ class Matrix:
                     new_matrix[i].append(constant * scalar)
                 i+=1
             return Matrix(new_matrix)
-        else:
-            raise TypeError("You may only multiply a {} object with either a {} or a {}".format(type(self),int,float))
+        elif type(scalar) == Vector:
+            return self.__mul__(adjugate(Matrix(Vector.getMatrix())))
+        raise TypeError("You may only multiply a {} object with either a {} or a {}".format(type(self),int,float))
 
     def __neg__(self):
         return (-1) * self
@@ -304,6 +314,9 @@ class Matrix:
     def __mul__(self,value):
         if type(value) in (int,float):
             return self.__rmul__(value)
+        if type(value) == Vector:
+            vector_to_matrix = Matrix([[item] for item in value.getMatrix()])
+            return self * vector_to_matrix
         row_0 = self.__len__()
         col_0 = value.__len__()
         if row_0[1] != col_0[0]: 
@@ -321,6 +334,30 @@ class Matrix:
                 new_matrix[j].append(total)
             j+=1
         return Matrix(new_matrix)
+
+    def transpose(self):
+        """Evaluates the function adjugate(self)"""
+        return adjugate(self)
+    
+    def determinant(self):
+        """Evaluates the function determinant(self)"""
+        return determinant(self)
+
+    def minors(self):
+        """evaluates the function MatrixOfMinors(self)"""
+        return MatrixOfMinors(self)
+
+    def cofactors(self):
+        """evaluates the function MatrixOfCofactors(self)"""
+        return MatrixOfCofactors(self)
+
+    def inverse(self):
+        """evaluates inverse(self)"""
+        return inverse(self)
+
+    def trace(self):
+        """evaluates Trace(self)"""
+        return Trace(self)
 
 
 def removeCollumn(matrix : Matrix,index : int) -> Matrix:
@@ -385,7 +422,7 @@ def MatrixOfCofactors(matrix : Matrix) -> float:
 def adjugate(matrix : Matrix) -> float:
     """It transposes a given Matrix,"""
     array = [item[:] for item in matrix.rawMatrix()]
-    arrays = [[] for item in matrix.rawMatrix()]
+    arrays = [[] for item in matrix.collsAll()]
     for row in array:
         i = 0
         for num in row:
@@ -489,10 +526,11 @@ def Trace(matrix : Matrix) -> Union[int,float]:
 
 if __name__ == "__main__":
     A = Matrix([
-            [1,2],
-            [4,5]
+            [1,2,3,4,5]
             ])
 
+    x = adjugate(Matrix([[1,2,3,4,5]]))
+    y = Vector([4,5,6,7,8])
 
-    print(A)
+    print(A*y)
 
