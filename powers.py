@@ -22,11 +22,15 @@ import functions
 from typing import Union
 import trigonometic as trg
 
+def integerPow(base : float,exponent : int) -> int:
+    """Used exponentiation to an integer exponent"""
+    return product(*[base for i in range(exponent)])
+
 def floatPow(base,exponent):
     """For handling float powers"""
     total = 1
     constLog = functions.ln(base)
-    for i in reversed(range(1,100)):
+    for i in reversed(range(1,50)):
         total = 1 + total * exponent * constLog / i
     return total
 
@@ -35,6 +39,8 @@ def power(base : Union[float,complex],exponent : Union[float,complex]) -> Union[
     The power function equivalant of the python operation a**b\n
     it can handle any floating or integer value for a base\n
     for an exponent it can handle any integer or float or complex number ,\n
+    it returns a floating point number that may not be 100% accurate,
+    since it uses infinite sum approximation
 
     Here is how it treats complex numbers (exponents) => :
         ** e^(ix) = cos(x) + i *sin(x) #cis(x) for short
@@ -47,26 +53,40 @@ def power(base : Union[float,complex],exponent : Union[float,complex]) -> Union[
     Complex Base number is treated normally like an integer
 
     """
-    if type(exponent) == type(complex(0,1)):
-        s = exponent # a*i+b
-        return power(base,s.real) + power(functions.cis(functions.ln(base)),s.imag)
+    TYPE = type(exponent)
 
     if exponent < 0:
         return 1 / power(base,-exponent)
-    if not isInteger(exponent):
-        if type(exponent) == float:
-            return floatPow(base,exponent)
-        else:
-            raise ValueError("Power operations does not support {}".format(type(exponent)))
-    
-    x = [base for i in range(int(exponent))]
-    return product(*x)
+
+    if TYPE == complex:
+        s = exponent # a*i+b
+        return power(base,s.real) + power(functions.cis(functions.ln(base)),s.imag)
+
+    if TYPE in (float,int):
+        return integerPow(base,exponent) if isInteger(exponent) else floatPow(base,exponent)
+
+    raise TypeError("Values {} and {} of type {},{} do not support the pow function".format(TYPE,type(base),exponent,base))
+
+
+def sqrt(x : float) -> Union[float,complex]:
+    """
+    Returns the square root of a given number which could be either an integer or a float,
+    and reutrns either a floating number which may have some accuracy issues or a complex number,
+    Does not use some special approximation technique, reutrns the power function of power(x,1/2)
+    """
+    return floatPow(x,0.5) if x >= 0 else complex(0,1) * sqrt(abs(x))
+
+def nthRoot(subroot : float,n : float) -> float:
+    """Does not use some special approximation technique, reutrns the power function of power(x,1/n)"""
+    if n==0:
+        return 1
+    return floatPow(subroot,1/n)
 
 def sqrt_subfunction(x,c):
     """Function used to estimate the sqrt"""
     return power(x,2) - c
 
-def sqrt(x : float,iterations : int = 100,catchNegativeRoot=False) -> Union[float,complex]:
+def sqrt_newton(x : float,iterations : int = 100,catchNegativeRoot=False) -> Union[float,complex]:
     """
         Uses Newtown's method for calculating the square root of a specific number,\n
         you can specify with 'iterations' how many times you want to repeat the algorithm,\n
@@ -88,7 +108,7 @@ def nth_subfunction(x,exponent,c):
     """function used for the calculation of the nth root acts as a derivative"""
     return power(x,exponent) - c
 
-def nthRoot(subroot : float,n : int,iterations : int = 100,catchNegativeRoot=False) -> float:
+def nthRootNewton(subroot : float,n : int,iterations : int = 100,catchNegativeRoot=False) -> float:
     """
         Uses Newtown's method for calculating the nth root function of a specific number,\n
         you can specify with 'iterations' how many times you want to repeat the algorithm,\n
@@ -115,4 +135,9 @@ def nthRoot(subroot : float,n : int,iterations : int = 100,catchNegativeRoot=Fal
     return point
 
 if  __name__ == "__main__":
-    pass
+    import time
+    t_0 = time.time()
+    for i in range(1000): 
+        sqrt(i)
+    t_1 = time.time()
+    print(t_1-t_0)

@@ -63,6 +63,7 @@ def exp(x : float,iterations : int = 100,taylor_exapnsion=False):
         return powers.power(e,x)
     return sum([powers.power(x,n) / factorial(n) for n in range(iterations)])
 
+
 def ln(x : float,iterations : int = 100) -> Union[float,complex]:
     """
         Natural log function (log with base the constant e)
@@ -70,7 +71,7 @@ def ln(x : float,iterations : int = 100) -> Union[float,complex]:
         it uses 'infinite' sumations which you can specify the iterations
         This is the exact formula for the natural log : https://wikimedia.org/api/rest_v1/media/math/render/svg/1d9729501b26eb85764942cb112cc9885b1a6cca
         
-        Here is how it handles negative values : TLDR (log(negative) = πi + ln(abs(negative)) )
+        Here is how it handles negative values :  (log(negative) = πi + ln(abs(negative)) )
         \n\t=> e**(iπ) = -1
         \n\t=> iπ*ln(e) = ln(-1)
         \n\t=> πi = ln(-1) 
@@ -79,27 +80,29 @@ def ln(x : float,iterations : int = 100) -> Union[float,complex]:
           # ln(-5) = ln(-1 * 5)
           # ln(-5) = ln(-1) + ln(-5)
     """
-    if type(x) == complex:
-        #z = a + bi
+    if type(x) in (float,int):
+        total = 0
+        # k 2*k+1 is always an integer
+        for k in range(iterations):
+            denominator = 1 / (2*k+1)
+            apr = (x - 1) / (x + 1)
+            final = denominator * pow(apr,2*k+1)
+            total += final
+
+        return 2*total
+
+    if type(x) == complex or x < 0:
+        if type(x) != complex:
+            return (imaginary * pi) + ln(abs(x),iterations=iterations)
         real = x.real
         imag = x.imag
-        suma = powers.power(real,2) + powers.power(imag,2)
+        suma = pow(real,2) + pow(imag,2)
         reduced_log = ln(suma) / 2
         inverseTan = complex(0,1) * trig.arctan(imag / real)
         return reduced_log + inverseTan
 
-    if x < 0:
-        return (imaginary * pi) + ln(abs(x),iterations=iterations)
-    if x == 0:
-        raise ValueError("Logarmithic functions are not defined at {}".format(x))
-    total = 0
-    for k in range(iterations):
-        denominator = 1 / (2*k+1)
-        apr = (x - 1) / (x + 1)
-        final = denominator * powers.power(apr,2*k+1)
-        total += final
-    return 2*total
-
+    raise TypeError("Logarithmic function cannot be evaluated at {}".format(x))
+    
 def log(of_num : float,base : float = 10) -> float:
     """
         Returns the logarithm of a number given a base (if none is proveded it defaults to 10)
@@ -114,7 +117,7 @@ def erf(x : float) -> float:
     total = 0
     for n in range(100):
         denominator = factorial(n) * (2*n+1)
-        nominator = powers.power(-1,n) * powers.power(x,2*n+1)
+        nominator = powers.power(-1,n) * powers.integerPow(x,2*n+1)
         total += nominator / denominator
     return MULTIPLIER * total
 
@@ -124,7 +127,7 @@ def erfi(x : float) -> float:
     total = 0
     for n in range(100):
         denominator = factorial(n) * (2*n+1)
-        nominator = powers.power(x,2*n+1)
+        nominator = powers.integerPow(x,2*n+1)
         total += nominator / denominator
     return MULTIPLIER * total
 
@@ -155,4 +158,4 @@ def main():
     print(log(100))
 
 if __name__ == "__main__":
-    print(ln(complex(3,4)))
+    print(ln(complex(1,1)))
