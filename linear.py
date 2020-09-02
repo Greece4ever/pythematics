@@ -23,7 +23,7 @@
             ** Minors
 """
 
-from basic import isNumber
+from basic import isNumber,isInteger
 from typing import Union
 
 WHITESPACE = ' '
@@ -136,10 +136,10 @@ class Matrix:
 
     [   
             #Col1  #Col2  #Col3
-     #Row 1 [num1 , num2 , num3 ],
-     #Row 2 [num4,  num5 , num6 ],
-                ..........
-     #Row n [numK,numL,numO]
+     #Row 1 [num1 , num2 , num3 ...  numP],
+     #Row 2 [num4,  num5 , num6 ...  numP],
+                ..........      ...
+     #Row n [numK,numL,numO     ...  numP]
     ]
 
         Input :
@@ -244,7 +244,7 @@ class Matrix:
             y.append(f"C{iteration+1}")
         x.insert(0,y)
         j = 1
-
+        
         for item in x:
             if j > 9:
                 print("\n   .........")
@@ -376,6 +376,12 @@ class Matrix:
         self.rawMatrix()[Row1] = val_1
         self.rawMatrix()[Row2] = val_0
 
+    def solve(self,Output : Vector,unknowns : Union[tuple,list]) -> dict:
+        return SolveCramer(self,unknowns,Output)
+
+    def ref(self):
+        return ref(self)
+
     def forEach(self,function : callable,applyChanges : bool = False) -> Union['Matrix',None]:
         """For each element of the matrix it performs a given function on that element\n
            and it either returns a new transform matrix if applyChanges = False,\n
@@ -486,10 +492,12 @@ def MatrixOfMinors(matrix : Matrix) -> Matrix:
 
 def inverse(matrix : Matrix) -> Matrix:
     """
-        => Find 'Matrix of Minors'; #New Matrix with the determinants of each item of the array
-        => Find Matrix of co-factors of the previous Matrix; #Alternating chessboard sign
-        => Transpose (adjugate) that Matrix
-        => Multiply by 1 / determinant
+    Returns the inverse of a Matrix, if it is invertible (non-zero determinant)
+
+        \n=> Find 'Matrix of Minors'; #New Matrix with the determinants of each item of the array
+        \n=> Find Matrix of co-factors of the previous Matrix; #Alternating chessboard sign
+        \n=> Transpose (adjugate) that Matrix
+        \n=> Multiply by 1 / determinant
     """
     assert matrix.is_square() , "Cannot Invert non square matrix : {}".format(matrix.__len__())
     if matrix.__len__()[0] == 2:
@@ -501,7 +509,7 @@ def inverse(matrix : Matrix) -> Matrix:
     try:
         inverse_determinant = 1 /  determinant(matrix)
     except:
-        raise ZeroDivisionError("Determinant is 0")
+        raise ZeroDivisionError("Matrix is not invertible due to it's determinant being zero")
     return inverse_determinant * adjugate(MatrixOfCofactors(MatrixOfMinors(matrix)))
 
 def cross(vector_1 : Vector,vector_2 : Vector) -> Vector:
@@ -558,7 +566,10 @@ def isSwappable(row : Union[list,int]) -> bool:
         return True
 
 def swap(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]):
-    """Swapws rows given a list (containg  the lements of the row) or the indexes of the rows (RETURNS A COPY OF THE NEW MATRIX)"""
+    """Swapws rows given a list (containg  the lements of the row) or the indexes of the rows (RETURNS A COPY OF THE NEW MATRIX)\n
+       it DOESN'T handle duplicates\n
+       if you want no matter what to switch rows use the self.swap() function\n
+    """
     assert type(row1) in (int,list) and type(row2) in (int,list), "Row must either be a list or an index"
     i = 0
     for row in [row1,row2]:
@@ -683,56 +694,66 @@ def SolveCramer(matrix : Matrix,unknowns : Union[tuple,list],outputs : Vector) -
         k+=1   
     return variables
 
+def combine(r1, r2, scalar):
+    r1[:] = [x-scalar*y for x,y in zip(r1,r2)]
+        
+def divide_by_dividor(li,scalar):
+    li[:] = [x/scalar for x in li]
+
 
 def ref(matrix : Matrix) -> Matrix:
-    # let current_row = 0
-    # for j in range( number of matrix collumns ) //iterate through all the collumns
-        # find the first non-zero element of collumn j (if it does not exist continue)
-        # let (the first non-zero element) = max_num
-        # Switch the row that contains max_num with the current_row
-        # divide all the elements of current_row with the Jth element of the current row (A[current_row,j])
-        # for i in range ( number of matrix rows ) 
-            # Perform row(i) - (current_row * A[i,j])  // for each element of row(i) subtract each corresponding element of the scaled by A[i,j] current_row
-        # current_row +=1
-    Array = Matrix([row[:] for row in matrix.rawMatrix()])
-    current_row = 0
-    for j in range(Array.collumns):
-        transformed_matrix = [abs(num) for num in Array.colls(j)]
-        max_num = max(transformed_matrix) #Find the highest absolute-value number
-        if not max_num == 0:
-            transformed = []
-            const_divisor = Array.index(current_row,j)
-            for num in Array[current_row]:
-                transformed.append(num / const_divisor)
-            Array.rawMatrix()[current_row] = transformed
-            Array.swap(transformed_matrix.index(max_num),current_row)
-            i = 0
-        else:
-            continue
-        for row in Array.rawMatrix():
-            OPERATIONS = []
-            multiplier = Array.index(i,j)
-            k = 0
-            for num in row:
-                OPERATIONS.append(num - (Array[current_row][k] * multiplier))
-                k+=1
-            Array.rawMatrix()[i] = OPERATIONS
-            i+=1
-        current_row +=1
-        if current_row >= Array.rows:
+    """Returns the reduced echelon form of a matrix (not RREF it does not handle upper diagnals)
+       EXAMPLE : 
+        Y = Matrix([
+            [1,2,3],
+            [4,5,6],
+            [7,8,9]
+        ])
+
+        ref(Y)
+
+        CI |   C1       C2      C3
+        R1 |  1.0      1.14    1.29
+        R2 |  0.0       1.0     2.0
+        R3 | -0.0      -0.0     1.0
+
+    """
+    copy = Matrix([item[:] for item in matrix.rawMatrix()]) #Create a copy of the matrix
+    matrix_copy = copy.rawMatrix() 
+    cur_row=0  #Starting index for rows
+    for j in range(0,matrix.collumns): #Iterate as much as the number of collumns
+        max_element = abs(matrix_copy[cur_row][j]) #Find the max element
+        pos_max = 0
+        for i,x in enumerate(matrix_copy[cur_row:]):
+            if abs(x[j])>max_element :
+                max_element = abs(x[j])
+                pos_max = i
+        pos_max += cur_row
+        temp = matrix_copy[pos_max]
+        matrix_copy[pos_max]=matrix_copy[cur_row]
+        matrix_copy[cur_row] = temp
+        if matrix_copy[cur_row][j]!=0:
+            divide_by_dividor(matrix_copy[cur_row],matrix_copy[cur_row][j])
+            pivot = matrix_copy[cur_row]
+            for i,line in enumerate(matrix_copy[cur_row+1:]):
+                if line[j]!=0:
+                    combine(line,pivot,line[j])
+            cur_row+=1
+        if cur_row==copy.__len__()[0]:
             break
-    return Array
+    return Matrix(matrix_copy)
 
 
 if __name__ == "__main__":
-    A = Matrix([[1, -1, 1, -2, -2], [2,-1,0,1,8],[1,1,-1,0,0],[3,2,2,-1,3]])
-    
-    print(Matrix([[1.0, 0.6666666666666666, 0.6666666666666666, -0.3333333333333333, 1.0], [-0.0, 1.0, 0.5714285714285715, -0.7142857142857143, -2.5714285714285716], [-0.0, -0.0, 1.0, -0.3076923076923077, 0.07692307692307683], [-0.0, -0.0, -0.0, 1.0, 2.9999999999999996]]))
-    print(Matrix([
+    A = Matrix([[1, -1, 1, -2, -2], [2,-1,0,1,8],[1,1,-1,0,0],[3,2,2,-1,3],[3,2,2,-1,3]])
+    Y = Matrix([
         [1,2,3],
         [4,5,6],
         [7,8,9]
-    ]))
+    ])
+
+    print(ref(Y))
+
 
     # print(A.forEach(lambda x: x+1))
     # print(IdenityMatrix(3))
