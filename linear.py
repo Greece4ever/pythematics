@@ -114,7 +114,6 @@ class Vector:
     
     # def cross(self,Vector)
 
-
 class Matrix:
     """
     The as you known it from math 'Matrix'\n
@@ -213,6 +212,10 @@ class Matrix:
     def row(self,index : int = 0):
         """Returns a specific row given an index (default is 0)"""
         return self.matrix[index]
+
+    def index(self,row,collumn):
+        """Returns the position given the corresponding row and collumn"""
+        return self.matrix[row][collumn]
 
     def __len__(self):
         """Returns a tuple containng number of rows and collumns (rows,collumns)"""
@@ -369,6 +372,20 @@ class Matrix:
         """Swaps 2 rows given their index"""
         return SwapNoCopy(self,self[Row1],self[Row2])
 
+    def forEach(self,function : callable,applyChanges : bool = False) -> Union['Matrix',None]:
+        """For each element of the matrix it performs a given function on that element\n
+           and it either returns a new transform matrix if applyChanges = False,\n
+           otherwise it returns Nothing and applies the changes to the given Matrix\n
+        """
+        BufferArray = [[] for item in self.matrix]
+        i = 0
+        for row in self.matrix:
+            for num in row:
+                BufferArray[i].append(function(num))
+            i+=1
+        if not applyChanges:
+            return Matrix(BufferArray)
+        self.matrix = BufferArray
 
 def removeCollumn(matrix : Matrix,index : int) -> Matrix:
     """Returns a reduced collumn version of a Matrix"""
@@ -394,7 +411,6 @@ def determinant(matrix : Matrix) -> float:
         STORAGE.append(multiplier * determinant(y))
         i+=1
     return sum(STORAGE)
-
 
 def MatrixOfCofactors(matrix : Matrix) -> float:
     """
@@ -428,7 +444,6 @@ def MatrixOfCofactors(matrix : Matrix) -> float:
         i+=1
     return Matrix(new_array)
 
-
 def adjugate(matrix : Matrix) -> float:
     """It transposes a given Matrix,"""
     array = [item[:] for item in matrix.rawMatrix()]
@@ -439,7 +454,6 @@ def adjugate(matrix : Matrix) -> float:
             arrays[i].append(num)
             i+=1
     return Matrix(arrays)
-
 
 def MatrixOfMinors(matrix : Matrix) -> Matrix:
     """
@@ -485,7 +499,6 @@ def inverse(matrix : Matrix) -> Matrix:
     except:
         raise ZeroDivisionError("Determinant is 0")
     return inverse_determinant * adjugate(MatrixOfCofactors(MatrixOfMinors(matrix)))
-
 
 def cross(vector_1 : Vector,vector_2 : Vector) -> Vector:
     if (type(vector_1),type(vector_2)).count(Vector) != 2:
@@ -605,7 +618,6 @@ def CreateMatrixPassingCollumns(array_of_arrays : list) -> Matrix:
             i+=1
     return Matrix(ROWS)
 
-
 def SolveCramer(matrix : Matrix,unknowns : Union[tuple,list],outputs : Vector) -> dict:
     """
         Solves a system of linear equations given The equations in Matrix format, the names of the unknowns and the desired outputs in a tuple
@@ -663,25 +675,38 @@ def SolveCramer(matrix : Matrix,unknowns : Union[tuple,list],outputs : Vector) -
         k+=1   
     return variables
 
-        
+
+def ref(matrix : Matrix) -> Matrix:
+    # let current_row = 0
+    # for j in range( number of matrix collumns ) //iterate through all the collumns
+        # find the first non-zero element of collumn j (if it does not exist continue)
+        # let (the first non-zero element) = max_num
+        # Switch the row that contains max_num with the current_row
+        # divide all the elements of current_row with the Jth element of the current row (A[current_row,j])
+        # for i in range ( number of matrix rows ) 
+            # Perform row(i) - (current_row * A[i,j])  // for each element of row(i) subtract each corresponding element of the scaled by A[i,j] current_row
+        # current_row +=1
+    Array = Matrix([row[:] for row in matrix.rawMatrix()])
+    current_row = 0
+    for j in range(Array.collumns):
+        max_num = max([abs(num) for num in Array.colls(j)]) #Find the highest absolute-value number
+        if not max_num == 0:
+            Array.swap(Array.colls(j).index(max_num),Array[current_row])
+
+
 
 
 if __name__ == "__main__":
-    # A = Matrix([
-    #     [2,  1,  -1],
-    #     [3,  2,  2],
-    #     [4, -2,  3]
-    # ])
+    A = Matrix([
+        [2,  1,  -1],
+        [3,  2,  2],
+        [4, -2,  3]
+    ])
+
+    print(A.forEach(lambda x: x**x,applyChanges=True))
+
+    print(A)
 
     # outputs = Vector([1,13,9])
 
     # print(SolveCramer(A,('x','y','z'),outputs))
-    A = Matrix([
-        [1,-3],
-        [2,-6]
-    ])
-
-    output = Vector([20,40])
-    variables = ('x','y')
-
-    print(SolveCramer(A,variables,output))
