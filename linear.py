@@ -541,7 +541,7 @@ def isSwappable(row : Union[list,int]) -> bool:
         return True
 
 def swap(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]):
-    """Swapws rows given a list (containg  the lements of the row) or the indexes of the rows"""
+    """Swapws rows given a list (containg  the lements of the row) or the indexes of the rows (RETURNS A COPY OF THE NEW MATRIX)"""
     assert type(row1) in (int,list) and type(row2) in (int,list), "Row must either be a list or an index"
     i = 0
     for row in [row1,row2]:
@@ -570,7 +570,8 @@ def swap(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]):
     rows[index_2] = row1
     return Matrix(rows)
 
-def SwapNoCopy(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]) -> None:
+def SwapNoCopy(matrix : Matrix,row1 : list,row2 : list) -> None:
+    """Swaps the rows of a matrix given a list (DOES NOT CREATE A COPY OF THE MATRIX IT THE OPERATIONS ARE PERFORMED ON THE MATRIX)"""
     rows = matrix.rawMatrix()
     is_duplicate_1 = True if rows.count(row1) > 1 else False
     is_duplicate_2 = True if rows.count(row2) > 1 else False
@@ -588,34 +589,99 @@ def SwapNoCopy(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]) ->
     rows[index_2] = row1
     return None
 
+def CreateMatrixPassingCollumns(array_of_arrays : list) -> Matrix:
+    """
+    Instead of passing the rows of the matrix,
+    you pass the collumns and it creates the matrix
+    [     #C1     #C2      #C3
+        [1,2,3],[4,5,6],[7,8,9]
+    ]
+    """
+    ROWS = [[] for item in array_of_arrays] 
+    for col in array_of_arrays:
+        i = 0
+        for num in col:
+            ROWS[i].append(num)
+            i+=1
+    return Matrix(ROWS)
 
-def ref(matrix):
-    start = 0;
-    row_num = matrix.rows #Number of rows
-    collumns = matrix.collsAll() #All the collumns
-    matarray = Matrix([item[:] for item in matrix.rawMatrix()]) # A copy of the array
-    while start < collumns: #if start > number of collumns break
-        for col in collumns: #iterate through each column
-            all_abs_val = [abs(num) for num in col] #transform the array into an array of all absolute values
-            max_element = max(all_abs_val)  #find the max element
-            if max_element == 0: #There does not exist a non-zero element
-                continue;
-            SwapNoCopy(matarray,matarray[start],matarray[collumns.index(col)]) #BUG TODO => THIS SHOULD BE DONE USING I=0; I++;
-            for item in matarray[start]:
-                pass #Διαίρεσε όλα τα στοιχεία της γραμμής i0 με το Α[i0,j]
-        numrange = [i+start for i in range(row_num)]
-        for instance in numrange:
-            pass
 
-        start+=1
+def SolveCramer(matrix : Matrix,unknowns : Union[tuple,list],outputs : Vector) -> dict:
+    """
+        Solves a system of linear equations given The equations in Matrix format, the names of the unknowns and the desired outputs in a tuple
+        As the name suggest it uses cramer's rule computing the determinant's of each matrix and dividing the by the determinant of the base matrix
+        \nThe following system of equations:
+        -----------
+        2x+y-z=1
+        3x+2y-2z=13
+        4x-2y+3z=9
+        ------------ 
+        \nWould be translated into this form:
+
+        # For each of the coefficients of the equations put them in a Matrix
+        matrix = Matrix([
+            [2,  1, -1],
+            [3,  2,  2],
+            [4, -2,  3]
+        ])
+
+        # Wrap the desired outputs into a Vector 
+        outputs = Vector([1,13,9])
+
+        #Finally wrap your unknowns in a tuple
+        unknowns = ('x','y','z')
+
+        #Apply cramer's rule
+        print(SolveCramer(matrix,unknowns,outputs))
+
+        \nThis would output the following:
+        {'x': 1.0, 'y': 2.0, 'z': 3.0}
+    """
+    base_determinant = matrix.determinant() #This is the determinant of the base system that always stays constant
+    #If it is 0 either it has no solution or infinite
+    if base_determinant==0:
+        raise ValueError("Base determinant is 0, 0 or infinite solutions")
+    raw_outputs = outputs.getMatrix()
+    determinants = []
+    for i in range(matrix.collumns): #3
+        new_matrix = [[] for item in matrix.rawMatrix()]
+        new_matrix[i].extend(raw_outputs) #Puts the outputs in the right place
+        not_to_push = matrix.colls(i)
+        j = 0
+        for col in matrix.collsAll():
+            if col != not_to_push:
+                new_matrix[j].extend(col)
+            j+=1
+        determinants.append(determinant(CreateMatrixPassingCollumns(new_matrix)))
+    variables = {}
+
+    for variable in unknowns:
+        variables[variable] = None
+    k = 0
+    for var in variables:
+        variables[var] = determinants[k] /base_determinant
+        k+=1   
+    return variables
+
+        
+
 
 if __name__ == "__main__":
+    # A = Matrix([
+    #     [2,  1,  -1],
+    #     [3,  2,  2],
+    #     [4, -2,  3]
+    # ])
+
+    # outputs = Vector([1,13,9])
+
+    # print(SolveCramer(A,('x','y','z'),outputs))
     A = Matrix([
-        [1,2,3],
-        [7,8,9],
-        [4,5,6]
+        [1,-3],
+        [2,-6]
     ])
 
-    print(A[0])
+    output = Vector([20,40])
+    variables = ('x','y')
 
-
+    print(SolveCramer(A,variables,output))
