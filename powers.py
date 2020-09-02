@@ -24,7 +24,7 @@ import trigonometic as trg
 
 def integerPow(base : float,exponent : int) -> int:
     """Used exponentiation to an integer exponent"""
-    return product(*[base for i in range(exponent)])
+    return product(*[base for i in range(int(exponent))])
 
 def floatPow(base,exponent):
     """For handling float powers"""
@@ -55,12 +55,12 @@ def power(base : Union[float,complex],exponent : Union[float,complex]) -> Union[
     """
     TYPE = type(exponent)
 
-    if exponent < 0:
-        return 1 / power(base,-exponent)
-
     if TYPE == complex:
         s = exponent # a*i+b
         return power(base,s.real) + power(functions.cis(functions.ln(base)),s.imag)
+
+    if exponent < 0:
+        return 1 / power(base,-exponent)
 
     if TYPE in (float,int):
         return integerPow(base,exponent) if isInteger(exponent) else floatPow(base,exponent)
@@ -120,7 +120,7 @@ def nthRootNewton(subroot : float,n : int,iterations : int = 100,catchNegativeRo
             return 0.0
         if subroot < 0:
             if not catchNegativeRoot:
-                return trg.complexRoot(n) * nthRoot(abs(subroot),n,iterations=iterations)
+                return trg.complexRoot(n) * nthRootNewton(abs(subroot),n,iterations=iterations)
             raise ValueError("Even root must contain only positive floating values not {}".format(subroot))
     
     def diffeq(x):
@@ -135,4 +135,4 @@ def nthRootNewton(subroot : float,n : int,iterations : int = 100,catchNegativeRo
     return point
 
 if  __name__ == "__main__":
-    pass
+    print(power(2,complex(2,1)))

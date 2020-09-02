@@ -41,13 +41,16 @@
             ** arsech(x)
 """
 
+# NOTE : MORE THAN 13 ITERATIONS GIVES NOTHING AND IT REDUCES PERFORMANCE
+
 import functions
 from constants import pi,e
 import powers
 from typing import Union
 
-# Conversions
+rad360 = 6.283185307179586 #360 degrees in radians
 
+# Conversions
 def toRad(degrees):
     """Degrees to rad"""
     return (pi/180)*degrees
@@ -56,13 +59,33 @@ def toDegrees(rad):
     """Rad to degrees"""
     return (180 / pi) * rad
 
-# Trigonometric
+#For handling angles greater than 360 deg and rad360 radians (this allows to reduce iterations to 13 for trig functions)
+def reduceAngle(trig_function):
+    """Given a value that is more than 360 it finds it's coressponding angle in range (0,360)"""
+    def validator(*args,**kwargs):
+        if not type(args[0]) == complex:
+            rads = not kwargs.get('degrees') if kwargs.get('degrees') is not None else True
+            iterations = kwargs.get('iterations')
+            angle = args[0]
+            if rads:
+                if abs(angle) > rad360:
+                    sub = (angle // rad360) *rad360
+                    angle =  angle-sub
+            if abs(angle) > 360:
+                sub = (angle // 360) * 360
+                angle = angle - sub
+            return trig_function(angle,kwargs.get('degrees'),iterations if iterations is not None else 50)
+        return trig_function(*args,**kwargs)
 
-def sin(x : Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
+    return validator
+
+# Trigonometric
+@reduceAngle
+def sin(x : Union[float,complex],degrees=False,iterations : int = 13) -> Union[float,complex]:
     """ Trigonometric function : Sine\n
         Domain : All Real\n
-        You can specify whether you want to use degrees or radians\n
-        You can also specify how many times you want to iterate\n
+        You can specify whether you want to use degrees or radians by passing in degrees=bool (default is False)\n
+        You can also specify how many times you want to iterate by passing in iterations=int\n
         it uses Taylor expansions and trigonometric identities for caluclations\n
         This asian explains how it treats complex numbers : https://www.youtube.com/watch?v=CjQTWtW_x9o
         """
@@ -81,11 +104,12 @@ def sin(x : Union[float,complex],degrees=False,iterations : int = 100) -> Union[
         total += alternating_denominator * input_adjust
     return total
 
-def cos(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
+@reduceAngle
+def cos(x: Union[float,complex],degrees=False,iterations : int = 13) -> Union[float,complex]:
     """ Trigonometric function : Cosine\n
         Domain : All Real\n
-        You can specify whether you want to use degrees or radians\n
-        You can also specify how many times you want to iterate\n
+        You can specify whether you want to use degrees or radians by passing in degrees=bool (default is False)\n
+        You can also specify how many times you want to iterate by passing in iterations=int\n
         it uses Taylor expansions and trigonometric identities for caluclations
         """
     if type(x) == complex:
@@ -97,40 +121,44 @@ def cos(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[f
     reduced_pi = pi / 2
     return sin(reduced_pi-x,iterations=iterations)
 
-def tan(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
+@reduceAngle
+def tan(x: Union[float,complex],degrees=False,iterations : int = 13) -> Union[float,complex]:
     """ Trigonometric function : Tangent\n
         Domain : All numbers whose cos(x) is not 0\n
-        You can specify whether you want to use degrees or radians\n
-        You can also specify how many times you want to iterate\n
+        You can specify whether you want to use degrees or radians by passing in degrees=bool (default is False)\n
+        You can also specify how many times you want to iterate by passing in iterations=int\n
         it uses Taylor expansions and trigonometric identities for caluclations
         """
     if degrees:
         x = toRad(x)
     return sin(x,iterations=iterations) / cos(x,iterations=iterations)
 
-def cot(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
+@reduceAngle
+def cot(x: Union[float,complex],degrees=False,iterations : int = 13) -> Union[float,complex]:
     """ Trigonometric function : Cotangent\n
         Domain : All numbers whose sin(x) is not 0\n
-        You can specify whether you want to use degrees or radians\n
-        You can also specify how many times you want to iterate\n
+        You can specify whether you want to use degrees or radians by passing in degrees=bool (default is False)\n
+        You can also specify how many times you want to iterate by passing in iterations=int\n
         it uses Taylor expansions and trigonometric identities for caluclations
         """
     if degrees:
         x = toRad(x)
     return 1 / tan(x,iterations=iterations)
 
-def sec(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
+@reduceAngle
+def sec(x: Union[float,complex],degrees=False,iterations : int = 13) -> Union[float,complex]:
     """ Trigonometric function : Secant\n
         Domain : All numbers whose cos(x) is not 0\n
-        You can specify whether you want to use degrees or radians\n
-        You can also specify how many times you want to iterate\n
+        You can specify whether you want to use degrees or radians by passing in degrees=bool (default is False)\n
+        You can also specify how many times you want to iterate by passing in iterations=int\n
         it uses Taylor expansions and trigonometric identities for caluclations
         """
     if degrees:
         x = toRad(x)
     return 1 / cos(x,iterations=iterations)
 
-def csc(x: Union[float,complex],degrees=False,iterations : int = 100) -> Union[float,complex]:
+@reduceAngle
+def csc(x: Union[float,complex],degrees=False,iterations : int = 13) -> Union[float,complex]:
     """ Trigonometric function : Cosecant\n
         Domain : All numbers whose sin(x) is not 0\n
         You can specify whether you want to use degrees or radians\n
@@ -362,4 +390,52 @@ def complexRoot(n):
     return cos(pi/n) + complex(0,1) * sin(pi / n)
 
 if __name__ == "__main__":
-    print(sin(pi /2))
+    # --- Trigonometric Iterations Test
+    print(cos(complex(0,1)))
+    num = 60
+    # Sine
+    print(sin(num,degrees=True,iterations=50)) #0.8660254037844386
+    print(sin(num,degrees=True,iterations=50)) #0.8660254037844386
+    print("\n")
+    # Cosine
+    print(cos(num,degrees=True,iterations=13)) #0.5000000000000001
+    print(cos(num,degrees=True,iterations=50)) #0.5000000000000001
+    print("\n")
+    # Tangent
+    print(tan(num,degrees=True,iterations=13)) #1.7320508075688767
+    print(tan(num,degrees=True,iterations=50)) #1.7320508075688767
+    print("\n")
+    # Cotangent
+    print(cot(num,degrees=True,iterations=13)) #0.577350269189626
+    print(cot(num,degrees=True,iterations=50)) #0.577350269189626
+    print("\n")
+    #Secant
+    print(sec(num,degrees=True,iterations=13)) #1.9999999999999996
+    print(sec(num,degrees=True,iterations=50)) #1.9999999999999996
+    print("\n")
+    # Cosecant
+    print(csc(num,degrees=True,iterations=13)) #1.1547005383792517
+    print(csc(num,degrees=True,iterations=50)) #1.1547005383792517
+
+    # --- Inverse Trigonometric Iterations Test NOTE : The 'degrees=bool' what no effect on the computation
+    print("\nTesting Inverse Trigonometric")
+
+    # val = 0.9
+    # print("\n")
+    # print(arcsin(val,degrees=True,iterations=25)) 
+    # print(arcsin(val,degrees=True,iterations=50)) 
+    # print("\n")
+    # print(arccos(val,degrees=True,iterations=25)) 
+    # print(arccos(val,degrees=True,iterations=50)) 
+    # print("\n")
+    # print(arctan(val,degrees=True,iterations=25)) 
+    # print(arctan(val,degrees=True,iterations=50)) 
+    # print("\n")
+    # print(arccot(val,degrees=True,iterations=25)) 
+    # print(arccot(val,degrees=True,iterations=50)) 
+    # print("\n")
+    # print(arcsec(-3,degrees=True,iterations=25)) 
+    # print(arcsec(-3,degrees=True,iterations=50)) 
+    # print("\n")
+    # print(arccsc(-3,degrees=True,iterations=25)) 
+    # print(arccsc(-3,degrees=True,iterations=50)) 
