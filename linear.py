@@ -223,7 +223,7 @@ class Matrix:
 
     def __str__(self):
         """Returns a visual representation of the Matrix"""
-        print("")
+        print("Rounded Matrix :\n")
         x = [item[:] for item in self.matrix]
         k = 0
         for item in x:
@@ -244,17 +244,18 @@ class Matrix:
             y.append(f"C{iteration+1}")
         x.insert(0,y)
         j = 1
+
         for item in x:
             if j > 9:
                 print("\n   .........")
-                print(f' R{len(x)-1}|',*x[-1])
+                print(f' R{len(x)-1}|',*[round(item,2) for item in x[-1]])
                 break
             item[0] = f'\t{item[0]}'
             if j==1:
-                print(' CI |',"\t".join(f'{val:>3}' for val in item))
+                print(' CI |',"\t".join(f' {val:<5}' for val in item))
                 j+=1
                 continue
-            print(f' R{j-1} |',"\t".join(f'{val:>3}' for val in item))
+            print(f' R{j-1} |',"\t".join(f'{round(float(val),2):>4}' for val in item))
             j+=1
         # i = 0
         # for item in x:
@@ -370,7 +371,10 @@ class Matrix:
 
     def swap(self,Row1 : int,Row2 : int):
         """Swaps 2 rows given their index"""
-        return SwapNoCopy(self,self[Row1],self[Row2])
+        val_0=[item for item in self.rawMatrix()[Row1]]
+        val_1=[item for item in self.rawMatrix()[Row2]]
+        self.rawMatrix()[Row1] = val_1
+        self.rawMatrix()[Row2] = val_0
 
     def forEach(self,function : callable,applyChanges : bool = False) -> Union['Matrix',None]:
         """For each element of the matrix it performs a given function on that element\n
@@ -648,6 +652,10 @@ def SolveCramer(matrix : Matrix,unknowns : Union[tuple,list],outputs : Vector) -
 
         \nThis would output the following:
         {'x': 1.0, 'y': 2.0, 'z': 3.0}
+
+        \nif there are no solutions or there are infinetely many of them an Exception is raised 
+
+
     """
     base_determinant = matrix.determinant() #This is the determinant of the base system that always stays constant
     #If it is 0 either it has no solution or infinite
@@ -689,24 +697,63 @@ def ref(matrix : Matrix) -> Matrix:
     Array = Matrix([row[:] for row in matrix.rawMatrix()])
     current_row = 0
     for j in range(Array.collumns):
-        max_num = max([abs(num) for num in Array.colls(j)]) #Find the highest absolute-value number
+        transformed_matrix = [abs(num) for num in Array.colls(j)]
+        max_num = max(transformed_matrix) #Find the highest absolute-value number
         if not max_num == 0:
-            Array.swap(Array.colls(j).index(max_num),Array[current_row])
+            transformed = []
+            const_divisor = Array.index(current_row,j)
+            for num in Array[current_row]:
+                transformed.append(num / const_divisor)
+            Array.rawMatrix()[current_row] = transformed
+            Array.swap(transformed_matrix.index(max_num),current_row)
+            i = 0
+        else:
+            continue
+        for row in Array.rawMatrix():
+            OPERATIONS = []
+            multiplier = Array.index(i,j)
+            k = 0
+            for num in row:
+                OPERATIONS.append(num - (Array[current_row][k] * multiplier))
+                k+=1
+            Array.rawMatrix()[i] = OPERATIONS
+            i+=1
+        current_row +=1
+        if current_row >= Array.rows:
+            break
+    return Array
 
-
-
+def bra(matrix):
+    l = 0
+    Array = Matrix([row[:] for row in matrix.rawMatrix()])
+    for j in range(Array.collumns):
+        CURRENT_COLLUMN = Array.colls(j) #COLLUMN ITERATION
+        # CURRENT_ROW = Array.row(l) #ROW ITERATIONS
+        for num in CURRENT_COLLUMN:
+            if num !=0: #THE FIRST NON-ZERO ELEMENT
+                num_row = CURRENT_COLLUMN.index(num) #ROW WHERE THE NUM IN LOCATED
+                DIVISOR = Array.index(l,j)
+                OPERAND = []
+                for item in Array[l]:
+                    div = item / DIVISOR
+                    OPERAND.append(div)
+                print(OPERAND)
+                Array.rawMatrix()[1] = OPERAND
+                Array.swap(l,num_row)
+                return Array
 
 if __name__ == "__main__":
-    A = Matrix([
-        [2,  1,  -1],
-        [3,  2,  2],
-        [4, -2,  3]
-    ])
+    A = Matrix([[1, -1, 1, -2, -2], [2,-1,0,1,8],[1,1,-1,0,0],[3,2,2,-1,3]])
+    
+    print(Matrix([[1.0, 0.6666666666666666, 0.6666666666666666, -0.3333333333333333, 1.0], [-0.0, 1.0, 0.5714285714285715, -0.7142857142857143, -2.5714285714285716], [-0.0, -0.0, 1.0, -0.3076923076923077, 0.07692307692307683], [-0.0, -0.0, -0.0, 1.0, 2.9999999999999996]]))
+    print(Matrix([
+        [1,2,3],
+        [4,5,6],
+        [7,8,9]
+    ]))
 
-    print(A.forEach(lambda x: x**x,applyChanges=True))
-
-    print(A)
-
+    # print(A.forEach(lambda x: x+1))
+    # print(IdenityMatrix(3))
+    # print(ref(A))
     # outputs = Vector([1,13,9])
-
     # print(SolveCramer(A,('x','y','z'),outputs))
