@@ -18,9 +18,9 @@ To be more specific here is the list of all sub-modules (the names describe what
 - **```constants.py```** Keeps some constants in storage
 
 
-|  You can easily install **pythematics** using pip
+  You can easily install **pythematics** using pip
 
-```
+```python
 pip install pythematics 
 ```
 ## Basic functions
@@ -29,7 +29,7 @@ This includes all the functions of `pythematics.basic` which are simple and can 
 
  - Verification
 
-```
+```python
 from pythematics.basic import *
 
 def isNumber(arg) -> bool: ... #Verifies wheter an argument can be converted to a floating number
@@ -65,7 +65,7 @@ def f(x):
 
 ```
 - Readability
-```
+```python
 from pythematics.basic import comaSplitNumber
 
 #Given a large number it returns a human readable string inserting commas (,) every 3 places
@@ -77,7 +77,7 @@ def comaSplitNumber(num : Union[int,float]) -> str:
 ## General functions
 Here are some general mathematical functions that are popular and have no special category
 
-```
+```python
 """ 
  These function have either no special meaning or are not referencing something specifically,
  it's just a collection of popular math functions
@@ -133,7 +133,7 @@ def fibonacci(n : int) -> int:
 
 This includes new versions of the `pow` and `sqrt` functions, written from scratch generalizing them operate with complex numbers
 
-```
+```python
 import * from pythematics.powers
 
 def power(base : Union[float,complex],exponent : Union[float,complex]) -> Union[float,complex]: ...
@@ -171,7 +171,7 @@ def nthRoot(subroot : float,n : int,iterations : int = 100,catchNegativeRoot=Fal
 
 In this sub-module you can find operations that are commonly found in Number theory
 
-```
+```python
 from pythematics.num_theory import *
 
 # Here are the Unique operations
@@ -200,7 +200,7 @@ You can specify wheter you want to use radians or degrees by adjusting the `degr
 
 of course there are the 2 built in functions for radian and degree conversions
 
-```
+```python
 from pythematics.constants import pi #For working with radians
 
 def toRad(degrees : float) -> float:... # Degrees to radians
@@ -246,7 +246,7 @@ This submodule utilizes Vector and Matrix manipulation by creating the `Vector` 
 
 To create a matrix you pass into the constructor an array of arrays in the following way:
 
-```
+```python
 from pythematics.linear import *
 
 # Matrix (Array of arrays)
@@ -285,7 +285,7 @@ R3|   3
 ```
 You can do any Vector operation that you want
 
-```
+```python
 # Scalar multiplication     /
 3* Vector([1,2,3])
 # Vector Addition
@@ -317,13 +317,13 @@ R4|  -2
 ```
 
 By default when multiplying 2 Vectors together you taking their dot product
-```
+```python
 >>> Vector([5,6,7,8]) * Vector([3,4,5,6])
 >>> 122
 ```
 
 But you can also take the cross product of two vectors by calling the Built-in function
-```
+```python
 w =  Vector([5,6,7]) 
 v = Vector([3,4,5])
 print(cross(v,w))
@@ -341,7 +341,7 @@ You can also perform The same operations on Matrix :
  - Subtraction
  - Multiplication
 
-```
+```python
 A = Matrix([
     [1,2,3],
     [4,5,6],
