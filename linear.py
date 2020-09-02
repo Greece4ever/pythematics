@@ -98,6 +98,9 @@ class Vector:
 
         raise TypeError("Cannot multiply Vector with {}".format(type(value)))
 
+    def __neg__(self):
+        return (-1) * self
+
     def __rmul__(self,scalar : Union[int,float]):
         if type(scalar) in (int,float):
             return self.__mul__(scalar)
@@ -275,7 +278,7 @@ class Matrix:
                 i+=1
             return Matrix(new_matrix)
         elif type(scalar) == Vector:
-            return self.__mul__(adjugate(Matrix(Vector.getMatrix())))
+            return self.__mul__(adjugate(Matrix(scalar.getMatrix())))
         raise TypeError("You may only multiply a {} object with either a {} or a {}".format(type(self),int,float))
 
     def __neg__(self):
@@ -334,6 +337,9 @@ class Matrix:
                 new_matrix[j].append(total)
             j+=1
         return Matrix(new_matrix)
+
+    def __getitem__(self,index):
+        return self.rawMatrix()[index]
 
     def transpose(self):
         """Evaluates the function adjugate(self)"""
@@ -524,13 +530,68 @@ def Trace(matrix : Matrix) -> Union[int,float]:
         i+=1
     return sum(diagnals)
 
+def isSwappable(row : Union[list,int]) -> bool:
+    for item in row:
+        if not isNumber(item):
+            return False
+        return True
+
+def swap(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]):
+    """Swapws rows given a list (containg  the lements of the row) or the indexes of the rows"""
+    assert type(row1) in (int,list) and type(row2) in (int,list), "Row must either be a list or an index"
+    i = 0
+    for row in [row1,row2]:
+        if type(row) == list:
+            assert isSwappable(row1),"Instances of classes that are not {} or {} were found".format(int,float) #Check if it contain numbers
+        else:
+            if i == 0:
+                row1 = matrix[row] #Set it equal to the position
+            else:
+                row2 = matrix[row]
+        i+=1
+    rows = [item[:] for item in matrix.rawMatrix()]
+    is_duplicate_1 = True if rows.count(row1) > 1 else False
+    is_duplicate_2 = True if rows.count(row2) > 1 else False
+    if is_duplicate_1 or is_duplicate_2:
+        if is_duplicate_1 and is_duplicate_2:
+            duplicate = "Row 1 and Row 2 :  {},{}\n were".format(row1,row2)
+        else:
+            duplicate = "Row 1 : {} was".format(row1) if is_duplicate_1 else "Row 2 : {} was".format(row2)
+
+        raise ValueError(f'{duplicate} found more than once in the Matrix.')
+    #Get each index
+    index_1 = rows.index(row1)
+    index_2 = rows.index(row2)
+    rows[index_1] = row2
+    rows[index_2] = row1
+    return Matrix(rows)
+
+def SwapNoValidate(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]):
+    rows = [item[:] for item in matrix.rawMatrix()]
+    is_duplicate_1 = True if rows.count(row1) > 1 else False
+    is_duplicate_2 = True if rows.count(row2) > 1 else False
+    if is_duplicate_1 or is_duplicate_2:
+        if is_duplicate_1 and is_duplicate_2:
+            duplicate = "Row 1 and Row 2 :  {},{}\n were".format(row1,row2)
+        else:
+            duplicate = "Row 1 : {} was".format(row1) if is_duplicate_1 else "Row 2 : {} was".format(row2)
+
+        raise ValueError(f'{duplicate} found more than once in the Matrix.')
+    #Get each index
+    index_1 = rows.index(row1)
+    index_2 = rows.index(row2)
+    rows[index_1] = row2
+    rows[index_2] = row1
+    return Matrix(rows)
+
 if __name__ == "__main__":
     A = Matrix([
-            [1,2,3,4,5]
-            ])
+        [1,2,3],
+        [7,8,9],
+        [4,5,6]
+    ])
 
-    x = adjugate(Matrix([[1,2,3,4,5]]))
-    y = Vector([4,5,6,7,8])
+    # print(A[-1])
 
-    print(A*y)
+    print(swap(A,0,-1))
 
