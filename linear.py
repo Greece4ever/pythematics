@@ -723,24 +723,6 @@ def ref(matrix : Matrix) -> Matrix:
             break
     return Array
 
-def bra(matrix):
-    l = 0
-    Array = Matrix([row[:] for row in matrix.rawMatrix()])
-    for j in range(Array.collumns):
-        CURRENT_COLLUMN = Array.colls(j) #COLLUMN ITERATION
-        # CURRENT_ROW = Array.row(l) #ROW ITERATIONS
-        for num in CURRENT_COLLUMN:
-            if num !=0: #THE FIRST NON-ZERO ELEMENT
-                num_row = CURRENT_COLLUMN.index(num) #ROW WHERE THE NUM IN LOCATED
-                DIVISOR = Array.index(l,j)
-                OPERAND = []
-                for item in Array[l]:
-                    div = item / DIVISOR
-                    OPERAND.append(div)
-                print(OPERAND)
-                Array.rawMatrix()[1] = OPERAND
-                Array.swap(l,num_row)
-                return Array
 
 if __name__ == "__main__":
     A = Matrix([[1, -1, 1, -2, -2], [2,-1,0,1,8],[1,1,-1,0,0],[3,2,2,-1,3]])
