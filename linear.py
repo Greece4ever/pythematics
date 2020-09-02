@@ -365,6 +365,10 @@ class Matrix:
         """evaluates Trace(self)"""
         return Trace(self)
 
+    def swap(self,Row1 : int,Row2 : int):
+        """Swaps 2 rows given their index"""
+        return SwapNoCopy(self,self[Row1],self[Row2])
+
 
 def removeCollumn(matrix : Matrix,index : int) -> Matrix:
     """Returns a reduced collumn version of a Matrix"""
@@ -566,8 +570,8 @@ def swap(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]):
     rows[index_2] = row1
     return Matrix(rows)
 
-def SwapNoValidate(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]):
-    rows = [item[:] for item in matrix.rawMatrix()]
+def SwapNoCopy(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]) -> None:
+    rows = matrix.rawMatrix()
     is_duplicate_1 = True if rows.count(row1) > 1 else False
     is_duplicate_2 = True if rows.count(row2) > 1 else False
     if is_duplicate_1 or is_duplicate_2:
@@ -582,7 +586,28 @@ def SwapNoValidate(matrix : Matrix,row1 : Union[list,int],row2 : Union[list,int]
     index_2 = rows.index(row2)
     rows[index_1] = row2
     rows[index_2] = row1
-    return Matrix(rows)
+    return None
+
+
+def ref(matrix):
+    start = 0;
+    row_num = matrix.rows #Number of rows
+    collumns = matrix.collsAll() #All the collumns
+    matarray = Matrix([item[:] for item in matrix.rawMatrix()]) # A copy of the array
+    while start < collumns: #if start > number of collumns break
+        for col in collumns: #iterate through each column
+            all_abs_val = [abs(num) for num in col] #transform the array into an array of all absolute values
+            max_element = max(all_abs_val)  #find the max element
+            if max_element == 0: #There does not exist a non-zero element
+                continue;
+            SwapNoCopy(matarray,matarray[start],matarray[collumns.index(col)]) #BUG TODO => THIS SHOULD BE DONE USING I=0; I++;
+            for item in matarray[start]:
+                pass #Διαίρεσε όλα τα στοιχεία της γραμμής i0 με το Α[i0,j]
+        numrange = [i+start for i in range(row_num)]
+        for instance in numrange:
+            pass
+
+        start+=1
 
 if __name__ == "__main__":
     A = Matrix([
@@ -591,7 +616,6 @@ if __name__ == "__main__":
         [4,5,6]
     ])
 
-    # print(A[-1])
+    print(A[0])
 
-    print(swap(A,0,-1))
 
