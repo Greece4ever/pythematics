@@ -1,14 +1,12 @@
-import time
+from time import time
 from trigonometic import sin
 from typing import Union
 
-seed = time.time()
+seed = time()
 addition = 2.718281828459045 + 3.141592653589793
 modulus = 50.12
 
 TEMP_MEMORY = [int(str(seed)[-3:].replace(".",'1'))]
-
-FOOD = ["spanaki","pousta","pitsa","petra"]
 
 def random() -> float:
     """
@@ -16,14 +14,14 @@ def random() -> float:
     """
     # 0.008620870113372803 for 1k iterations
     val =  (TEMP_MEMORY[-1] + addition) % modulus
-    TEMP_MEMORY.append(val)
+    TEMP_MEMORY[0] = val
     return abs(sin(val,iterations=10,degrees=True))
 
 def randendint(end : int):
     """Returns a random integer in range (0,end)"""
     return round(random() * end)
 
-def choice(array : list):
+def choice(array : list) -> list:
     """
     Returns a pseudo-randomly chosen element from the input array 
     """
@@ -49,5 +47,6 @@ def randint(start : Union[float,int],end : Union[float,int]) -> float:
     """Returns a random integer given a minimun and a maximun value"""
     return round(randrange(start,end))
 
-for i in range(100):
-    print(randint(-50,100))
+if __name__ == "__main__": 
+    for i in range(100):
+        print(randrange(10,100))
