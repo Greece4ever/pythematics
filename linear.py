@@ -623,9 +623,20 @@ def CreateMatrixPassingCollumns(array_of_arrays : list) -> Matrix:
     you pass the collumns and it creates the matrix
     [     #C1     #C2      #C3
         [1,2,3],[4,5,6],[7,8,9]
+
+
+        [1,4,7],
+        [2,5,8],
+        [3,6,9]
+
     ]
     """
-    ROWS = [[] for item in array_of_arrays] 
+    counts = []
+    for row in array_of_arrays:
+        counts.append(len(row))
+    if counts.count(counts[0]) != len(counts):
+        raise ValueError("All arrays inside the base array must have equal lenght!")
+    ROWS = [[] for item in range(len(array_of_arrays[0]))] 
     for col in array_of_arrays:
         i = 0
         for num in col:
@@ -665,7 +676,6 @@ def SolveCramer(matrix : Matrix,unknowns : Union[tuple,list],outputs : Vector) -
         {'x': 1.0, 'y': 2.0, 'z': 3.0}
 
         \nif there are no solutions or there are infinetely many of them an Exception is raised 
-
 
     """
     base_determinant = matrix.determinant() #This is the determinant of the base system that always stays constant
@@ -743,16 +753,54 @@ def ref(matrix : Matrix) -> Matrix:
             break
     return Matrix(matrix_copy)
 
+def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector) -> dict:
+    #NOTE => TODO FIX BUG
+    copy_matrix = Matrix([row[:] for row in matrix])
+    collumns = [col[:] for col in copy_matrix.collsAll()]
+    output = Output.getMatrix()
+    collumns.append(output)
+    final_matrix = CreateMatrixPassingCollumns(collumns) #matrix from collumns
+    reduced_matrix = ref(final_matrix) #row reduction performed
+    
+    #c*z = 0.86 => z = 0.86 / c
+    z = reduced_matrix.index(-1,-1) / reduced_matrix.index(-1,-2)
+    VALUES = []
+    VALUES.append(z) #Begin by having the value of z inside the values
+    iterable = list(reversed([row for row in reduced_matrix.rawMatrix()]))
+    iterable.pop(0) #We have already found the first parameter
+    for row in iterable:
+        TMP_SUM = []
+        #All the non-zero elements
+        target = row.pop(-1)
+        sub_argument = [item for item in row if item != 0]
+        divisor = sub_argument.pop(0)
+        l = 0
+        for remaining_num in sub_argument:
+            TMP_SUM.append(remaining_num * VALUES[l])
+            l+=1
+        VALUES.append(  (target - sum(TMP_SUM)) / divisor ) #bring the constants to the other side and divide
+    VALUES = list(reversed(VALUES))
+    result = {}
+    m = 0
+    for var in unknowns:
+        result[var] = VALUES[m]
+    return result
 
-if __name__ == "__main__":
-    A = Matrix([[1, -1, 1, -2, -2], [2,-1,0,1,8],[1,1,-1,0,0],[3,2,2,-1,3],[3,2,2,-1,3]])
+if __name__ == "__main__":    
     Y = Matrix([
-        [1,2,3],
-        [4,5,6],
-        [7,8,9]
+        [2,1,-1],
+        [3,2,2],
+        [4,-2,3]
     ])
 
-    print(ref(Y))
+    unknowns = ('x','y','z')
+
+    output = Vector([1,13,9])
+
+    print(solveREF(Y,unknowns,output))
+
+
+    # print(ref(Y))
 
 
     # print(A.forEach(lambda x: x+1))
