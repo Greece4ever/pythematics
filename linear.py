@@ -754,6 +754,33 @@ def ref(matrix : Matrix) -> Matrix:
     return Matrix(matrix_copy)
 
 def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector) -> dict:
+    """Solves a system of linear equations using backsubtitution,
+       after performing row reduction on a given matrix
+       
+       What to pass in :
+
+       - You must pass the equations in Matrix format
+       - you must provide the outputs in a Vector object
+       - You must provide a tuple or a list of the variable names for your Unknwown
+    
+    \nThe following system of linear equations:
+        ------------
+        2x+y-z=1
+        3x+2y+2z=13
+        4x-2y+3z=9
+        ------------
+    Would be transleted into this :
+
+    Y = Matrix([ #The basic matrix
+        [2,1,-1],
+        [3,2,2],
+        [4,-2,3]
+    ])
+
+    unknowns = ('x','y','z') #Each of the unknowns corresponds to a certain collumn
+
+    output = Vector([1,13,9]) #The output in Vector format
+    """
     #NOTE => TODO FIX BUG
     copy_matrix = Matrix([row[:] for row in matrix])
     collumns = [col[:] for col in copy_matrix.collsAll()]
@@ -761,7 +788,6 @@ def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector) -> dic
     collumns.append(output)
     final_matrix = CreateMatrixPassingCollumns(collumns) #matrix from collumns
     reduced_matrix = ref(final_matrix) #row reduction performed
-    
     #c*z = 0.86 => z = 0.86 / c
     z = reduced_matrix.index(-1,-1) / reduced_matrix.index(-1,-2)
     VALUES = []
@@ -776,7 +802,7 @@ def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector) -> dic
         divisor = sub_argument.pop(0)
         l = 0
         for remaining_num in sub_argument:
-            TMP_SUM.append(remaining_num * VALUES[l])
+            TMP_SUM.append(remaining_num * list(reversed(VALUES))[l])
             l+=1
         VALUES.append(  (target - sum(TMP_SUM)) / divisor ) #bring the constants to the other side and divide
     VALUES = list(reversed(VALUES))
@@ -784,6 +810,7 @@ def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector) -> dic
     m = 0
     for var in unknowns:
         result[var] = VALUES[m]
+        m+=1
     return result
 
 if __name__ == "__main__":    
@@ -798,6 +825,7 @@ if __name__ == "__main__":
     output = Vector([1,13,9])
 
     print(solveREF(Y,unknowns,output))
+    print(SolveCramer(Y,unknowns,output))
 
 
     # print(ref(Y))
