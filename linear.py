@@ -17,10 +17,12 @@
         ** Trace
         ** Identity Matrix Generator
         ** Determinant
+        ** REF (Reduced Echelon Form)
         ** Inverse Matrix
             ** Cofactors
             ** adjugate (transpose)
             ** Minors
+        *** Various combinations of the above
 """
 
 from basic import isNumber,isInteger
@@ -827,10 +829,7 @@ if __name__ == "__main__":
     print(solveREF(Y,unknowns,output))
     print(SolveCramer(Y,unknowns,output))
 
-
     # print(ref(Y))
-
-
     # print(A.forEach(lambda x: x+1))
     # print(IdenityMatrix(3))
     # print(ref(A))

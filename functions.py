@@ -21,6 +21,8 @@ from constants import imaginary
 from typing import Union,Tuple
 import trigonometic as trig
 
+INFINITESIMAL = 1 / 100000
+
 @lru_cache(maxsize=1000)
 def factorial(n : int) -> int:
     """
@@ -147,15 +149,30 @@ def quadratic(a,b,c) -> Union[Tuple[complex],Tuple[float]]:
     r_1 = (-b - descriminant) / 2*a
     return (r_0,r_1)
 
-
 def cis(x : float) -> complex:
     """Returns the following operation : \n
         cos(x) + complex(0,1) * sin(x)
     """
     return trig.sin(x) + imaginary * trig.cos(x)
 
-def main():
-    print(log(100))
+def derivative(function : callable,point : float,h=INFINITESIMAL):
+    """Find the derivative a function at a specific point"""
+    nominator = function(point + h) - function(point)
+    denominator = h
+    result = nominator / denominator
+    return result
+
+def integral(f : callable,x : Union[float,int],approximation : float = 0.01,target : float = 0.0000001):
+    difference_in_x = approximation
+    start = target
+    total = 0
+    while True:
+        if not start <= x:
+            break
+        total += f(start)*difference_in_x
+        start += difference_in_x
+    return total
 
 if __name__ == "__main__":
-    print(ln(complex(1,1)))
+    print(integral(lambda x : x,1))
+    print(derivative(lambda x: x**2,2))
