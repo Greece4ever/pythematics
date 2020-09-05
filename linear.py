@@ -25,7 +25,7 @@
         *** Various combinations of the above
 """
 
-from basic import isNumber,isInteger
+from .basic import isNumber,isInteger
 from typing import Union
 
 WHITESPACE = ' '

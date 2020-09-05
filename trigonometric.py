@@ -43,9 +43,9 @@
 
 # NOTE : MORE THAN 13 ITERATIONS GIVES NOTHING AND IT REDUCES PERFORMANCE
 
-import functions
-from constants import pi,e
-import powers
+from . import functions
+from .constants import pi,e
+from . import powers
 from typing import Union
 
 rad360 = 6.283185307179586 #360 degrees in radians

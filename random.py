@@ -1,5 +1,17 @@
-from time import time
-from trigonometic import sin
+"""
+    \tRandom submodule
+    This is a custom made random submodule,
+    that includes all trivial random operations (nothing more than the builtin),
+    - random() #Pseudorandom number between 0,1
+    - randendint(end : int) #Random in range (0,end)
+    - choices(array : list,num_choice : int) #Gives an list of num_choice lenght containing random choices from the passed in list
+    - randrange(start,end) #Returns a random floating point number in range(start,end)
+    - randint(start,end) #Returns int(randrange(start,end))
+    - random_complex() #Returns random() * complex(1,1)
+
+"""
+from time import time #for seed generation
+from .trigonometric import sin #Acting as an 'activation' function for squishing values to (0,1)
 from typing import Union
 
 seed = time()

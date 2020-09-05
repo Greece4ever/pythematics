@@ -15,12 +15,10 @@
 
 """
 
-from basic import product
-from basic import isInteger
-import fractions
-import functions
+from .basic import product,isInteger
+from . import functions
 from typing import Union
-import trigonometic as trg
+from . import trigonometric as trg
 
 def integerPow(base : float,exponent : int) -> int:
     """Used exponentiation to an integer exponent"""

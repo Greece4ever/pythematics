@@ -13,15 +13,14 @@
         ** quadratic(x) #float,int -> float,complex (linear or quadratic)
 """
 
-import powers
+from . import powers
 from functools import lru_cache
-from constants import e,pi
-from num_theory import isEven,isOdd
-from constants import imaginary
+from .constants import e,pi,imaginary
+from .num_theory import isEven,isOdd
 from typing import Union,Tuple
-import trigonometic as trig
+from . import trigonometric as trig
 
-INFINITESIMAL = 1 / 100000
+INFINITESIMAL = 1 / 100000 #For limit approximation (1e-5)
 
 @lru_cache(maxsize=1000)
 def factorial(n : int) -> int:
@@ -156,13 +155,16 @@ def cis(x : float) -> complex:
     return trig.sin(x) + imaginary * trig.cos(x)
 
 def derivative(function : callable,point : float,h=INFINITESIMAL):
-    """Find the derivative a function at a specific point"""
+    """Find the derivative a function at a specific point using the definition"""
     nominator = function(point + h) - function(point)
     denominator = h
     result = nominator / denominator
     return result
 
 def integral(f : callable,x : Union[float,int],approximation : float = 0.01,target : float = 0.0000001):
+    """
+        Finds the integral of a given function at a specific point using sum approximation
+    """
     difference_in_x = approximation
     start = target
     total = 0

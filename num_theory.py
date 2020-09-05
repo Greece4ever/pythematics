@@ -8,9 +8,9 @@
         ** kCn(k,n) #k chose n, the binomial coefficient
 """
 
-from basic import product
+from .basic import product
 from typing import Union
-import functions
+from . import functions
 
 def isEven(num : int) -> bool:
     """Returns True if a number can be divded by 2"""

@@ -1,6 +1,5 @@
-from basic import product
-from random import random_complex,random
-
+from .basic import product
+from .random import random_complex
 
 class Polynomial:
     def __init__(self,coefficients : list):
@@ -122,5 +121,3 @@ if __name__ == "__main__":
 
     P = Polynomial([3,4,5])
     print(P)
-    x = P+1
-    print(str(x))
