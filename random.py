@@ -47,6 +47,9 @@ def randint(start : Union[float,int],end : Union[float,int]) -> float:
     """Returns a random integer given a minimun and a maximun value"""
     return round(randrange(start,end))
 
+def random_complex() -> complex:
+    return random() * complex(1,1)
+
 if __name__ == "__main__": 
     for i in range(100):
-        print(randrange(10,100))
+        print(random_complex())
