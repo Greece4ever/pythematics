@@ -116,8 +116,9 @@ def applyKruger(function : callable,degree : int,iterations : int):
 
 
 if __name__ == "__main__":
-    # def f(x):
-    #     return x**4+x**3+x**2+x
-
-    P = Polynomial([3,4,5])
-    print(P)
+    p = Polynomial([5,4,3,2])
+    print(p)
+    gg = p.roots(iterations=500)
+    for item in gg:
+        result = p.getFunction()(item)  
+        print(round(result.real),round(result.imag))

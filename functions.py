@@ -17,10 +17,14 @@ from . import powers
 from functools import lru_cache
 from .constants import e,pi,imaginary
 from .num_theory import isEven,isOdd
-from typing import Union,Tuple
+from typing import Union,Tuple,Optional
 from . import trigonometric as trig
 
 INFINITESIMAL = 1 / 100000 #For limit approximation (1e-5)
+
+def compose(function_0 : callable,function_1 : callable,point : Optional[Union[float,int]]) -> Union[callable,float]:
+    comp = lambda x: function_0(function_1(x))
+    return comp(point) if point is not None else comp
 
 @lru_cache(maxsize=1000)
 def factorial(n : int) -> int:
@@ -175,6 +179,36 @@ def integral(f : callable,x : Union[float,int],approximation : float = 0.01,targ
         start += difference_in_x
     return total
 
+def CurveArea(function : callable,point_0 : float,point_1 : float) -> float:
+    if point_0 > point_1:
+        raise ValueError("Point 0 must be less than point 1")
+    return integral(function,point_1) - integral(function,point_0)
+
+#Methods for computing roots
+
+def NewtonMethod(function : callable,starting_point : Union[float,int],iterations : int) -> float:
+    """Newton's method for root aproximation"""
+    x = starting_point
+    for _ in range(iterations):
+        print(x)
+        f_div = function(x) / derivative(function,x)
+        x -= f_div
+    return x
+
+def SecantMethod(function : callable,starting_point_0 : Union[float,int],starting_point_1 : Union[float,int],iterations : int) -> float:
+    """Secant method for root aproximation works great at low iterations"""
+    #Requires 2 starting points
+    x_1 = starting_point_0
+    x_2 = starting_point_1
+    for _ in range(iterations):
+        f_1 = function(x_1) #function at x_1
+        f_2 = function(x_2) #function at x_2
+        nominator = x_2 * f_1 - x_1 * f_2 
+        den = f_1 - f_2
+        nom_den = nominator / den
+        x_2 = x_1 #Set x_2 to x_1
+        x_1 = nom_den #Set x_1 to the result
+    return x_1
+
 if __name__ == "__main__":
-    print(integral(lambda x : x,1))
-    print(derivative(lambda x: x**2,2))
+    pass

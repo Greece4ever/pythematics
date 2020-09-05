@@ -783,7 +783,6 @@ def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector) -> dic
 
     output = Vector([1,13,9]) #The output in Vector format
     """
-    #NOTE => TODO FIX BUG
     copy_matrix = Matrix([row[:] for row in matrix])
     collumns = [col[:] for col in copy_matrix.collsAll()]
     output = Output.getMatrix()
