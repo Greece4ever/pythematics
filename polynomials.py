@@ -1,10 +1,10 @@
 #Relative imports
-from .random import random_complex;from .basic import isNumber;from .basic import product; 
+from .random import random_complex;from .basic import isNumber,isInteger;from .basic import product; 
 #Built-in imports
 from typing import Union
 import re
 
-NUMBER_REGEX = r"^((\-)|(\+))?\d+((\.)\d+)?"
+NUMBER_REGEX = r"((\-)|(\+))?\d+((\.)\d+)?"
 
 class Polynomial:
     def __init__(self,coefficients : list):
@@ -31,6 +31,9 @@ class Polynomial:
 
     def getFunction(self):
         return self.function
+
+    def deg(self):
+        return self.degree
 
     def __str__(self,useSymbol : bool = False):
         eq = []
@@ -132,6 +135,33 @@ class Polynomial:
         if not type(value) == int:
             raise TypeError("Cannot perform polynomial exponentiation with {}".format(type(value)))
         return product(*[self for i in range(value)])
+    
+    def __truediv__(self,value : [int,float,complex,"Polynomial"]) -> Union[float,"Polynomial"]:
+        if type(value) in (int,float,complex):
+            new_dict = self.equation.copy()
+            for item in new_dict:
+                new_dict[item] = new_dict[item] / value 
+            return checkPolynomial([new_dict.get(item) for item in new_dict])
+        elif type(value) == self.type:
+            # NOTE Divide the term of the highest degree of the divisor
+            # NOTE with the highest term of the number you are dividing
+            # NOTE Mutliply the above result with the number you are dividing
+            # NOTE Now subtract from the divisor the above result
+            # NOTE Repeat the same thing with the above result
+            # NOTE Keep repeating the algorithm until you are left with a constant remainder
+            if self.degree < value.deg():
+                raise ValueError("Cannot divide Polynomial of degree {} with one of {} (The first polynomial must have a higherdegree ({} < {})  )".format(self.degree,value.deg(),self.degree,value.deg()))
+            
+            max_divisor_pow = max([num for num in self.equation])
+            max_dividand_pow = max([num for num in value.eq()])
+            max_divisor = self.equation.get(max_dividand_pow)
+            max_dividand = value.eq().get(max_dividand_pow)
+            div = max_dividand_pow / max_dividand_pow #Divde the degrees
+            div_const = max_divisor / max_dividand #Divide the constants
+            ... #TODO
+
+
+        raise TypeError("Cannot divide Polynomial with {}".format(type(value)))
 
     def roots(self,iterations : int) -> complex:
         """It returns an list of complex numbers that are it roots or are approximately very close to them
@@ -182,61 +212,46 @@ def applyKruger(function : callable,degree : int,iterations : int):
     return [APPROXIMATIONS.get(item) for item in APPROXIMATIONS]
 
 def PolString(eqstring : str) -> Polynomial:
-    eqstring = " " + re.sub(r"\s+",'',eqstring.strip())
-    print(eqstring)
+    #Check at the end of the string for constants
+    eqstring = " " + re.sub(r"\s+",'',eqstring.strip()) #Remove all white space
     eqdict = {}
-    iterations = len(eqstring)
-    print("MAX ITERATIONS : {}".format(iterations))
-    i = 0 
-    while i < iterations:
-        base = None
-        expo = None
-    # for term in eqstring:
-        if eqstring[i] == "x":
-            index = i;substring1 = eqstring[:index];substring2 = eqstring[index:]
-            try:
-                if eqstring[i+1] == '^':
-                    expo = re.search(r"((\-)|(\+))?\d+((\.)\d+)?",substring2).group()
-            except:
-                pass
+    exp_iteral = NUMBER_REGEX + r"(x)?(\^(" + NUMBER_REGEX + r"))?"
+    res = list(re.finditer(exp_iteral,eqstring))
+    for item in res:
+        item = item.group()
+        if not 'x' in item: #Constants
+            exponent = 0
+            base = float(item)
+        else:
+            if '^' in item: #Power
+                new_str = item.split("x^")
+                base =  float(new_str[0])
+                exponent = float(new_str[1]) 
+            else: #No Power
+                base = float(item.replace("x",''))
+                exponent = 1
+        if not exponent in eqdict:
+            eqdict[exponent] = []
+        eqdict[exponent].append(base)
+    for expo in eqdict:
+        eqdict[expo] = sum(eqdict[expo])
 
-            base =  list(re.finditer(NUMBER_REGEX,substring1)) #last match
-            if not len(base) < 1:
-                print("nope")
-                base = base[-1].group()
-            else:
-                if (i-1) > -1:
-                    print(eqstring[i-1])
-                    print(eqstring)
-                    if eqstring[i-1] in (" ","+","-") :
-                        for j in list(reversed(eqstring[:i])):
-                            if isNumber(j):
-                                raise SyntaxError("Passed a number with no operator")
-                            
-                            if j == "+":
-                                base = 1
-                                break
-                            
-                            if j == "-":
-                                base = -1
-                                break
-                        else:
-                            base = 1             
-                        base = 1 # index out of range
-            if expo is None:
-                expo = 1
+    deg_array = [item for item in eqdict]
 
-        if base is not None:
-            if not int(expo) in eqdict:
-                eqdict[int(expo)] = [] 
-            eqdict[int(expo)].append(base)
-                    
-        i+=1
-    print(eqdict)
-
+    for i in range(int(max(deg_array))):
+        if i not in eqdict:
+            eqdict[i] = 0 
+    deg_array.sort()
+    result_array = []
+    for item in deg_array:
+        x_type = eqdict.get(item)
+        if isInteger(x_type):
+            result_array.append(int(x_type))
+            continue
+        result_array.append(x_type)
+    return checkPolynomial(result_array)
 
 
 if __name__ == "__main__":
-    p = Polynomial([7,-5,3])
-    f = Polynomial([-4,6,2])
-    print(PolString(("  2x^2  +  3x^4   - 4x^3 +   ")))
+    p = PolString("2x^3 + 4x^2 + 5x + 6 ")
+    print(p)
