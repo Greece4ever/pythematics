@@ -378,8 +378,10 @@ class Matrix:
         self.rawMatrix()[Row1] = val_1
         self.rawMatrix()[Row2] = val_0
 
-    def solve(self,Output : Vector,unknowns : Union[tuple,list]) -> dict:
-        return SolveCramer(self,unknowns,Output)
+    def solve(self,Output : Vector,unknowns : Union[tuple,list],useRef=False) -> dict:
+        if not useRef:
+            return SolveCramer(self,unknowns,Output)
+        return solveREF(self,unknowns,Output)
 
     def ref(self):
         return ref(self)
