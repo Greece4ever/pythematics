@@ -41,7 +41,7 @@ class Polynomial:
         for item in self.equation:  
             if self.equation.get(item) == 0:
                 continue
-            eq.append(f'{"+" if j != len(self.equation)-1 and not "-" in str(self.equation.get(item)) else ""  } {"(" if "j" in str(self.equation.get(item)) else ""}{str(self.equation.get(item)).replace("-","- ")}{")" if "j" in str(self.equation.get(item)) else ""}{"*" if useSymbol else ""}{"x^" + str(item) if item not in (0,1) else "x" if item == 1  else ""} ')
+            eq.append(f'{"+" if j != len(self.equation)-1 and not "-" in str(self.equation.get(item)) else ""  } {"(" if "j" in str(self.equation.get(item)) else ""}{str(self.equation.get(item)).replace("-","- ") if not isInteger(self.equation.get(item)) else str(int(self.equation.get(item))).replace("-","- ")}{")" if "j" in str(self.equation.get(item)) else ""}{"*" if useSymbol else ""}{"x^" + str(item) if item not in (0,1) else "x" if item == 1  else ""} ')
             j+=1
         Joined = "".join(list(reversed(eq))).strip()
         if Joined.strip()[-1] == "*":
@@ -82,13 +82,16 @@ class Polynomial:
             return Polynomial([eq_copy.get(item) for item in eq_copy])
         #Polynomial
         elif type(value) == type(self):
-            array_1 = [value.eq().get(item) for item in value.eq()]
-            array_2 = [self.equation.get(item) for item in self.equation]
-            if len(value.eq()) > len(self.eq()):
-                for i in range(len(value)):
+            array_1 = [value.eq().get(item) for item in value.eq()] #value items
+            array_2 = [self.equation.get(item) for item in self.equation] #self items
+            if len(value.eq()) > len(self.eq()): #Value Greater
+                #Add to the greater
+                for i in range(len(array_2)):
                     array_1[i] += array_2[i]
                 return Polynomial(array_1)
-            for i in range(len(self.eq())):
+
+            for i in range(len(array_1)): #Self is greater
+                #Add to the greater
                 array_2[i] += array_1[i]
             return checkPolynomial(array_2)
         raise TypeError("Cannot add Polynomial with {}".format(type(value)))
@@ -145,7 +148,7 @@ class Polynomial:
         elif type(value) == self.type:
             # x^2+2x+1  P1  
             # x+1       P2
-            RESULT_DICT = []
+            RESULT_DICT = {}
             # NOTE Divide the term of the highest degree of the divisor (x^2)
             # NOTE with the highest term of the number you are dividing (x)
 
@@ -157,9 +160,8 @@ class Polynomial:
                 raise ValueError("Cannot divide Polynomial of degree {} with one of {} (The first polynomial must have a higherdegree ({} < {})  )".format(self.degree,value.deg(),self.degree,value.deg()))
             self_copy = Polynomial(self.array.copy())
             value_copy = Polynomial(value.arr().copy())
-
-            while self_copy.deg() !=0:
-                print(self_copy)
+            
+            while self_copy.deg() > value_copy.deg():
                 max_divisor_pow = max([num for num in self_copy.eq()]) #The highest power    (P1)
                 max_dividand_pow = max([num for num in value_copy.eq()]) #The highest power      (P2)
 
@@ -171,9 +173,9 @@ class Polynomial:
                 new_poly_dict = PolynomialFromDict({div : div_const}) #The division result
                 RESULT_DICT[div] = div_const
                 times = new_poly_dict * value #The multiplication result
-                self_copy = self - times
+                self_copy -= times
             
-            return self_copy
+            return RESULT_DICT
         raise TypeError("Cannot divide Polynomial with {}".format(type(value)))
 
     def roots(self,iterations : int) -> complex:
@@ -202,7 +204,7 @@ def kerner_durand(APPROXIMATIONS,function):
     return APPROXIMATIONS
 
 def checkPolynomial(pol_list : list):
-    if len(pol_list) in  (pol_list.count(pol_list[0]),pol_list.count(0)):
+    if len(pol_list) == pol_list.count(0):
         return pol_list[0]
     return Polynomial(pol_list)
     
@@ -231,14 +233,7 @@ def PolynomialFromDict(poly_dict : dict) -> Union[Polynomial,float]:
             poly_dict[i] = 0 
     deg_array = [item for item in poly_dict]
     deg_array.sort()
-    result_array = []
-    for item in deg_array:
-        x_type = poly_dict.get(item)
-        if isInteger(x_type):
-            result_array.append(int(x_type))
-            continue
-        result_array.append(x_type)
-    return checkPolynomial(result_array)
+    return checkPolynomial([poly_dict.get(x) for x in deg_array])
 
 def PolString(eqstring : str) -> Polynomial:
     #Check at the end of the string for constants
@@ -280,14 +275,27 @@ def PolString(eqstring : str) -> Polynomial:
     return PolynomialFromDict(eqdict)
 
 if __name__ == "__main__":
-    P = PolString("x^3 - 5x^2 + 2x -1")
-    x = PolString("x-3")
-    y = PolString("-x + 1")
-    z = PolString(" x^2 + 1")
-    zz = PolString("5x^5 - 4x^4 + 3x^3 - 2x^2 + x")
-    print(P)
-    print(x)
-    print(y)
-    print(z)
-    print(zz)
+    # # ---- Sample Linear Equations
+    ## --- Example 0
+    # # 3 (x-2) + 9 = 4(x+1) -2 //Sample equations
+    # y = 3 * PolString("x-2") + 9
+    # x = 4 * PolString("x+1") -2 #4x+2
+    # r_s = y - x #Move The variables to one side
+    
+    ## --- Example 1
+    # s_0 = PolString("-3x+2") / 3
+    # s_1 = PolString("x-2") / 4
+    # print(s_0)
+    # print(s_1)
+    # print(s_0-s_1)
 
+    ## -- Example 2
+    # s_0 = ((3 * PolString("x-2")) / 2) + 8
+    # s_1 = ((4 * PolString("x+1")) / 3) - 12
+    # r_s = s_0 - s_1
+    # print(s_0)
+    # print(s_1)
+    # print(r_s)
+    P = PolString(" 2x^2 - 100x^3 + 10")
+    D = PolString("5x^2 + 3x^2 + 4x^3 + 20")
+    print(P+D)
