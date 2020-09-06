@@ -160,7 +160,7 @@ class Polynomial:
         elif type(value) == self.type: #Polynomial division
             RESULT_DICT = {}
             if self.degree < value.deg():
-                raise ValueError("Cannot divide Polynomial of degree {} with one of {} (The first polynomial must have a higherdegree ({} < {})  )".format(self.degree,value.deg(),self.degree,value.deg()))
+                raise ValueError("Cannot divide Polynomial of degree {} with one of {} (The first polynomial must have a higher degree ({} < {})  )".format(self.degree,value.deg(),self.degree,value.deg()))
             self_copy = Polynomial(self.array.copy())
             value_copy = Polynomial(value.arr().copy())
             
@@ -289,7 +289,16 @@ def EnsureDegree(poly_list : list):
     new_list = list(reversed(poly_list))
     while new_list[0] == 0:
         new_list.pop(0)
+        if len(new_list) == 0:
+            return [0]
     return list(reversed(new_list))
+
+def LCM_POL(*polynomials : Polynomial): 
+    """
+           The Least common multiple of n polynomials will produce another polynomial
+           that can be devided equally by all these n polynomials
+    """
+    return product(*polynomials)
 
 x = PolString("x")
 
@@ -336,4 +345,27 @@ if __name__ == "__main__":
     # P = PolString(" 4x^4 + x^2 -3x -1")
     # D = PolString(" 2x^2 + x")
 
-    # print(P/D)
+    ## Higher Order Equations --
+    # x / (x+2) + 4 /x = (x+8) / x^2 +2x
+
+    # Find LCM 
+    # pol_lcm = LCM_POL(
+    #     x+2,x,x**(2) + 2*x
+    # )
+
+    # div_mod0 = (x * pol_lcm) / (x+2)
+    # div_mod1 = (4 * pol_lcm) / x
+    # div_mod2 = ( (x+8) * pol_lcm )  / (x**(2) + 2*x)
+
+    # result = div_mod0[0] + div_mod1[0] + div_mod2[0]
+    # print(result)
+
+    # x / (x+1) - (8 / x) = 1
+    # Find LCM
+    pol_lcm = LCM_POL(
+        x+1,x
+    )
+    term0 = (x * pol_lcm) / (x+1) 
+    term1 = (8 * pol_lcm) / (x)
+    print(term0[0] - term1[0] - 1)
+    print(Polynomial([3,2,1]))
