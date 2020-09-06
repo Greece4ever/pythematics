@@ -4,7 +4,7 @@ from .random import random_complex;from .basic import isNumber,isInteger;from .b
 from typing import Union
 import re
 
-NUMBER_REGEX = r"((\-)|(\+))?\d+((\.)\d+)?"
+NUMBER_REGEX = r"(((\-)|(\+))?\d+((\.)\d+)?)"
 
 class Polynomial:
     def __init__(self,coefficients : list):
@@ -143,24 +143,37 @@ class Polynomial:
                 new_dict[item] = new_dict[item] / value 
             return checkPolynomial([new_dict.get(item) for item in new_dict])
         elif type(value) == self.type:
-            # NOTE Divide the term of the highest degree of the divisor
-            # NOTE with the highest term of the number you are dividing
-            # NOTE Mutliply the above result with the number you are dividing
-            # NOTE Now subtract from the divisor the above result
+            # x^2+2x+1  P1  
+            # x+1       P2
+            RESULT_DICT = []
+            # NOTE Divide the term of the highest degree of the divisor (x^2)
+            # NOTE with the highest term of the number you are dividing (x)
+
+            # NOTE Mutliply the above result with the number you are dividing  x*(x+1)
+            # NOTE Now subtract from the divisor the above result x^2+2x+1 - (x^2 + x)
             # NOTE Repeat the same thing with the above result
             # NOTE Keep repeating the algorithm until you are left with a constant remainder
             if self.degree < value.deg():
                 raise ValueError("Cannot divide Polynomial of degree {} with one of {} (The first polynomial must have a higherdegree ({} < {})  )".format(self.degree,value.deg(),self.degree,value.deg()))
+            self_copy = Polynomial(self.array.copy())
+            value_copy = Polynomial(value.arr().copy())
+
+            while self_copy.deg() !=0:
+                print(self_copy)
+                max_divisor_pow = max([num for num in self_copy.eq()]) #The highest power    (P1)
+                max_dividand_pow = max([num for num in value_copy.eq()]) #The highest power      (P2)
+
+                max_divisor = self_copy.eq().get(max_divisor_pow) #P1 coefficient
+                max_dividand = value_copy.eq().get(max_dividand_pow)   #P2 coefficient
+                div = max_divisor_pow / max_dividand_pow #Divde the degrees
+                div_const = max_divisor / max_dividand #Divide the constants
+
+                new_poly_dict = PolynomialFromDict({div : div_const}) #The division result
+                RESULT_DICT[div] = div_const
+                times = new_poly_dict * value #The multiplication result
+                self_copy = self - times
             
-            max_divisor_pow = max([num for num in self.equation])
-            max_dividand_pow = max([num for num in value.eq()])
-            max_divisor = self.equation.get(max_dividand_pow)
-            max_dividand = value.eq().get(max_dividand_pow)
-            div = max_dividand_pow / max_dividand_pow #Divde the degrees
-            div_const = max_divisor / max_dividand #Divide the constants
-            ... #TODO
-
-
+            return self_copy
         raise TypeError("Cannot divide Polynomial with {}".format(type(value)))
 
     def roots(self,iterations : int) -> complex:
@@ -193,7 +206,6 @@ def checkPolynomial(pol_list : list):
         return pol_list[0]
     return Polynomial(pol_list)
     
-
 def applyKruger(function : callable,degree : int,iterations : int):
     APPROXIMATIONS = {}
     #Get our starting points
@@ -211,47 +223,71 @@ def applyKruger(function : callable,degree : int,iterations : int):
     #for visual purposes
     return [APPROXIMATIONS.get(item) for item in APPROXIMATIONS]
 
-def PolString(eqstring : str) -> Polynomial:
-    #Check at the end of the string for constants
-    eqstring = " " + re.sub(r"\s+",'',eqstring.strip()) #Remove all white space
-    eqdict = {}
-    exp_iteral = NUMBER_REGEX + r"(x)?(\^(" + NUMBER_REGEX + r"))?"
-    res = list(re.finditer(exp_iteral,eqstring))
-    for item in res:
-        item = item.group()
-        if not 'x' in item: #Constants
-            exponent = 0
-            base = float(item)
-        else:
-            if '^' in item: #Power
-                new_str = item.split("x^")
-                base =  float(new_str[0])
-                exponent = float(new_str[1]) 
-            else: #No Power
-                base = float(item.replace("x",''))
-                exponent = 1
-        if not exponent in eqdict:
-            eqdict[exponent] = []
-        eqdict[exponent].append(base)
-    for expo in eqdict:
-        eqdict[expo] = sum(eqdict[expo])
-
-    deg_array = [item for item in eqdict]
+def PolynomialFromDict(poly_dict : dict) -> Union[Polynomial,float]:
+    deg_array = [item for item in poly_dict]
 
     for i in range(int(max(deg_array))):
-        if i not in eqdict:
-            eqdict[i] = 0 
+        if i not in poly_dict:
+            poly_dict[i] = 0 
+    deg_array = [item for item in poly_dict]
     deg_array.sort()
     result_array = []
     for item in deg_array:
-        x_type = eqdict.get(item)
+        x_type = poly_dict.get(item)
         if isInteger(x_type):
             result_array.append(int(x_type))
             continue
         result_array.append(x_type)
     return checkPolynomial(result_array)
 
+def PolString(eqstring : str) -> Polynomial:
+    #Check at the end of the string for constants
+    eqstring = " " + re.sub(r"\s+",'',eqstring.strip()) #Remove all white space
+    eqdict = {}
+    exp_iteral = NUMBER_REGEX + r"?(-?x)?(\^(" + NUMBER_REGEX + r"))?"
+    res = list(re.finditer(exp_iteral,eqstring))
+    res = [item.group() for item in res if item.group().strip() != ""]
+    for item in res:
+        item = item.strip()
+        if not 'x' in item: #Constants
+            exponent = 0
+            base = float(item)
+        else:
+            if '^' in item: #Power
+                new_str = [x for x in item.split("x^") if x.strip() != '']
+                if not item.startswith("x"):
+                    base =  float(new_str[0]) if new_str[0] !='-' else -1
+                    exponent = float(new_str[1])  
+                else:
+                    new_str_new = [x for x in item.split("^") if x.strip() !='']
+                    base = float(new_str_new[0]) if new_str_new[0] != 'x' else 1
+                    exponent = float(new_str_new[1]) if new_str_new[1] !='x' else 1
+            else: #No Power
+                if item.startswith('x'):
+                    base = 1
+                else:
+                    replacement = item.replace("x",'')
+                    if replacement.strip() =='-':
+                        base = -1
+                    else:
+                        base = float(item.replace("x",''))
+                exponent = 1
+        if not exponent in eqdict:
+            eqdict[exponent] = []
+        eqdict[exponent].append(base)
+    for expo in eqdict:
+        eqdict[expo] = sum(eqdict[expo])
+    return PolynomialFromDict(eqdict)
 
 if __name__ == "__main__":
-    p = PolString("2x^3 + 4x^2 + 5x + 6 ")
-    print(p)
+    P = PolString("x^3 - 5x^2 + 2x -1")
+    x = PolString("x-3")
+    y = PolString("-x + 1")
+    z = PolString(" x^2 + 1")
+    zz = PolString("5x^5 - 4x^4 + 3x^3 - 2x^2 + x")
+    print(P)
+    print(x)
+    print(y)
+    print(z)
+    print(zz)
+
