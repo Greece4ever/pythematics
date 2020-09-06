@@ -10,6 +10,7 @@ class Polynomial:
     def __init__(self,coefficients : list):
         degrees = {}
         i = 0
+        coefficients = EnsureDegree(coefficients)
         for coefficient in coefficients:
             degrees[i] = coefficient
             i+=1
@@ -140,42 +141,50 @@ class Polynomial:
         return product(*[self for i in range(value)])
     
     def __truediv__(self,value : [int,float,complex,"Polynomial"]) -> Union[float,"Polynomial"]:
-        if type(value) in (int,float,complex):
-            new_dict = self.equation.copy()
-            for item in new_dict:
+        """
+            # NOTE 1 :  Divide the term of the highest degree of the divisor (x^2)\n
+            # NOTE 2 :  with the highest term of the number you are dividing (x)\n
+            # NOTE 3 :  Mutliply the above result with the number you are dividing  x*(x+1)\n
+            # NOTE 4 :  Now subtract from the divisor the above result x^2+2x+1 - (x^2 + x)\n
+            # NOTE 5 :  Repeat the same thing with the above result\n
+            # NOTE 6 :  Keep repeating the algorithm until you are left with a constant remainder\n
+
+        """
+
+        if type(value) in (int,float,complex): #Scalar division
+            new_dict = self.equation.copy() 
+            for item in new_dict: #Divide every single term with the scalar
                 new_dict[item] = new_dict[item] / value 
             return checkPolynomial([new_dict.get(item) for item in new_dict])
-        elif type(value) == self.type:
-            # x^2+2x+1  P1  
-            # x+1       P2
-            RESULT_DICT = {}
-            # NOTE Divide the term of the highest degree of the divisor (x^2)
-            # NOTE with the highest term of the number you are dividing (x)
 
-            # NOTE Mutliply the above result with the number you are dividing  x*(x+1)
-            # NOTE Now subtract from the divisor the above result x^2+2x+1 - (x^2 + x)
-            # NOTE Repeat the same thing with the above result
-            # NOTE Keep repeating the algorithm until you are left with a constant remainder
+        elif type(value) == self.type: #Polynomial division
+            RESULT_DICT = {}
             if self.degree < value.deg():
                 raise ValueError("Cannot divide Polynomial of degree {} with one of {} (The first polynomial must have a higherdegree ({} < {})  )".format(self.degree,value.deg(),self.degree,value.deg()))
             self_copy = Polynomial(self.array.copy())
             value_copy = Polynomial(value.arr().copy())
             
-            while self_copy.deg() > value_copy.deg():
+            while type(self_copy) not in (int,float) and self_copy.deg() >= value_copy.deg():
                 max_divisor_pow = max([num for num in self_copy.eq()]) #The highest power    (P1)
                 max_dividand_pow = max([num for num in value_copy.eq()]) #The highest power      (P2)
-
+                
                 max_divisor = self_copy.eq().get(max_divisor_pow) #P1 coefficient
                 max_dividand = value_copy.eq().get(max_dividand_pow)   #P2 coefficient
-                div = max_divisor_pow / max_dividand_pow #Divde the degrees
+
+
+                div = max_divisor_pow - max_dividand_pow #'Devide' the degrees (by subtracting)
                 div_const = max_divisor / max_dividand #Divide the constants
+
 
                 new_poly_dict = PolynomialFromDict({div : div_const}) #The division result
                 RESULT_DICT[div] = div_const
+
+
                 times = new_poly_dict * value #The multiplication result
                 self_copy -= times
-            
-            return RESULT_DICT
+                
+
+            return [PolynomialFromDict(RESULT_DICT),self_copy] #Polynomial with reminder
         raise TypeError("Cannot divide Polynomial with {}".format(type(value)))
 
     def roots(self,iterations : int) -> complex:
@@ -204,7 +213,8 @@ def kerner_durand(APPROXIMATIONS,function):
     return APPROXIMATIONS
 
 def checkPolynomial(pol_list : list):
-    if len(pol_list) == pol_list.count(0):
+    pol_list = EnsureDegree(pol_list)
+    if len(pol_list) == pol_list.count(0) or len(pol_list) == 1:
         return pol_list[0]
     return Polynomial(pol_list)
     
@@ -274,14 +284,29 @@ def PolString(eqstring : str) -> Polynomial:
         eqdict[expo] = sum(eqdict[expo])
     return PolynomialFromDict(eqdict)
 
+def EnsureDegree(poly_list : list):
+    # Polynomial([5,0,0,0,0,0]) x^2+2x+3
+    new_list = list(reversed(poly_list))
+    while new_list[0] == 0:
+        new_list.pop(0)
+    return list(reversed(new_list))
+
+x = PolString("x")
+
 if __name__ == "__main__":
     # # ---- Sample Linear Equations
     ## --- Example 0
-    # # 3 (x-2) + 9 = 4(x+1) -2 //Sample equations
-    # y = 3 * PolString("x-2") + 9
-    # x = 4 * PolString("x+1") -2 #4x+2
-    # r_s = y - x #Move The variables to one side
-    
+    # 3 (x-2) + 9 = 4(x+1) -2 //Sample equations
+    # takis = 3 * PolString("x-2") + 9
+    # pakis = 4 * PolString("x+1") -2 #4x+2
+    # print(takis,pakis)
+    # print(takis-pakis)
+
+    # takis = 3* (x-2) +9
+    # pakis = 4*(x+1) - 2
+    # print(takis,pakis)
+    # print(takis-pakis)
+
     ## --- Example 1
     # s_0 = PolString("-3x+2") / 3
     # s_1 = PolString("x-2") / 4
@@ -296,6 +321,19 @@ if __name__ == "__main__":
     # print(s_0)
     # print(s_1)
     # print(r_s)
-    P = PolString(" 2x^2 - 100x^3 + 10")
-    D = PolString("5x^2 + 3x^2 + 4x^3 + 20")
-    print(P+D)
+
+
+    ## -- Polynomial Division
+    # P = PolString(" 2x^3 + 2x^2 -x -1")
+    # D = PolString("2x^2 - 1")
+    # print(P)
+    # print(D)
+    # print(P / D)
+
+    # P = PolString(" x^3 - 5x^2 + 2x - 1 ")
+    # D = PolString("x-3")
+
+    # P = PolString(" 4x^4 + x^2 -3x -1")
+    # D = PolString(" 2x^2 + x")
+
+    # print(P/D)
