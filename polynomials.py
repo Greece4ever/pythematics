@@ -51,7 +51,7 @@ class Polynomial:
     
     __repr__ = __str__
 
-    def derivate(self,getFunction: bool = False):
+    def diffrentiate(self,getFunction: bool = False):
         derivate = {}
         for term in self.equation:
             derivate[term-1] = (term)*self.equation.get(term)
@@ -60,7 +60,7 @@ class Polynomial:
             return Polynomial([derivate.get(item) for item in derivate])
         return eval("lambda x : " + Polynomial(derivate).__str__(useSymbol=True).split(":")[1].strip().replace("^","**"))
 
-    def integral(self,getFunction: bool = False):
+    def integrate(self,getFunction: bool = False):
         integral = {}
         for term in self.equation:
             integral[term+1] = round(1 / (term+1),3) * self.equation.get(term) if term !=0 else self.equation.get(term)
@@ -361,11 +361,27 @@ if __name__ == "__main__":
     # print(result)
 
     # x / (x+1) - (8 / x) = 1
-    # Find LCM
     pol_lcm = LCM_POL(
         x+1,x
     )
     term0 = (x * pol_lcm) / (x+1) 
     term1 = (8 * pol_lcm) / (x)
-    print(term0[0] - term1[0] - 1)
-    print(Polynomial([3,2,1]))
+    print(term1)
+    s0 = term0[0] - term1[0]
+    s1 = pol_lcm * 1 
+    # print(s0)
+    # print(s1)
+    final_polynomial = s0-1
+    P = Polynomial([3,4,1])
+    G = PolString("x^2 + 4x + 3")
+    print(P)
+    print(P.diffrentiate())
+    print(P.integrate())
+
+    # root_0 = SecantMethod(f_p_function,1,2,3)
+    # print(root_0)
+    # root_0 = NewtonMethod(f_p_function,2,iterations=50)
+    # print(algebruh)
+    # print(3*x+1)
+    # print(algebruh.getFunction()(9))
+    # print(algebruh.roots(iterations=50))
