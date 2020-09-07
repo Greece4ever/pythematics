@@ -27,12 +27,12 @@
 
 from .basic import isNumber,isInteger,ModifyComplex,round_num,ComplexUnity
 from . import polynomials as pl
-from typing import Union
+from typing import Union,Any
 
 WHITESPACE = ' '
 
 
-epsilon = pl.x
+epsilon = pl.x #epsilon = lamda 
 
 
 class Vector:
@@ -271,7 +271,7 @@ class Matrix:
                     NEW_ARRAY.append(f'{f"{round(real):.0e}".replace("e+","|") if real !=0 else ""}{round(imag):.0e}i'.replace("e+","e"))
                     continue
 
-                if not str(val).startswith(" Polynomial of degree"):
+                if not "deg" in str(val):
                     test = float(str(val).replace("\t",''))
                     if test != int(test):
                         float_rounded = round(float(val),2)
@@ -286,7 +286,8 @@ class Matrix:
                             value = f'{int(test):>3}'
                     NEW_ARRAY.append(value)
                     continue
-                NEW_ARRAY.append(str(val).split(":")[-1])
+                else:
+                    NEW_ARRAY.append(str(val).split(":")[-1])
 
             # print(f' R{j-1} |',"\t".join(f'{round(float(val),2):>4}' for val in item))
             print(f' R{j-1} |',"\t".join(NEW_ARRAY))
@@ -495,6 +496,9 @@ class Matrix:
 
     def ref(self):
         return ref(self)
+
+    def CharacteristicPolynomial(self):
+        return CharacteristicPolynomial(self)
 
     def forEach(self,function : callable,applyChanges : bool = False) -> Union['Matrix',None]:
         """For each element of the matrix it performs a given function on that element\n
@@ -926,37 +930,66 @@ def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector) -> dic
         m+=1
     return result
 
+def substitute(expression : Any,eigenvalue : Union[float,complex]):
+    if type(expression) == type(epsilon):
+        return expression.getFunction()(eigenvalue)
+    return eigenvalue
 
-def eigenvalues(square_maxtirx : Matrix):
-    dim = square_maxtirx.__len__()[0]
-    i_dim = IdenityMatrix(dimensions=dim)
-    return i_dim.forEach(lambda n : n + epsilon)
+def Vector0(dimensions : int) -> Vector:
+    return Vector([0 for _ in range(dimensions)])
 
+def rank(matrix : Matrix) -> int:
+    ... #TODO
+    # row_reducted_matrix =  ref(matrix)
+    # __rank__ = 0
+    # for row in row_reducted_matrix.rawMatrix():
+    #     if row.count(0) != len(row):
+    #         __rank__ +=1
+
+    # return __rank__
+
+def CharacteristicPolynomial(square_maxtirx : Matrix) -> pl.Polynomial:
+    """
+        Returns a Polynomial whose roots are the eigenvalues of the passed in Matrix
+    """
+    assert square_maxtirx.is_square(), "Non square matrix attempting to find characteristic polynomial"
+    dim = square_maxtirx.__len__()[0] #dimensions
+    i_dim = IdenityMatrix(dimensions=dim) #Identity matrix of dimensions N
+    lamda_identity = i_dim.forEach(lambda n : n * epsilon) #Multiply lamda with Matrix
+    sub = square_maxtirx - lamda_identity #Subtract from base Matrix lamda multiplied
+    det = sub.determinant() #The Characteristic Polynomial
+    return det
+
+# def eigenvalues(square_maxtirx : Matrix):
+#     char_pol = CharacteristicPolynomial(square_maxtirx)
+#     eigen_values = det.roots(iterations=50) #The roots are the eigen Values
+#     s1 = sub.forEach(lambda x : substitute(x,eigen_values[0].real)) #TODO check bug
+#     s2 = sub.forEach(lambda x : substitute(x,eigen_values[1].real)) #TODO check bug
+#     zero_vector = Vector0(dim)
+#     unknowns = ('x','y')
+#     #The Solutions to the linear equation are the components of the Eigen Vector
+#     EigenVector0 = s1.solve(zero_vector,unknowns,useRef=False) #Root1
+#     EigenVector1 = s2.solve(zero_vector,unknowns,useRef=False) #Root2
+#     return {
+#         "eigenvectors" : [EigenVector0,EigenVector1],
+#         "eigenvalues" : eigen_values
+#     }
 
 if __name__ == "__main__":    
     Y = Matrix([
-        [2,1,-1],
-        [3,2,2],
-        [4,-2,3]
-    ])
-
-    A= Matrix([
-        [1432.4324,2432,3423],
-        [4432,4324235,6],
-        [7432,8423,4329]
-    ])
-
-    B = Matrix([
-        [complex(50000000,500000),2.75674,3.54343],
-        [4.321312,5.543543,6.6544],
-        [7.543543,8.543543,9.3217]
+        [1,2,3],
+        [4,5,6],
+        [7,8,9]
     ])
 
     unknowns = ('x','y','z')
 
     output = Vector([1,13,9])
 
-    print(B.__str_dspace__())
+
+    # print(CharacteristicPolynomial(Y))
+    print(rank(Y))
+
     # print(eigenvalues(A))
 
     # print(solveREF(Y,unknowns,output))
