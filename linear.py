@@ -25,12 +25,12 @@
         *** Various combinations of the above
 """
 
-from .basic import isNumber,isInteger
+from .basic import isNumber,isInteger,ModifyComplex,round_num,ComplexUnity
+from . import polynomials as pl
 from typing import Union
 
 WHITESPACE = ' '
 
-from . import polynomials as pl
 
 epsilon = pl.x
 
@@ -179,7 +179,7 @@ class Matrix:
             if type(row) == list:
                 self.ROW_LENGTHS.append(len(row))
                 for num in row:
-                    if not isNumber(num) and not type(num) == type(epsilon):
+                    if not isNumber(num) and not type(num) == type(epsilon) and not type(num) == complex:
                         raise TypeError("Row : {} , does not contain an argument or {} or {} but instead {}!".format(matrix.index(row),type(1),type(1.0),type(num)))
             else:
                 raise ValueError("Every argument inside the base array which is considered as a row should be of type {} not {}".format(list,type(matrix)))
@@ -264,8 +264,27 @@ class Matrix:
                 continue
             NEW_ARRAY = []
             for val in item:
-                if str(val).startswith(" Polynomial of degree"):
-                    NEW_ARRAY.append(f'{round(float(val),2):>4}' if not isInteger(val) else f'{int(val):>4}')
+                if type(ModifyComplex(val)) == complex:
+                    com_val = complex(val)
+                    real = com_val.real
+                    imag = com_val.imag
+                    NEW_ARRAY.append(f'{f"{round(real):.0e}".replace("e+","|") if real !=0 else ""}{round(imag):.0e}i'.replace("e+","e"))
+                    continue
+
+                if not str(val).startswith(" Polynomial of degree"):
+                    test = float(str(val).replace("\t",''))
+                    if test != int(test):
+                        float_rounded = round(float(val),2)
+                        if len(str(float_rounded)) >= 7:
+                            value = f'{float_rounded:.0e}'
+                        else:
+                            value = f'{float_rounded:>4}'
+                    else:
+                        if len(str(val)) >= 7:
+                            value = f'{int(test):.0e}'
+                        else:
+                            value = f'{int(test):>3}'
+                    NEW_ARRAY.append(value)
                     continue
                 NEW_ARRAY.append(str(val).split(":")[-1])
 
@@ -285,6 +304,84 @@ class Matrix:
         #     print(f' R{i+1} |',*[f'{val:>3}' for val in item])
         #     i+=1
         return f'\n{self.rows} x {self.collumns} Matrix\n'
+
+
+    def __str_dspace__(self):
+        print("Rounded Matrix :\n")
+        x = [item[:] for item in self.matrix]
+        k = 0
+        for item in x:
+            j = 0
+            if len(item) > 8:
+                x[k] = item[1:9]
+                x[k].append("...")
+                x[k].append(self.cols[-1][j])
+                j+=1
+            k+=1
+        k = 0        
+        y = []    
+        for iteration in range(self.collumns):
+            if iteration >=8:
+                y.append("...")
+                y.append(f'C{self.collumns}')
+                break
+            y.append(f"C{iteration+1}")
+        x.insert(0,y)
+        j = 1
+        
+        for item in x:
+            if j > 9:
+                print("\n   .........")
+                print(f' R{len(x)-1}|',*[round(item,2) for item in x[-1]])
+                break
+            item[0] = f'\t{item[0]}'
+            if j==1:
+                print(' CI | {: <20} {: <20} {: <20}'.format(*item))
+                j+=1
+                continue
+            NEW_ARRAY = []
+            for val in item:
+                if type(ModifyComplex(val)) == complex:
+                    com_val = complex(val)
+                    real = f'{com_val.real:.0e}'
+                    imag = f'{com_val.imag:.0e}'
+                    NEW_ARRAY.append(f'({real},{imag}i)')
+                    continue
+
+                if not str(val).startswith(" Polynomial of degree"):
+                    test = float(str(val).replace("\t",''))
+                    if test != int(test):
+                        float_rounded = round(float(val),2)
+                        if len(str(float_rounded)) >= 7:
+                            value = f'{float_rounded:.0e}'
+                        else:
+                            value = f'{float_rounded:>4}'
+                    else:
+                        if len(str(val)) >= 7:
+                            value = f'{int(test):.0e}'
+                        else:
+                            value = f'{int(test):>3}'
+                    NEW_ARRAY.append(value)
+                    continue
+                NEW_ARRAY.append(str(val).split(":")[-1])
+            
+            print(f' R{j-1} |',"{: <20} {: <20} {: <20}".format(*NEW_ARRAY))
+            j+=1
+        return f'\n{self.rows} x {self.collumns} Matrix\n'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def __rmul__(self,scalar):
         """Matrix multiplication by scalar"""
@@ -844,22 +941,22 @@ if __name__ == "__main__":
     ])
 
     A= Matrix([
-        [1,2,3],
-        [4,5,6],
-        [7,8,9]
+        [1432.4324,2432,3423],
+        [4432,4324235,6],
+        [7432,8423,4329]
     ])
 
     B = Matrix([
-        [1.2e-7,1.2e-7,1.2e-7],
-        [1.2e-7,1.2e-7,1.2e-7],
-        [1.2e-7,1.2e-7,1.2e-7]
+        [complex(50000000,500000),2.75674,3.54343],
+        [4.321312,5.543543,6.6544],
+        [7.543543,8.543543,9.3217]
     ])
 
     unknowns = ('x','y','z')
 
     output = Vector([1,13,9])
 
-    print(B)
+    print(B.__str_dspace__())
     # print(eigenvalues(A))
 
     # print(solveREF(Y,unknowns,output))

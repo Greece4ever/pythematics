@@ -7,7 +7,9 @@
         ** isRoot(function,x1,x2) -> bool # Given a function and 2 points, returns a boolean on wheter there is a root in that interval
 """
 
-from typing import Union
+from typing import Union,Any
+
+UNITY = complex(1,1)
 
 def product(*args : Union[float,int]) -> Union[float,int]:
     """Returns the product of float or ints
@@ -18,7 +20,6 @@ def product(*args : Union[float,int]) -> Union[float,int]:
     for num in args:
         prod*=num
     return prod
-
 
 def comaSplitNumber(num : Union[int,float]) -> str:
     """Given an integer or a floating number it returns
@@ -60,6 +61,33 @@ def isInteger(num : Union[float,int]) -> bool:
         return True
     return False
 
+def ModifyComplex(num : Any) -> Union[complex,bool]:
+    try:
+        g = complex(num)
+        if round(g.imag,2) == 0:
+            return g.real
+        return g
+    except:
+        return False
+
+def round_num(num : Union[int,float]) -> str:
+    if num != int(num):
+        float_rounded = round(float(num),2)
+        if len(str(float_rounded)) >= 7:
+            value = f'{float_rounded:.0e}'
+        else:
+            value = f'{float_rounded:>4}'
+    else:
+        if len(str(num)) >= 7:
+            value = f'{int(num):.0e}'
+        else:
+            value = f'{int(num):>3}'
+    return value
+
+
+def ComplexUnity(num : complex) -> complex:
+    return UNITY / num
+
 def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
     """
         Given a function and 2 points in the x axis,\n
@@ -69,3 +97,6 @@ def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
     if (function(x_0)*function(x_1)) < 0:
         return True
     return False
+
+if __name__ == "__main__":
+    pass
