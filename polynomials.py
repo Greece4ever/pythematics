@@ -233,8 +233,9 @@ class Polynomial:
         """It returns an list of complex numbers that are it roots or are approximately very close to them
            WARNING : THIS FUNCTION IS NOT STABLE AND REQUIRES ADJUSTING (OVERFLOW ERRORS DUE TO VERY LOW NUMBERS ARE COMMON)
         """
-        return applyKruger(self.function,self.degree,iterations)
-    
+        reduced_pol = reduceCoefficients(self) #Make the leading coefficient 0
+        result = applyKruger(reduced_pol.getFunction(),self.degree,iterations)
+        return result
 
 def kerner_durand(APPROXIMATIONS,function):
     TEMP_STORAGE = []
@@ -342,84 +343,31 @@ def LCM_POL(*polynomials : Polynomial):
     """
     return product(*polynomials)
 
+def reduceCoefficients(polynomial : Polynomial) -> Polynomial:
+    """
+        Initialize a Polynomial for the Kerner method:
+        Make the leading coefficient 1
+    """
+    eq = polynomial.eq()
+    h_coeff = eq.get(max(eq))
+    return Polynomial([
+        coefficient / h_coeff for coefficient in polynomial.arr()
+    ])
+
 x = PolString("x")
 
 if __name__ == "__main__":
-    # # ---- Sample Linear Equations
-    ## --- Example 0
-    # 3 (x-2) + 9 = 4(x+1) -2 //Sample equations
-    # takis = 3 * PolString("x-2") + 9
-    # pakis = 4 * PolString("x+1") -2 #4x+2
-    # print(takis,pakis)
-    # print(takis-pakis)
+    #NOTE : Kerner-Durand Works if and only if the leading coefficient is one
+    __safe__ : bool = False
 
-    # takis = 3* (x-2) +9
-    # pakis = 4*(x+1) - 2
-    # print(takis,pakis)
-    # print(takis-pakis)
-
-    ## --- Example 1
-    # s_0 = PolString("-3x+2") / 3
-    # s_1 = PolString("x-2") / 4
-    # print(s_0)
-    # print(s_1)
-    # print(s_0-s_1)
-
-    ## -- Example 2
-    # s_0 = ((3 * PolString("x-2")) / 2) + 8
-    # s_1 = ((4 * PolString("x+1")) / 3) - 12
-    # r_s = s_0 - s_1
-    # print(s_0)
-    # print(s_1)
-    # print(r_s)
-
-
-    ## -- Polynomial Division
-    # P = PolString(" 2x^3 + 2x^2 -x -1")
-    # D = PolString("2x^2 - 1")
-    # print(P)
-    # print(D)
-    # print(P / D)
-
-    # P = PolString(" x^3 - 5x^2 + 2x - 1 ")
-    # D = PolString("x-3")
-
-    # P = PolString(" 4x^4 + x^2 -3x -1")
-    # D = PolString(" 2x^2 + x")
-
-    ## Higher Order Equations --
-    # x / (x+2) + 4 /x = (x+8) / x^2 +2x
-
-    # Find LCM 
-    # pol_lcm = LCM_POL(
-    #     x+2,x,x**(2) + 2*x
-    # )
-
-    # div_mod0 = (x * pol_lcm) / (x+2)
-    # div_mod1 = (4 * pol_lcm) / x
-    # div_mod2 = ( (x+8) * pol_lcm )  / (x**(2) + 2*x)
-
-    # result = div_mod0[0] + div_mod1[0] + div_mod2[0]
-    # print(result)
-
-    # x / (x+1) - (8 / x) = 1
-    # pol_lcm = LCM_POL(
-    #     x+1,x
-    # )
-    # term0 = (x * pol_lcm) / (x+1) 
-    # term1 = (8 * pol_lcm) / (x)
-    # print(term1)
-    # s0 = term0[0] - term1[0]
-    # s1 = pol_lcm * 1 
-    # print(s0)
-    # print(s1)
-
-    print(-x**2 - x**3 -5)
-
-    # root_0 = SecantMethod(f_p_function,1,2,3)
-    # print(root_0)
-    # root_0 = NewtonMethod(f_p_function,2,iterations=50)
-    # print(algebruh)
-    # print(3*x+1)
-    # print(algebruh.getFunction()(9))
-    # print(algebruh.roots(iterations=50))
+    if __safe__:
+        P = x**5 + x**4 + x**3 + x**2 + 1
+        roots = P.roots(iterations=50)  
+        for root in roots:
+            func = P.getFunction()(root)
+            print(f'{root} : Im({round(func.real)},{round(func.imag)})')
+    else:
+        P = 5*x**4 + 3*x**2 + 2*x**2 +1
+        roots = P.roots(iterations=50)
+        for root in roots:
+            print(f'{root} : {P.getFunction()(root)}')

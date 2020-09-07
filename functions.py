@@ -158,14 +158,25 @@ def cis(x : float) -> complex:
     """
     return trig.sin(x) + imaginary * trig.cos(x)
 
-def derivative(function : callable,point : float,h=INFINITESIMAL):
+def derivative(function : callable,point : float,h=INFINITESIMAL) -> float:
     """Find the derivative a function at a specific point using the definition"""
     nominator = function(point + h) - function(point)
     denominator = h
     result = nominator / denominator
     return result
 
-def integral(f : callable,x : Union[float,int],approximation : float = 0.01,target : float = 0.0000001):
+#NOTE NO DECORATOR FOR RECURSION
+def nthDerivative(f : callable,x : float,order : int) -> float:
+    """Returns the nth order derivative a given function f at a given point x\n
+       The order must be a positive integer greater or equal to one, else it's\n
+       going to cause a recursive infinite loop,\n
+       NOTE : No checking is done to ensure that order >= 1\n
+    """
+    if order == 1:
+        return derivative(f,x)
+    return ( nthDerivative(f,x+INFINITESIMAL,order-1) - nthDerivative(f,x,order-1) ) /INFINITESIMAL
+
+def integral(f : callable,x : Union[float,int],approximation : float = 0.01,target : float = 0.0000001) -> float:
     """
         Finds the integral of a given function at a specific point using sum approximation
     """
@@ -179,6 +190,7 @@ def integral(f : callable,x : Union[float,int],approximation : float = 0.01,targ
         start += difference_in_x
     return total
 
+    
 def CurveArea(function : callable,point_0 : float,point_1 : float) -> float:
     if point_0 > point_1:
         raise ValueError("Point 0 must be less than point 1")

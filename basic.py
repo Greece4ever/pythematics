@@ -85,9 +85,6 @@ def round_num(num : Union[int,float]) -> str:
     return value
 
 
-def ComplexUnity(num : complex) -> complex:
-    return UNITY / num
-
 def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
     """
         Given a function and 2 points in the x axis,\n

@@ -25,7 +25,7 @@
         *** Various combinations of the above
 """
 
-from .basic import isNumber,isInteger,ModifyComplex,round_num,ComplexUnity
+from .basic import isNumber,isInteger,ModifyComplex,round_num
 from . import polynomials as pl
 from typing import Union,Any,Dict
 
