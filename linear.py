@@ -30,6 +30,11 @@ from typing import Union
 
 WHITESPACE = ' '
 
+from . import polynomials as pl
+
+epsilon = pl.x
+
+
 class Vector:
     def __init__(self,array):
         for item in array:
@@ -174,7 +179,7 @@ class Matrix:
             if type(row) == list:
                 self.ROW_LENGTHS.append(len(row))
                 for num in row:
-                    if not isNumber(num):
+                    if not isNumber(num) and not type(num) == type(epsilon):
                         raise TypeError("Row : {} , does not contain an argument or {} or {} but instead {}!".format(matrix.index(row),type(1),type(1.0),type(num)))
             else:
                 raise ValueError("Every argument inside the base array which is considered as a row should be of type {} not {}".format(list,type(matrix)))
@@ -257,7 +262,15 @@ class Matrix:
                 print(' CI |',"\t".join(f' {val:<5}' for val in item))
                 j+=1
                 continue
-            print(f' R{j-1} |',"\t".join(f'{round(float(val),2):>4}' for val in item))
+            NEW_ARRAY = []
+            for val in item:
+                if str(val).startswith(" Polynomial of degree"):
+                    NEW_ARRAY.append(f'{round(float(val),2):>4}' if not isInteger(val) else f'{int(val):>4}')
+                    continue
+                NEW_ARRAY.append(str(val).split(":")[-1])
+
+            # print(f' R{j-1} |',"\t".join(f'{round(float(val),2):>4}' for val in item))
+            print(f' R{j-1} |',"\t".join(NEW_ARRAY))
             j+=1
         # i = 0
         # for item in x:
@@ -816,6 +829,13 @@ def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector) -> dic
         m+=1
     return result
 
+
+def eigenvalues(square_maxtirx : Matrix):
+    dim = square_maxtirx.__len__()[0]
+    i_dim = IdenityMatrix(dimensions=dim)
+    return i_dim.forEach(lambda n : n + epsilon)
+
+
 if __name__ == "__main__":    
     Y = Matrix([
         [2,1,-1],
@@ -823,12 +843,23 @@ if __name__ == "__main__":
         [4,-2,3]
     ])
 
+    A= Matrix([
+        [1,2,3],
+        [4,5,6],
+        [7,8,9]
+    ])
+
     unknowns = ('x','y','z')
 
     output = Vector([1,13,9])
 
-    print(solveREF(Y,unknowns,output))
-    print(SolveCramer(Y,unknowns,output))
+    print(eigenvalues(A))
+
+    # print(solveREF(Y,unknowns,output))
+    # print(SolveCramer(Y,unknowns,output))
+
+
+
 
     # print(ref(Y))
     # print(A.forEach(lambda x: x+1))

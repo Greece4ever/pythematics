@@ -37,18 +37,51 @@ class Polynomial:
         return self.degree
 
     def __str__(self,useSymbol : bool = False):
+        if useSymbol:
+            return self.__old_str__(useSymbol=True)
+
+        eq = []
+        j = 0
+        for item in self.equation:
+            if self.equation.get(item) == 0:
+                continue
+            val = self.equation.get(item)
+            sign = f'{"+" if item != len(self.equation)-1 and not "-" in str(self.equation.get(item)) else ""}'
+           
+            if type(val) != complex and isInteger(val): #Prevent the rise of an Exception
+                target = str(int(val)) #Display Integer Value not rounded
+            else:
+                target = str(val)  #Display vloat value
+
+            if type(val) != complex: #Put Spaced between the negative sign if Not in the begining
+                target = target.replace("-","- ")
+            
+            if re.sub(r"\s+","",target) in ("-1","1") and item !=0: #Remove the 1 if it is not a constant
+                target = target.replace("1","")
+            
+            use_pow = "x^" + str(item) if item not in (0,1) else "x" if item == 1  else "" #handle exponentiation
+            eq.append(f'{sign} {target}{"*" if useSymbol else ""}{use_pow} ')
+            j+=1
+        Joined = "".join(list(reversed(eq))).strip()
+        if Joined.strip()[-1] == "*":
+            Joined = Joined[:-1]
+        return f'Polynomial of degree {self.degree} : {Joined}'  
+    
+
+    def __old_str__(self,useSymbol): 
+        """The unreadable old str method which needs to stay in there in order for the lamda getfunc to work"""
         eq = []
         j = 0
         for item in self.equation:  
             if self.equation.get(item) == 0:
                 continue
-            eq.append(f'{"+" if j != len(self.equation)-1 and not "-" in str(self.equation.get(item)) else ""  } {"(" if "j" in str(self.equation.get(item)) else ""}{str(self.equation.get(item)).replace("-","- ") if not isInteger(self.equation.get(item)) else str(int(self.equation.get(item))).replace("-","- ")}{")" if "j" in str(self.equation.get(item)) else ""}{"*" if useSymbol else ""}{"x^" + str(item) if item not in (0,1) else "x" if item == 1  else ""} ')
+            eq.append(f'{"+" if j != len(self.equation)-1 and not "-" in str(self.equation.get(item)) else ""  } {"(" if "j" in str(self.equation.get(item)) else ""}{str(self.equation.get(item)).replace("-","- ")}{")" if "j" in str(self.equation.get(item)) else ""}{"*" if useSymbol else ""}{"x^" + str(item) if item not in (0,1) else "x" if item == 1  else ""} ')
             j+=1
         Joined = "".join(list(reversed(eq))).strip()
         if Joined.strip()[-1] == "*":
             Joined = Joined[:-1]
         return f'Polynomial of degree {self.degree} : {Joined}'   
-    
+
     __repr__ = __str__
 
     def diffrentiate(self,getFunction: bool = False):
@@ -97,6 +130,10 @@ class Polynomial:
             return checkPolynomial(array_2)
         raise TypeError("Cannot add Polynomial with {}".format(type(value)))
 
+    def __radd__(self,value): #Right add
+        """For adding something to a polynomial (int + Polynomial)"""
+        return self.__add__(value)
+
     def __sub__(self,value : [int,float,complex,'Polynomial']) -> Union['Polynomial',float]:
         eq_copy = self.equation.copy()
         #Scalar
@@ -106,6 +143,9 @@ class Polynomial:
         elif type(value) == type(self):
             return self + (-1 * value)
         raise TypeError("Cannot perform subtraction on Polynomial with {}".format(type(value)))
+
+    def __rsub__(self,value): #Right sub
+        return -self + value
 
     def __mul__(self,value : [int,float,complex,"Polynomial"]) -> Union['Polynomial',float]:
         if type(value) in (int,float,complex):
@@ -132,7 +172,7 @@ class Polynomial:
 
         raise ValueError("Cannot multiply Polynomial with {}".format(type(value)))
 
-    def __rmul__(self,value : [int,float,complex,"Polynomial"]) -> Union['Polynomial',float]:
+    def __rmul__(self,value : [int,float,complex,"Polynomial"]) -> Union['Polynomial',float]: #Right mul
         return self.__mul__(value)
 
     def __pow__(self,value : int) -> Union['Polynomial',float]:
@@ -142,6 +182,8 @@ class Polynomial:
     
     def __truediv__(self,value : [int,float,complex,"Polynomial"]) -> Union[float,"Polynomial"]:
         """
+            Handling division by a scalar or by a Polynomial
+
             # NOTE 1 :  Divide the term of the highest degree of the divisor (x^2)\n
             # NOTE 2 :  with the highest term of the number you are dividing (x)\n
             # NOTE 3 :  Mutliply the above result with the number you are dividing  x*(x+1)\n
@@ -361,22 +403,18 @@ if __name__ == "__main__":
     # print(result)
 
     # x / (x+1) - (8 / x) = 1
-    pol_lcm = LCM_POL(
-        x+1,x
-    )
-    term0 = (x * pol_lcm) / (x+1) 
-    term1 = (8 * pol_lcm) / (x)
-    print(term1)
-    s0 = term0[0] - term1[0]
-    s1 = pol_lcm * 1 
+    # pol_lcm = LCM_POL(
+    #     x+1,x
+    # )
+    # term0 = (x * pol_lcm) / (x+1) 
+    # term1 = (8 * pol_lcm) / (x)
+    # print(term1)
+    # s0 = term0[0] - term1[0]
+    # s1 = pol_lcm * 1 
     # print(s0)
     # print(s1)
-    final_polynomial = s0-1
-    P = Polynomial([3,4,1])
-    G = PolString("x^2 + 4x + 3")
-    print(P)
-    print(P.diffrentiate())
-    print(P.integrate())
+
+    print(-x**2 - x**3 -5)
 
     # root_0 = SecantMethod(f_p_function,1,2,3)
     # print(root_0)
