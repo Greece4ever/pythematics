@@ -27,7 +27,7 @@
 
 from .basic import isNumber,isInteger,ModifyComplex,round_num,ComplexUnity
 from . import polynomials as pl
-from typing import Union,Any
+from typing import Union,Any,Dict
 
 WHITESPACE = ' '
 
@@ -939,18 +939,22 @@ def Vector0(dimensions : int) -> Vector:
     return Vector([0 for _ in range(dimensions)])
 
 def rank(matrix : Matrix) -> int:
-    ... #TODO
-    # row_reducted_matrix =  ref(matrix)
-    # __rank__ = 0
-    # for row in row_reducted_matrix.rawMatrix():
-    #     if row.count(0) != len(row):
-    #         __rank__ +=1
-
-    # return __rank__
-
-def CharacteristicPolynomial(square_maxtirx : Matrix) -> pl.Polynomial:
     """
-        Returns a Polynomial whose roots are the eigenvalues of the passed in Matrix
+    The number of non-zero rows on the reduced Matrix,
+    (Checks if one row is a combination of the other ones)
+    """
+    row_reducted_matrix =  ref(matrix)
+    __rank__ = 0
+    for row in row_reducted_matrix.rawMatrix():
+        if row.count(0) != len(row):
+            __rank__ +=1
+    return __rank__
+
+def CharacteristicPolynomial(square_maxtirx : Matrix,returnSub : bool = False) -> pl.Polynomial:
+    """
+        Returns a Polynomial whose roots are the eigenvalues of the passed in Matrix,
+        if returnSub it will return square_maxtirx - lamda_identity, where the lamda
+        identity is the identity matrix multiplied by lamda
     """
     assert square_maxtirx.is_square(), "Non square matrix attempting to find characteristic polynomial"
     dim = square_maxtirx.__len__()[0] #dimensions
@@ -958,37 +962,45 @@ def CharacteristicPolynomial(square_maxtirx : Matrix) -> pl.Polynomial:
     lamda_identity = i_dim.forEach(lambda n : n * epsilon) #Multiply lamda with Matrix
     sub = square_maxtirx - lamda_identity #Subtract from base Matrix lamda multiplied
     det = sub.determinant() #The Characteristic Polynomial
-    return det
+    if not returnSub:
+        return det
+    return det,sub
 
-# def eigenvalues(square_maxtirx : Matrix):
-#     char_pol = CharacteristicPolynomial(square_maxtirx)
-#     eigen_values = det.roots(iterations=50) #The roots are the eigen Values
-#     s1 = sub.forEach(lambda x : substitute(x,eigen_values[0].real)) #TODO check bug
-#     s2 = sub.forEach(lambda x : substitute(x,eigen_values[1].real)) #TODO check bug
-#     zero_vector = Vector0(dim)
-#     unknowns = ('x','y')
-#     #The Solutions to the linear equation are the components of the Eigen Vector
-#     EigenVector0 = s1.solve(zero_vector,unknowns,useRef=False) #Root1
-#     EigenVector1 = s2.solve(zero_vector,unknowns,useRef=False) #Root2
-#     return {
-#         "eigenvectors" : [EigenVector0,EigenVector1],
-#         "eigenvalues" : eigen_values
-#     }
+def eigenvalues(square_maxtirx : Matrix) -> Dict[Union[complex,float],Vector]:
+    char_pol = CharacteristicPolynomial(square_maxtirx,returnSub=True)
+    sub = char_pol[1]
+    eigen_values = char_pol[0].roots(iterations=50) #The roots are the eigen Values
+    dim = square_maxtirx.__len__()[0] #dimensions
+    unknowns = [i for i in range(dim)]
+    output = Vector0(dim)
+    eigen_values_vectors = {}
+    for root in eigen_values:
+        m_0 = sub.forEach(lambda num : substitute(num,root)) #Substitute the Eigen Values in the Lamda scaled Identity Matrix
+        eigen_vector = m_0.solve(output,unknowns) #Solve the linear system
+        eigen_vector = Vector([sol for sol in eigen_vector])
+        eigen_values_vectors[root] = eigen_vector #Eigen value has a coressponding Vector
+    return eigen_values_vectors
 
 if __name__ == "__main__":    
     Y = Matrix([
+        [1,2],
+        [4,5],
+    ])
+
+    A = Matrix([
         [1,2,3],
-        [4,5,6],
-        [7,8,9]
+        [2,3,4],
+        [3,5,7]
     ])
 
     unknowns = ('x','y','z')
 
     output = Vector([1,13,9])
 
+    result : dict = eigenvalues(Y)
 
     # print(CharacteristicPolynomial(Y))
-    print(rank(Y))
+    # print(rank(A))
 
     # print(eigenvalues(A))
 
