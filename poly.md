@@ -24,11 +24,11 @@ Polynomial of degree 1 : 3x + 1
 Let's consider the Following 2 algebraic equations : 
 - **First** Degree 
 
->![First equation](http://www.sciweavers.org/upload/Tex2Img_1599431327/render.png)
+>![First equation](Latex/eq_1.png)
 
 - **Uknown** as of now Degree (*Polynomial Division*)
 
->![Second Equation](http://www.sciweavers.org/upload/Tex2Img_1599431677/render.png)
+>![Second Equation](Latex/eq_2.png)
 
 - The first One would be expressed as such 
 
