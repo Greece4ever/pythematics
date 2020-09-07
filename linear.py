@@ -228,7 +228,7 @@ class Matrix:
         """Returns a tuple containng number of rows and collumns (rows,collumns)"""
         return (self.rows,self.collumns) # (number of rows,number of collumns)
 
-    def __str__(self):
+    def __str__(self): #MAX_SPACES = 7
         """Returns a visual representation of the Matrix"""
         print("Rounded Matrix :\n")
         x = [item[:] for item in self.matrix]
@@ -849,16 +849,21 @@ if __name__ == "__main__":
         [7,8,9]
     ])
 
+    B = Matrix([
+        [1.2e-7,1.2e-7,1.2e-7],
+        [1.2e-7,1.2e-7,1.2e-7],
+        [1.2e-7,1.2e-7,1.2e-7]
+    ])
+
     unknowns = ('x','y','z')
 
     output = Vector([1,13,9])
 
-    print(eigenvalues(A))
+    print(B)
+    # print(eigenvalues(A))
 
     # print(solveREF(Y,unknowns,output))
     # print(SolveCramer(Y,unknowns,output))
-
-
 
 
     # print(ref(Y))
