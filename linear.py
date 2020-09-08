@@ -966,10 +966,10 @@ def CharacteristicPolynomial(square_maxtirx : Matrix,returnSub : bool = False) -
         return det
     return det,sub
 
-def eigenvalues(square_maxtirx : Matrix) -> Dict[Union[complex,float],Vector]:
+def eigenvalues(square_maxtirx : Matrix,iterations : int) -> Dict[Union[complex,float],Vector]:
     char_pol = CharacteristicPolynomial(square_maxtirx,returnSub=True)
     sub = char_pol[1]
-    eigen_values = char_pol[0].roots(iterations=50) #The roots are the eigen Values
+    eigen_values = char_pol[0].roots(iterations=iterations) #The roots are the eigen Values
     dim = square_maxtirx.__len__()[0] #dimensions
     unknowns = [i for i in range(dim)]
     output = Vector0(dim)
@@ -982,22 +982,19 @@ def eigenvalues(square_maxtirx : Matrix) -> Dict[Union[complex,float],Vector]:
     return eigen_values_vectors
 
 if __name__ == "__main__":    
-    Y = Matrix([
-        [1,2],
-        [4,5],
-    ])
-
+    
     A = Matrix([
         [1,2,3],
-        [2,3,4],
-        [3,5,7]
+        [4,5,9],
+        [11,10,5]
     ])
 
     unknowns = ('x','y','z')
 
     output = Vector([1,13,9])
 
-    result : dict = eigenvalues(Y)
+    print(eigenvalues(A,iterations=50))
+
 
     # print(CharacteristicPolynomial(Y))
     # print(rank(A))
