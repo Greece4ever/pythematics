@@ -340,47 +340,61 @@ class Matrix:
         for item in x:
             if j > 9:
                 print("\n   .........")
-                print(f' R{len(x)-1}|',*[round(item,2) for item in x[-1]])
+                print(f' R{len(x)-1}|',*[round(item,4) for item in x[-1]])
                 break
             item[0] = f'\t{item[0]}'
             if j==1:
-                print(' CI | {: <20} {: <20} {: <20}'.format(*item))
+                cols_t = " ".join(["{: <10}" for _ in range(len(item))])
+                cols_t = cols_t.format(*item)
+                print(' CI | {}'.format(cols_t))
                 j+=1
                 continue
             NEW_ARRAY = []
             for val in item:
-                if type(ModifyComplex(val)) == complex:
-                    com_val = complex(val)
-                    real = f'{com_val.real:.0e}'
-                    imag = f'{com_val.imag:.0e}'
-                    NEW_ARRAY.append(f'({real},{imag}i)')
-                    continue
 
-                if not str(val).startswith(" Polynomial of degree"):
+                if not 'deg' in str(val):
+                    if type(ModifyComplex(val)) == complex:
+                        com_val = complex(val)
+                        real = f'{com_val.real}'
+                        imag = f'{com_val.imag}'
+                        NEW_ARRAY.append(f'{real}+{imag}j')
+                        continue
+
                     test = float(str(val).replace("\t",''))
                     if test != int(test):
-                        float_rounded = round(float(val),2)
-                        if len(str(float_rounded)) >= 7:
-                            value = f'{float_rounded:.0e}'
+                        float_rounded = float(val)
+                        if len(str(float_rounded)) >= 10:
+                            value = round(float_rounded,2)
+                            if len(str(value)) >=10:
+                                value = f'{float(val):.2e}'
                         else:
                             value = f'{float_rounded:>4}'
                     else:
-                        if len(str(val)) >= 7:
-                            value = f'{int(test):.0e}'
+                        if len(str(val)) >= 10:
+                            value = f'{int(test):.2e}'
                         else:
                             value = f'{int(test):>3}'
                     NEW_ARRAY.append(value)
                     continue
+
                 else:
-                    print("Starts")
-                    ws_pol = str(val.split(":")[-1])
+                    ws_pol = str(val).split(":")[-1]
                     no_ws_pol = re.sub(r"\s+",r"",ws_pol)
-                    print(ws_pol)
-                    print(no_ws_pol)
-                    print("PRINTED")
-                    NEW_ARRAY.append(ws_pol) 
+                    finale = f'({no_ws_pol})'
+                    if len(finale) <= 7:
+                        NEW_ARRAY.append(f'({no_ws_pol})')
+                    elif 7 < len(finale) <= 9 :
+                        NEW_ARRAY.append(f'{no_ws_pol}')
+                    else:
+                        try:
+                            NEW_ARRAY.append(f'P{val.deg()}')
+                        except:
+                            degree = pl.PolString(ws_pol)
+                            NEW_ARRAY.append(f'P{degree.deg()}')
+
             
-            print(f' R{j-1} |',"{: <20} {: <20} {: <20}".format(*NEW_ARRAY))
+            cols_t = " ".join(["{: <10}" for _ in range(len(NEW_ARRAY))])
+            print(f' R{j-1} |',cols_t.format(*NEW_ARRAY))
             j+=1
         return f'\n{self.rows} x {self.collumns} Matrix\n'
 
@@ -985,7 +999,6 @@ def eigenvalues(square_maxtirx : Matrix,iterations : int = 50) -> Dict[Union[com
     eigen_values_vectors = {}
     print(sub)
     for root in eigen_values:
-        print(root)
         m_0 = sub.forEach(lambda num : substitute(num,root)) #Substitute the Eigen Values in the Lamda scaled Identity Matrix
         #The reduced matrix will have infinitely many results
         print(m_0)
@@ -1016,9 +1029,14 @@ if __name__ == "__main__":
     # p_x = eigenValues(A)
     # print(p_x)
 
+    # C = Matrix([
+    #     [7,3],
+    #     [3,-1]
+    # ])
+
     C = Matrix([
-        [7,3],
-        [3,-1]
+        [pl.PolString("x^2+x^3+111111111111111"),pl.PolString("x+2")],
+        [pl.PolString("x+3"),pl.PolString("x+x")]
     ])
 
-    eigenvalues(C)
+    print(C.__str_dspace__())
