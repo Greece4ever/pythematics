@@ -108,6 +108,7 @@ Some things ought to be explained here in more depth:
 
 Here we are using indexes because the actual output is a list containing The result and remainder of the division 
 ```python
+term0 = (x * pol_lcm) / (x+1) #Polynomial division works if the numerator is of higher degree than the denominator
 print(term1)
 
 >> [Polynomial of degree 1 : 8x + 8, 0] # Polynomial in 0 index and remainder in 1
@@ -151,7 +152,7 @@ The number we chose was `2`, at the very next number `3` it causes an Error
 ZeroDivisionError: float division by zero
 ```
 
-Perhaps the most **powerful** but hard to get working method is the **Durand–Kerner** method which gives all complex roots of Polynomial equations, the only downside being this is limited to Polynomials (On the other hand Newton and Secant work on non-polynomial equations)
+Perhaps the most **powerful**  method is the **Durand–Kerner** method which gives all complex roots of Polynomial equations, the only downside being this is limited to Polynomials (On the other hand Newton and Secant work on non-polynomial equations)
 
 Let's consider the following Polynomial
 
@@ -198,8 +199,9 @@ for root in roots:
 0.8506508083520399j : 0j
 ```
 
+Also something to note here is that the result will always be declared as a complex number even when the output is only real (No checking is done)
 
-> REMAINDER : **Durand-Kerner** is for polynomials only
+> REMINDER : **Durand-Kerner** is for polynomials only
 
 ## Delving deeper into Polynomials
 
@@ -209,7 +211,6 @@ As of now all Polynomial arithimtic was defined using `x = pl.x ` and normal ope
 P = x*(x+1) + x**2 + 3*x +1 #This feels way to Pythonic
 ```
 But that is not how the system interprets it and there are some other methods to declare an instance of Polynomial
-
 
 ```python
 P = Polynomial([3,4,1]) #The Class method of doing it which explains how everything works
