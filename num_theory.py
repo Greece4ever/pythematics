@@ -5,11 +5,12 @@
         ** isPrime(x)
         ** GCD(*nums) #Euclid's Algorithm for Greatest Common Divisior
         ** LCM(*nums) #Probably Another algorithm of Euclid, getting the Least Common Multiple
+        ** FloatToIntegerDivison(num : float) converts float into integer division
         ** kCn(k,n) #k chose n, the binomial coefficient
 """
 
 from .basic import product
-from typing import Union
+from typing import Union,Tuple
 from . import functions
 
 def isEven(num : int) -> bool:
@@ -123,9 +124,23 @@ def LCM(*args: Union[int, list]) -> int:
             k += 1
     return product(*nums)
 
+def FloatToIntegerDivison(num : float) -> Tuple[int]:
+    """Returns an a tuple of 2 integers, whose division
+       produces the passed in floating point number
+    """
+    decimal_places = len(str(num).split(".")[1])
+    expon = 10 ** decimal_places
+    nom_denom = (expon * num,expon)
+    g_c_d = GCD(nom_denom[0],nom_denom[1])
+    while g_c_d > 1:
+        nom_denom = (nom_denom[0] / g_c_d , nom_denom[1] / g_c_d)
+        g_c_d = GCD(nom_denom[0],nom_denom[1])
+    return (int(nom_denom[0]),int(nom_denom[1])) #Get rid of the .0 from the float division
+
 def kCn(k : int,n : int) -> Union[int,float]:
+    """Returns the binomial coefficient of 2 integer numbers"""
     # (7,3)
     return functions.factorial(k) / (functions.factorial(n) * functions.factorial(k-n) ) 
 
 if __name__ == "__main__": 
-    print(kCn(7,3))
+    print(FloatToIntegerDivison(0.25))

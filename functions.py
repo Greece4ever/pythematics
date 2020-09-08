@@ -165,7 +165,7 @@ def derivative(function : callable,point : float,h=INFINITESIMAL) -> float:
     result = nominator / denominator
     return result
 
-#NOTE NO DECORATOR FOR RECURSION
+@lru_cache(maxsize=200)
 def nthDerivative(f : callable,x : float,order : int) -> float:
     """Returns the nth order derivative a given function f at a given point x\n
        The order must be a positive integer greater or equal to one, else it's\n

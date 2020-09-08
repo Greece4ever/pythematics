@@ -91,9 +91,7 @@ def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
         it returns a boolean on wheter there is a root,\n
         in that interval
     """
-    if (function(x_0)*function(x_1)) < 0:
-        return True
-    return False
+    return function(x_0)*function(x_1)
 
 if __name__ == "__main__":
     pass
