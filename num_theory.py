@@ -12,6 +12,7 @@
 from .basic import product
 from typing import Union,Tuple
 from . import functions
+from .trigonometric import arctan
 
 def isEven(num : int) -> bool:
     """Returns True if a number can be divded by 2"""
@@ -142,5 +143,20 @@ def kCn(k : int,n : int) -> Union[int,float]:
     # (7,3)
     return functions.factorial(k) / (functions.factorial(n) * functions.factorial(k-n) ) 
 
+
+def complex_polar(z : complex):
+    """Returns the the mangitude of the Vector
+       of a complex number z and the angle it forms
+       in the x-axis z : complex => [r,theta]
+       from : r * (cos(x) + i*sin(x))
+    """
+    a = z.real;b= z.imag
+    r = (a**2 + b**2)**(1/2)
+    print(b / a)
+    theta = arctan(b / a,iterations=300)
+    print(theta)
+    return [r,theta]
+
+
 if __name__ == "__main__": 
-    print(FloatToIntegerDivison(0.25))
+    print(complex_polar(complex(5,10000)))

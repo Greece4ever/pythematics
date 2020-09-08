@@ -217,16 +217,8 @@ def arctan(x : float,iterations : int = 100,degrees : bool = False) -> float:
         if deegrees is set to True it will give the result in degrees\n
         Domain : All real numbers
     """
-    total = 0
-    for n in range(iterations):
-        nom_0 = powers.power(2,2*n) * powers.power(functions.factorial(n),2)
-        den_0 = functions.factorial(2*n+1)
-        div_0 = nom_0 / den_0
-        nom_1 = powers.power(x,2*n+1)
-        den_0 = powers.power(1 + powers.power(x,2),n+1)
-        div_1 = nom_1 / den_0
-        final = div_0 * div_1
-        total += final
+    forumlae = arccos(  (1-x**2) / (1 + x**2)    )
+    total = 0.5 * forumlae
     if degrees:
         total = toDegrees(total)
     return total
@@ -390,52 +382,4 @@ def complexRoot(n):
     return cos(pi/n) + complex(0,1) * sin(pi / n)
 
 if __name__ == "__main__":
-    # --- Trigonometric Iterations Test
-    print(cos(complex(0,1)))
-    num = 60
-    # Sine
-    print(sin(num,degrees=True,iterations=50)) #0.8660254037844386
-    print(sin(num,degrees=True,iterations=50)) #0.8660254037844386
-    print("\n")
-    # Cosine
-    print(cos(num,degrees=True,iterations=13)) #0.5000000000000001
-    print(cos(num,degrees=True,iterations=50)) #0.5000000000000001
-    print("\n")
-    # Tangent
-    print(tan(num,degrees=True,iterations=13)) #1.7320508075688767
-    print(tan(num,degrees=True,iterations=50)) #1.7320508075688767
-    print("\n")
-    # Cotangent
-    print(cot(num,degrees=True,iterations=13)) #0.577350269189626
-    print(cot(num,degrees=True,iterations=50)) #0.577350269189626
-    print("\n")
-    #Secant
-    print(sec(num,degrees=True,iterations=13)) #1.9999999999999996
-    print(sec(num,degrees=True,iterations=50)) #1.9999999999999996
-    print("\n")
-    # Cosecant
-    print(csc(num,degrees=True,iterations=13)) #1.1547005383792517
-    print(csc(num,degrees=True,iterations=50)) #1.1547005383792517
-
-    # --- Inverse Trigonometric Iterations Test NOTE : The 'degrees=bool' what no effect on the computation
-    print("\nTesting Inverse Trigonometric")
-
-    # val = 0.9
-    # print("\n")
-    # print(arcsin(val,degrees=True,iterations=25)) 
-    # print(arcsin(val,degrees=True,iterations=50)) 
-    # print("\n")
-    # print(arccos(val,degrees=True,iterations=25)) 
-    # print(arccos(val,degrees=True,iterations=50)) 
-    # print("\n")
-    # print(arctan(val,degrees=True,iterations=25)) 
-    # print(arctan(val,degrees=True,iterations=50)) 
-    # print("\n")
-    # print(arccot(val,degrees=True,iterations=25)) 
-    # print(arccot(val,degrees=True,iterations=50)) 
-    # print("\n")
-    # print(arcsec(-3,degrees=True,iterations=25)) 
-    # print(arcsec(-3,degrees=True,iterations=50)) 
-    # print("\n")
-    # print(arccsc(-3,degrees=True,iterations=25)) 
-    # print(arccsc(-3,degrees=True,iterations=50)) 
+    pass    

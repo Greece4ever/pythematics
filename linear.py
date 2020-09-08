@@ -26,8 +26,9 @@
 """
 
 from .basic import isNumber,isInteger,ModifyComplex,round_num
-import re
 from . import polynomials as pl
+from .num_theory import complex_polar
+import re
 from typing import Union,Any,Dict
 
 WHITESPACE = ' '
@@ -351,13 +352,14 @@ class Matrix:
                 continue
             NEW_ARRAY = []
             for val in item:
-
                 if not 'deg' in str(val):
                     if type(ModifyComplex(val)) == complex:
                         com_val = complex(val)
                         real = f'{com_val.real}'
                         imag = f'{com_val.imag}'
-                        NEW_ARRAY.append(f'{real}+{imag}j')
+                        # NEW_ARRAY.append(f'{real}+{imag}j')
+                        y = complex_polar(com_val)
+                        NEW_ARRAY.append(f"({round(y[0])},{round(y[1])})")
                         continue
 
                     test = float(str(val).replace("\t",''))
@@ -386,11 +388,7 @@ class Matrix:
                     elif 7 < len(finale) <= 9 :
                         NEW_ARRAY.append(f'{no_ws_pol}')
                     else:
-                        try:
-                            NEW_ARRAY.append(f'P{val.deg()}')
-                        except:
-                            degree = pl.PolString(ws_pol)
-                            NEW_ARRAY.append(f'P{degree.deg()}')
+                        NEW_ARRAY.append(f'({no_ws_pol})')
 
             
             cols_t = " ".join(["{: <10}" for _ in range(len(NEW_ARRAY))])
@@ -1011,32 +1009,10 @@ def eigenvalues(square_maxtirx : Matrix,iterations : int = 50) -> Dict[Union[com
     return eigen_values_vectors
 
 if __name__ == "__main__":    
-    # E = Matrix([
-    #     [2,0,0],
-    #     [1,2,2],
-    #     [-1,0,1]
-    # ])    
-
-    # e_vals = eigenValues(E,iterations=50)
-    # print(e_vals)
-
-    # A = Matrix([
-    #     [3,2,4],
-    #     [2,0,2],
-    #     [4,2,3]
-    # ])
-
-    # p_x = eigenValues(A)
-    # print(p_x)
-
-    # C = Matrix([
-    #     [7,3],
-    #     [3,-1]
-    # ])
-
     C = Matrix([
-        [pl.PolString("x^2+x^3+111111111111111"),pl.PolString("x+2")],
-        [pl.PolString("x+3"),pl.PolString("x+x")]
+        [complex(1,1),complex(50,50),1],
+        [4,5,6],
+        [7,8,9]
     ])
 
     print(C.__str_dspace__())
