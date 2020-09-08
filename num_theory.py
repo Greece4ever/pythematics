@@ -152,11 +152,9 @@ def complex_polar(z : complex):
     """
     a = z.real;b= z.imag
     r = (a**2 + b**2)**(1/2)
-    print(b / a)
     theta = arctan(b / a,iterations=300)
-    print(theta)
     return [r,theta]
 
 
 if __name__ == "__main__": 
-    print(complex_polar(complex(5,10000)))
+    print(complex_polar(complex(3,5)))

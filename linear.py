@@ -29,7 +29,7 @@ from .basic import isNumber,isInteger,ModifyComplex,round_num
 from . import polynomials as pl
 from .num_theory import complex_polar
 import re
-from typing import Union,Any,Dict
+from typing import Union,Any,Dict,Tuple
 
 WHITESPACE = ' '
 
@@ -41,7 +41,7 @@ POLY = type(epsilon) #<class 'pythematics.polynomials.Polynomial'>
 class Vector:
     def __init__(self,array):
         for item in array:
-            if not isNumber(item):
+            if not isNumber(item) and type(item) != complex:
                 raise ValueError("Vector arguments must be a list of {} or {} not {}".format(int,float,type(item)))
         self.matrix = array
         self.rows = len(self.matrix)
@@ -92,7 +92,7 @@ class Vector:
             the dot product is returned
         """
         empty = []
-        if isNumber(value): #Scalar
+        if isNumber(value) or type(value) == complex: #Scalar
             for item in self.matrix:
                 empty.append(value*item)
             return Vector(empty)
@@ -112,7 +112,7 @@ class Vector:
         return (-1) * self
 
     def __rmul__(self,scalar : Union[int,float]):
-        if type(scalar) in (int,float):
+        if type(scalar) in (int,float,complex):
             return self.__mul__(scalar)
         raise TypeError("Cannot perform '*' operation on Vector with {}")
 
@@ -231,91 +231,7 @@ class Matrix:
         """Returns a tuple containng number of rows and collumns (rows,collumns)"""
         return (self.rows,self.collumns) # (number of rows,number of collumns)
 
-    def __str__(self): #MAX_SPACES = 7
-        """Returns a visual representation of the Matrix"""
-        print("Rounded Matrix :\n")
-        x = [item[:] for item in self.matrix]
-        k = 0
-        for item in x:
-            j = 0
-            if len(item) > 8:
-                x[k] = item[1:9]
-                x[k].append("...")
-                x[k].append(self.cols[-1][j])
-                j+=1
-            k+=1
-        k = 0        
-        y = []    
-        for iteration in range(self.collumns):
-            if iteration >=8:
-                y.append("...")
-                y.append(f'C{self.collumns}')
-                break
-            y.append(f"C{iteration+1}")
-        x.insert(0,y)
-        j = 1
-        
-        for item in x:
-            if j > 9:
-                print("\n   .........")
-                print(f' R{len(x)-1}|',*[round(item,2) for item in x[-1]])
-                break
-            item[0] = f'\t{item[0]}'
-            if j==1:
-                print(' CI |',"\t".join(f' {val:<5}' for val in item))
-                j+=1
-                continue
-            NEW_ARRAY = []
-            for val in item:
-                val = str(val).replace("\t","")
-
-                if not "deg" in str(val):
-                    val = ModifyComplex(val)
-                    if type(val) == complex:
-                        com_val = complex(val)
-                        real = com_val.real
-                        imag = com_val.imag
-                        NEW_ARRAY.append(f'{f"{round(real):.0e}".replace("e+","|") if real !=0 else ""}{round(imag):.0e}i'.replace("e+","e"))
-                        continue
-
-                    test = float(str(val).replace("\t",''))
-                    if test != int(test):
-                        float_rounded = round(float(val),2)
-                        if len(str(float_rounded)) >= 7:
-                            value = f'{float_rounded:.0e}'
-                        else:
-                            value = f'{float_rounded:>4}'
-                    else:
-                        if len(str(val)) >= 7:
-                            value = f'{int(test):.0e}'
-                        else:
-                            value = f'{int(test):>3}'
-                    NEW_ARRAY.append(value)
-                    continue
-                else:
-                    ws_pol = str(val.split(":")[-1])
-                    no_ws_pol = re.sub(r"\s+",r"",ws_pol)
-                    NEW_ARRAY.append(f'({no_ws_pol})')
-
-            # print(f' R{j-1} |',"\t".join(f'{round(float(val),2):>4}' for val in item))
-            print(f' R{j-1} |',"\t".join(NEW_ARRAY))
-            j+=1
-        # i = 0
-        # for item in x:
-        #     if i!=0:
-        #         print(f'R{i+1}|',"\t".join([f'{val:>3}' for val in item]))
-        #     else:
-        #         print('   ',"\t".join([f'{val:>3}' for val in item]))
-        #         print("")
-        #     i+=1
-        # i = 0
-        # for item in x:
-        #     print(f' R{i+1} |',*[f'{val:>3}' for val in item])
-        #     i+=1
-        return f'\n{self.rows} x {self.collumns} Matrix\n'
-
-
-    def __str_dspace__(self):
+    def __str__(self):
         print("Rounded Matrix :\n")
         x = [item[:] for item in self.matrix]
         k = 0
@@ -353,7 +269,9 @@ class Matrix:
             NEW_ARRAY = []
             for val in item:
                 if not 'deg' in str(val):
-                    if type(ModifyComplex(val)) == complex:
+                    val = complex(val)
+
+                    if val.imag != 0:                    
                         com_val = complex(val)
                         real = f'{com_val.real}'
                         imag = f'{com_val.imag}'
@@ -362,9 +280,10 @@ class Matrix:
                         NEW_ARRAY.append(f"({round(y[0])},{round(y[1])})")
                         continue
 
-                    test = float(str(val).replace("\t",''))
+                    test = val.real
+
                     if test != int(test):
-                        float_rounded = float(val)
+                        float_rounded = float(test)
                         if len(str(float_rounded)) >= 10:
                             value = round(float_rounded,2)
                             if len(str(value)) >=10:
@@ -398,7 +317,7 @@ class Matrix:
 
     def __rmul__(self,scalar):
         """Matrix multiplication by scalar"""
-        if type(scalar) in (int,float):
+        if type(scalar) in (int,float,complex):
             new_matrix = [[] for i in range(self.rows)] #Add the rows
             i = 0
             for row in self.matrix:
@@ -444,7 +363,7 @@ class Matrix:
         return Matrix(new_matrix)
 
     def __mul__(self,value):
-        if type(value) in (int,float):
+        if type(value) in (int,float,complex):
             return self.__rmul__(value)
         if type(value) == Vector:
             vector_to_matrix = Matrix([[item] for item in value.getMatrix()])
@@ -469,6 +388,13 @@ class Matrix:
 
     def __getitem__(self,index):
         return self.rawMatrix()[index]
+
+    def appendCollumn(self,collumn : list) -> None:
+        assert len(collumn) ==  len(self.colls(0)), "New Collumn must be of the same size as all the other collumns"
+        new_matrix = [item[:] for item in self.rawMatrix().copy()]
+        for i in range(len(collumn)):
+            new_matrix[i].append(collumn[i])
+        return Matrix(new_matrix)
 
     def transpose(self):
         """Evaluates the function adjugate(self)"""
@@ -514,6 +440,9 @@ class Matrix:
 
     def eigen_values(self,iterations : int = 50):
         return eigenValues(self,iterations)
+
+    def rank(self):
+        return rank(self)
 
     def forEach(self,function : callable,applyChanges : bool = False) -> Union['Matrix',None]:
         """For each element of the matrix it performs a given function on that element\n
@@ -777,66 +706,6 @@ def CreateMatrixPassingCollumns(array_of_arrays : list) -> Matrix:
             i+=1
     return Matrix(ROWS)
 
-def SolveCramer(matrix : Matrix,unknowns : Union[tuple,list],outputs : Vector) -> dict:
-    """
-        Solves a system of linear equations given The equations in Matrix format, the names of the unknowns and the desired outputs in a tuple
-        As the name suggest it uses cramer's rule computing the determinant's of each matrix and dividing the by the determinant of the base matrix
-        \nThe following system of equations:
-        -----------
-        2x+y-z=1
-        3x+2y-2z=13
-        4x-2y+3z=9
-        ------------ 
-        \nWould be translated into this form:
-
-        # For each of the coefficients of the equations put them in a Matrix
-        matrix = Matrix([
-            [2,  1, -1],
-            [3,  2,  2],
-            [4, -2,  3]
-        ])
-
-        # Wrap the desired outputs into a Vector 
-        outputs = Vector([1,13,9])
-
-        #Finally wrap your unknowns in a tuple
-        unknowns = ('x','y','z')
-
-        #Apply cramer's rule
-        print(SolveCramer(matrix,unknowns,outputs))
-
-        \nThis would output the following:
-        {'x': 1.0, 'y': 2.0, 'z': 3.0}
-
-        \nif there are no solutions or there are infinetely many of them an Exception is raised 
-
-    """
-    base_determinant = matrix.determinant() #This is the determinant of the base system that always stays constant
-    #If it is 0 either it has no solution or infinite
-    if base_determinant==0:
-        raise ValueError("Base determinant is 0, 0 or infinite solutions")
-    raw_outputs = outputs.getMatrix()
-    determinants = []
-    for i in range(matrix.collumns): #3
-        new_matrix = [[] for item in matrix.rawMatrix()]
-        new_matrix[i].extend(raw_outputs) #Puts the outputs in the right place
-        not_to_push = matrix.colls(i)
-        j = 0
-        for col in matrix.collsAll():
-            if col != not_to_push:
-                new_matrix[j].extend(col)
-            j+=1
-        determinants.append(determinant(CreateMatrixPassingCollumns(new_matrix)))
-    variables = {}
-
-    for variable in unknowns:
-        variables[variable] = None
-    k = 0
-    for var in variables:
-        variables[var] = determinants[k] /base_determinant
-        k+=1   
-    return variables
-
 def combine(r1, r2, scalar):
     r1[:] = [x-scalar*y for x,y in zip(r1,r2)]
         
@@ -886,7 +755,79 @@ def ref(matrix : Matrix) -> Matrix:
             break
     return Matrix(matrix_copy)
 
-def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector) -> dict:
+def isConsistent(coefficient_matrix : Matrix,augmented_matrix : Matrix) -> bool:
+    """Determines wheter a system of equations is consistent"""
+    r1 : int = coefficient_matrix.rank()
+    r2 : int = augmented_matrix.rank()
+    return r1 == r2
+
+def SolveCramer(matrix : Matrix,unknowns : Union[tuple,list],outputs : Vector, ContinueOnFail : bool = False ) -> dict:
+    """
+        Solves a system of linear equations given The equations in Matrix format, the names of the unknowns and the desired outputs in a tuple
+        As the name suggest it uses cramer's rule computing the determinant's of each matrix and dividing the by the determinant of the base matrix
+        \nThe following system of equations:
+        -----------
+        2x+y-z=1
+        3x+2y-2z=13
+        4x-2y+3z=9
+        ------------ 
+        \nWould be translated into this form:
+
+        # For each of the coefficients of the equations put them in a Matrix
+        matrix = Matrix([
+            [2,  1, -1],
+            [3,  2,  2],
+            [4, -2,  3]
+        ])
+
+        # Wrap the desired outputs into a Vector 
+        outputs = Vector([1,13,9])
+
+        #Finally wrap your unknowns in a tuple
+        unknowns = ('x','y','z')
+
+        #Apply cramer's rule
+        print(SolveCramer(matrix,unknowns,outputs))
+
+        \nThis would output the following:
+        {'x': 1.0, 'y': 2.0, 'z': 3.0}
+
+        \nif there are no solutions or there are infinetely many of them an Exception is raised 
+
+    """
+    base_determinant = matrix.determinant() #This is the determinant of the base system that always stays constant
+    #If it is 0 either it has no solution or infinite
+    if base_determinant==0:
+        augmented_matrix = matrix.appendCollumn(outputs.getMatrix())
+        assert isConsistent(matrix,augmented_matrix),"Inconsistent System : 0 Solutions (Coefficient Matrix rank != Augmented Matrix rank)"
+        if not ContinueOnFail:
+            raise RuntimeError("Root Calclulation Failed : Determinant is 0 and system has infinite solutions (stopped because ContinueOnFail was {})".format(ContinueOnFail))
+        return matrix.solve(outputs,unknowns,useRef=True)
+    raw_outputs = outputs.getMatrix()
+    determinants = []
+    for i in range(matrix.collumns): #3
+        new_matrix = [[] for item in matrix.rawMatrix()]
+        new_matrix[i].extend(raw_outputs) #Puts the outputs in the right place
+        not_to_push = matrix.colls(i)
+        j = 0
+        for col in matrix.collsAll():
+            if col != not_to_push:
+                new_matrix[j].extend(col)
+            j+=1
+        determinants.append(determinant(CreateMatrixPassingCollumns(new_matrix)))
+    variables = {}
+    
+
+    for variable in unknowns:
+        variables[variable] = None
+    k = 0
+    for var in variables:
+        variables[var] = determinants[k] /base_determinant
+        k+=1   
+    return variables
+
+
+def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector, onFailSetConst : Tuple[int,str,float] = 1) -> dict:
     """Solves a system of linear equations using backsubtitution,
        after performing row reduction on a given matrix
        
@@ -921,7 +862,11 @@ def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector) -> dic
     final_matrix = CreateMatrixPassingCollumns(collumns) #matrix from collumns
     reduced_matrix = ref(final_matrix) #row reduction performed
     #c*z = 0.86 => z = 0.86 / c
-    z = reduced_matrix.index(-1,-1) / reduced_matrix.index(-1,-2)
+    try:
+        z = reduced_matrix.index(-1,-1) / reduced_matrix.index(-1,-2)
+    except: #No Solutions or infinite
+        assert isConsistent(copy_matrix,final_matrix),"Inconsistent System : 0 Solutions (Coefficient Matrix rank != Augmented Matrix rank)"
+        z = onFailSetConst #NOTE : HERE IF THE MATRIX IS CONSISTENT 1 IS PICKED AS THE FINAL VALUE Z (GIVING 1 OF THE INFINITE SOLUTIONS)
     VALUES = []
     VALUES.append(z) #Begin by having the value of z inside the values
     iterable = list(reversed([row for row in reduced_matrix.rawMatrix()]))
@@ -987,7 +932,7 @@ def substitute(expression : Any,term : Union[float,complex]):
         return expression
     return expression.getFunction()(term)
 
-def eigenvalues(square_maxtirx : Matrix,iterations : int = 50) -> Dict[Union[complex,float],Vector]:
+def EigenVectors(square_maxtirx : Matrix,iterations : int = 50) -> Dict[Union[complex,float],Vector]:
     char_pol = CharacteristicPolynomial(square_maxtirx,returnSub=True)
     sub = char_pol[1]
     eigen_values = char_pol[0].roots(iterations=iterations) #The roots are the eigen Values
@@ -995,24 +940,36 @@ def eigenvalues(square_maxtirx : Matrix,iterations : int = 50) -> Dict[Union[com
     unknowns = [i for i in range(dim)]
     output = Vector0(dim)
     eigen_values_vectors = {}
-    print(sub)
     for root in eigen_values:
         m_0 = sub.forEach(lambda num : substitute(num,root)) #Substitute the Eigen Values in the Lamda scaled Identity Matrix
-        #The reduced matrix will have infinitely many results
-        print(m_0)
-        print(m_0.ref())
-        continue
         eigen_vector = m_0.solve(output,unknowns) #Solve the linear system
-        print(eigen_vector)
         eigen_vector = Vector([sol for sol in eigen_vector])
         eigen_values_vectors[root] = eigen_vector #Eigen value has a coressponding Vector
     return eigen_values_vectors
 
 if __name__ == "__main__":    
-    C = Matrix([
-        [complex(1,1),complex(50,50),1],
-        [4,5,6],
-        [7,8,9]
+    
+    unknowns = ('x','y')
+
+    # print(A)
+    # print(A.ref())
+    # print(A.rank())
+
+    C = Matrix([ #Infinite Solutions
+        [2,4,8],
+        [1,2,4]
+        ])
+
+    B = Matrix([
+        [1,2],
+        [2,4]
     ])
 
-    print(C.__str_dspace__())
+    A = Matrix([
+        [2,4],
+        [1,2]
+    ])
+
+    print(SolveCramer(A,('x','y'),Vector([8,4])))
+
+    # print(SolveCramer(Y,unknowns,Vector([3,4])))
