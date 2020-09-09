@@ -43,8 +43,8 @@ POLY = type(epsilon) #<class 'pythematics.polynomials.Polynomial'>
 class Vector:
     def __init__(self,array):
         for item in array:
-            if not isNumber(item) and type(item) != complex:
-                raise ValueError("Vector arguments must be a list of {} or {} not {}".format(int,float,type(item)))
+            if not isNumber(item) and type(item) != complex and type(item) != POLY:
+                raise ValueError("Vector arguments must be a list of {} , {} , {} or {} not {}".format(int,float,complex,POLY,type(item)))
         self.matrix = array
         self.rows = len(self.matrix)
         self.collumns = 1
@@ -53,6 +53,9 @@ class Vector:
         print("")
         i = 1
         for item in self.matrix:
+            if 'deg' in str(item): #Check if polynomial
+                item = re.sub(r"\s+",'',str(item).split(":")[-1])
+                item = f'({item})'
             print(f'R{i}| {item:>3}')
             i+=1
         s2 = "\n{} x {} Vector array\n".format(self.rows,self.collumns)
@@ -75,7 +78,7 @@ class Vector:
             for i in range(self.getSize()):
                 empty.append(value.getMatrix()[i] + self.getMatrix()[i])
             return Vector(empty)
-        raise TypeError("Cannot perform addition on Vector with {}".format(type(value)))
+        return NotImplemented
 
     def __sub__(self,value):
         empty = []
@@ -86,7 +89,7 @@ class Vector:
                 empty.append(value.getMatrix()[i] - self.getMatrix()[i])
             return Vector(empty)
         else:
-            raise ValueError("Cannot Perform subtraction : {} with {}".format(type(self),type(value)))
+            return NotImplemented
 
     def __len__(self):
         return self.rows
@@ -97,7 +100,7 @@ class Vector:
             the dot product is returned
         """
         empty = []
-        if isNumber(value) or type(value) == complex or type(value) == epsilon: #Scalar
+        if isNumber(value) or type(value) == complex or type(value) == type(epsilon): #Scalar
             for item in self.matrix:
                 empty.append(value*item)
             return Vector(empty)
@@ -111,13 +114,13 @@ class Vector:
             vector_to_matrix = Matrix([[item] for item in self.getMatrix()])
             return vector_to_matrix * value
 
-        raise TypeError("Cannot multiply Vector with {}".format(type(value)))
+        return NotImplemented #Redefine with __rmul__
 
     def __neg__(self):
         return (-1) * self
 
     def __rmul__(self,scalar : Union[int,float]):
-        if type(scalar) in (int,float,complex,type(epsilon)):
+        if type(scalar) in (int,float,complex,POLY):
             return self.__mul__(scalar)
         raise TypeError("Cannot perform '*' operation on Vector with {}")
 
@@ -1019,16 +1022,4 @@ def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = F
     return arccos(div,degrees=degrees)
 
 if __name__ == "__main__":    
-    A = IdenityMatrix(dimensions=3)
-    x = pl.x
-    print(x*A)
-
-
-
-    # unknowns = ('x','y')
-    # output = Vector([5,11])
-    # solution1 = A.solve(output,unknowns)
-    # solution2 = A.solve(output,unknowns,useRef=True)
-    # print(solution1)
-    # print(solution2)
-
+    pass

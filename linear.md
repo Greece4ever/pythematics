@@ -1,16 +1,18 @@
-## Linear Algebra
+# Linear Algebra
 
 > There is hardly any theory which is more elementary (than linear algebra), in spite of the fact that generations of professors and textbook writers have obscured its simplicity by preposterous calculations with matrices.
 
 That's **exactly** what this submodule aims to simplify and automate while giving a visual interpretation of what it is doing.
 
 
-# Table of contents
+### Table of contents
 
-- [Some Very Basic Operations (**Adittion**, **Subraction**,**Multiplication** and Vector **Products**)](#TODO1)
-- [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix](#TODO2)
-   - [Finding the determinant and generating **N** dimensional identity Matrices](#TODO3)
+- [Some Very Basic Operations (**Adittion**, **Subraction**,**Multiplication** and Vector **Products**)](#basic-operations)
+- [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix](#learning-the-operations-by-finding-the-eigen-vectors---values-of-a-matrix)
+   - [Finding the determinant and generating **N** dimensional identity Matrices](#determinant-in-detail)
+   - [Solving Linear Systems of Equations (**BONUS** : Solving Polynomial equations)](#linear-systems-of-equations)
 
+## Basic Operations
 
 The way to Declare a **Matrix** is by passing a **list of lists**, each representing the row of the collumn, while on the other hand you declare a **Vector** by passing in an array of arguments.
 
@@ -111,10 +113,9 @@ print(w.cross(v)) #The Cross product of w and v
 print(arccos(angle)) #The angle between Vector w and v in radians
 
 ```
-- **Output**
+- The **Output** (In order)
 
 ```c
-
 // A*B
 
  CI |   C1        C2         C3         C4
@@ -142,10 +143,11 @@ R3|  -3
 0.22375608124549928 //The Angle in radians
 ```
 
+Of course for finding the angle of two Vectors there already exists a function `AngleBetweenVectors` and for the magnitude `magnitude` but we just recreated it here for example purposes
 
 ## Learning the operations by finding the Eigen Vectors - Values of a Matrix
 
-What [Eigen-Vectors](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) and [Eigen-Values](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) are does not really matter as we only need the Algorithm to compute them since many of the fundamental operations are Involved in this process.
+What [Eigen-Vectors](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) and [Eigen-Values](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) are does not really matter as we only need the Algorithm to compute them since many of the fundamental operations are Involved in this process. In addition, there already exists a callabe method `EigenVectors` or if you like `.EigenVectors()` but we're going to build it here from scratch for the sake of **Learning**
 
 > Eigen-Vector of a square Matrix **A** is a Vector ![w](Latex/linear/w.png) that when multiplied by a scalar **λ** it produces the same result as multiplying that scalar **λ** with Matrix **A**. Mathematically :  ![eigen](Latex/linear/eigen.png), where both sides are Vectors
 
@@ -160,20 +162,17 @@ The determinant will return a **Polynomial** (as the name suggests) whose **root
 > Proceed with the following steps
 * Compute the roots of the **Characteristic-Polynomial** and store them in memory in an array as **roots**
 * Get the Matrix from the very first step **A**-(**λ** * **Identity Matrix**) store it in memory as **sub**
+- Declare a Dictionary **dict** Where we're storing the **Eigenvalues** with their coressponding **Eigenvectors**
 
 Now Perform the following steps (in pseudo-code)
 
-```python
-EIGEN_VALUES_AND_EIGEN_VECTORS = {}
+- **for** each **root** in **roots** (roots of the **Characteristic-Polynomial**)
+   - **Take** the Matrix **sub** (First Step) and wherever you see **lamda** substitute the **root**
+   - **Take** the above **Matrix** and Solve the Corresponding System with target output the **0 Vector**
+   - **Take** all the solutions from the above **result** put them in a Vector and insert that Vector into **dict** with a key of **root**  `{root:result}`
 
-for every root in roots: #The roots of the Characteristic Polynomial
-    Substitute the root in Matrix "sub" wherever you see lamda #Matrix sub if you remember has Polynomial Values
-    Solve the system represented in substituted Matrix "sub" by setting as the desired output the "zero-vector"      
-    Take the results of the system above and put them inside a Vector
-    #Each eigen value has a corresponding eigen vector
-    Insert into "EIGEN_VALUES_AND_EIGEN_VECTORS" the root with a key of the Above Vector {root : Vector} 
-```
-That's it, if you did not understand any steps, no worry, you can continue and see the real code
+
+**That's it**, if you did not understand any steps, no worry, you can continue and see the real code
 
 ### Using The Real Code
 
@@ -203,12 +202,60 @@ Here I'm declaring the type of each variable so as for the code to make more sen
 
 - `A.__len__()` returns the dimensions of the matrix but because it is square, they are exactly the same
 - `A - (x * identity_matrix)` Operations with normal numbers as well as Polynomials are well defined
-- `det` which is the determinant of `polynomial_matrix ` will produce a Vector
+- `det` which is the determinant of `polynomial_matrix ` will produce a Polynomial in this case
 
 - `return det,polynomial_matrix` We need both the **Polynomial** and the **Matrix** for further computations (see above)
 
 
 > Do not forget that `.determinant()` (or `determinant(matrix)` if you wish) is only possible if the Matrix has the **same** number of **rows** and **collumns** - **Square** Matrix
+
+**NOTE** : `polynomial_matrix` will produce a Polynomial in this case (Point **3**)
+
+In this specific case we have a Matrix that consists of Polynomials and calculating the **Determinant** involves some Polynomial Operations since they are treated normally as Any Number, For **Example**:
+
+### Determinant In Detail
+
+A determinant is usefull for many things such as Matrix **inversion** and **Solving** linear systems and in fact many of the **built-in** functions (the module) are based on the determinant such as`.inverse()` - `inverse` and `.solve()` - `solveCramer`.
+
+For computations the module uses **Cramer's** recursive rule for computing the determinant
+
+```python
+A = IdenityMatrix(dimensions=3) #The Identity Matrix
+B = Matrix([
+    [1,2,3],
+    [4,5,6],
+    [7,8,9]
+])
+x = pl.x #The polynomial 'x'
+polynomial_matrix = A*(x+1)
+print(B)
+print(B.determinant())
+print(polynomial_matrix)
+print(polynomial_matrix.determinant()) 
+```
+- **Output** (In order)
+
+```c
+
+ CI |   C1        C2         C3
+ R1 |   1          2          3
+ R2 |   4          5          6
+ R3 |   7          8          9
+
+3 x 3 Matrix
+
+0 // The determinant of the integer Matrix above
+
+ CI |   C1        C2         C3
+ R1 | (x+1)        0          0
+ R2 |   0        (x+1)        0
+ R3 |   0          0        (x+1)
+
+3 x 3 Matrix
+
+Polynomial of degree 3 : x^3 + 3x^2 + 3x + 1 //The determinant of the Above polynomial Matrix
+```
+
 
 Now we need to define our function that actually finds the Eigen-Values and for that we need
  1. Another function for  finding the **roots** of the Polynomial which are the **Eigenvalues**
@@ -218,6 +265,8 @@ The corresponding methods are `.roots` for the **Polynomials** and `.solve` for 
 
 > `matrix.solve(unknowns : Union[tuple,list],output : Vector)`, We need to provide a tuple or a list containing the names of the variables we need to solve for and the desired output we want to get
 
+### Linear Systems of Equations
+
 To better understand how the `.solve()` method works consider the following system of equations
 
 > ![Example System](Latex/linear/system.png) 
@@ -226,10 +275,10 @@ If you were to solve this system using **Cramer's Method**  (`SolveCramer`) or b
 
 > ![System In Matrix](Latex/linear/matrix_system.png)
 
-and here that's exatcly what you need to pass but in a slightly different format
+and here that's exactly what you need to pass but in a slightly different format
 
-- The outputs **5** and **11** as a `Vector`
-- the unknowns **x** and **y** as a **list** or a **tuple** `('x','y')`
+- The **Outputs** : **5** and **11** as a `Vector`
+- the **Unknowns** : **x** and **y** as a **list** or a **tuple** `('x','y')`
 
 ```python
 import pythematics.linear as lin

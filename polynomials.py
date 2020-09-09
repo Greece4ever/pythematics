@@ -170,7 +170,7 @@ class Polynomial:
             x.sort()
             return checkPolynomial([new_dick.get(item) for item in x])
 
-        raise ValueError("Cannot multiply Polynomial with {}".format(type(value)))
+        return NotImplemented #You can redefine it with __rmul__
 
     def __rmul__(self,value : [int,float,complex,"Polynomial"]) -> Union['Polynomial',float]: #Right mul
         return self.__mul__(value)
@@ -357,17 +357,4 @@ def reduceCoefficients(polynomial : Polynomial) -> Polynomial:
 x = PolString("x")
 
 if __name__ == "__main__":
-    #NOTE : Kerner-Durand Works if and only if the leading coefficient is one
-    __safe__ : bool = False
-
-    if __safe__:
-        P = x**5 + x**4 + x**3 + x**2 + 1
-        roots = P.roots(iterations=50)  
-        for root in roots:
-            func = P.getFunction()(root)
-            print(f'{root} : Im({round(func.real)},{round(func.imag)})')
-    else:
-        P = 5*x**4 + 3*x**2 + 2*x**2 +1
-        roots = P.roots(iterations=50)
-        for root in roots:
-            print(f'{root} : {P.getFunction()(root)}')
+    pass
