@@ -139,7 +139,13 @@ class Vector:
 
     def cross(self,Vector : 'Vector') -> 'Vector':
         return cross(self,Vector)
+
+    def magnitude(self):
+        return magnitude(self)
     
+    def AngleVector(vector1 : "Vector",degrees : bool = False) -> float:
+        return AngleBetweenVectors(self,vector1,degrees)
+
     # def cross(self,Vector)
 
 class Matrix:
@@ -1027,14 +1033,23 @@ def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = F
     div : float = a.dot(b) / (magnitude(a) * magnitude(b))
     return arccos(div,degrees=degrees)
 
-if __name__ == "__main__":    
+if __name__ == "__main__":   
     A = Matrix([
-        [4,1],
-        [6,3]
+    [5,3,4,7,13],
+    [1,5,7,13,2],  
+    [9,1,3,8,7,],
+    [1,1,1,1,1],
+    [2,2,3,4,5]
     ])
 
-    vs = EigenVectors(A)
-    for item in vs:
-        print(A*vs[item])
-        print(item*vs[item])
+    unknowns = ('x','y','z','q','p')
+    Output = Vector([10,15,20,25,30])
 
+
+    print(A.solve(
+        Output,unknowns,useRef=True
+    ))
+
+    print(A.solve(
+        Output,unknowns,useRef=False
+    ))
