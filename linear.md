@@ -9,8 +9,10 @@ That's **exactly** what this submodule aims to simplify and automate while givin
 
 - [Some Very Basic Operations (**Adittion**, **Subraction**,**Multiplication** and Vector **Products**)](#basic-operations)
 - [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix](#learning-the-operations-by-finding-the-eigen-vectors---values-of-a-matrix)
-   - [Finding the determinant and generating **N** dimensional identity Matrices](#determinant-in-detail)
-   - [Solving Linear Systems of Equations (**BONUS** : Solving Polynomial equations)](#linear-systems-of-equations)
+   - [Finding the determinant of a Square Matrix](#determinant-in-detail)
+   - [Solving Linear Systems of Equations](#linear-systems-of-equations)
+   - [Mapping Each Element of a Matrix](#TODO1)
+- [List of extra **usefull** operations (**Inverse**,**Cofactors**,**Transpose** ...)](#TODO4)
 
 ## Basic Operations
 
@@ -306,4 +308,151 @@ cramer = lin.SolveCramer(A,output,unknowns)
 reduction = lin.solveREF(A,output,unknowns)
 ```
 
-In general `useRef=True` or if you like `solveREF` is more powerful that `solveCramer` in situations where there are infinitely many solutions, since **Cramer's Method** fail's if you specify the parameter `ContinueOnFail=True` it will solve the remaining equations pick a somewhat random value for the **free** variable (By Default it is set to 1) which you can of course change if you explicitely call `solveREF` and set the parameter `onFailSetConst`. if there are **NO** (Rank of **Coefficient** Matrix is less than rank of **Augemented** Matrix) solutions it will through an `AssertionError`
+In general `useRef=True` or if you like `solveREF` is more powerful that `solveCramer` in situations where there are infinitely many solutions, when **Cramer's Method** fail's if you specify the parameter `ContinueOnFail=True` it will solve the remaining equations picking the value "1" for the **free** variable (That's the default) (**AND THE METHOD IT WILL USE WILL BE ROW REDUCTION**) which you can of course change if you explicitely call `solveREF` and set the parameter `onFailSetConst`. if there are **NO** (Rank of **Coefficient** Matrix is less than rank of **Augemented** Matrix) solutions it will throw an `AssertionError`
+
+Here in our example the Matrix that will be produced (by substitution) will always have infinite solutions so we are going to use **Row Reduction** to improve Performance
+
+Continuing on where we left, we know we can Solve the Polynomial equation and the Linear system but how can we substitute the eigen Vectors wherever we see **lamda**?
+
+### Mapping Items of a Matrix
+
+The answer to this is the `.forEach()` method which for each element of the Matrix it Applies a certain function and returns a new **Matrix** with that function applied to every element - something like array **map**
+
+```python
+from pythematics.functions import exp
+
+def sigmoid(x):
+    return 1 / (1 + exp(-x) )
+
+print(A.forEach(sigmoid))
+
+#  CI |   C1        C2
+#  R1 |  0.98       0.73
+#  R2 |  1.0        0.95
+
+# 2 x 2 Matrix
+```
+The Polynomial Matrix we Generate will look some like this (the **sub** Matrix from the very first step)
+
+```c
+ CI |   C1        C2
+ R1 | (-x+4)       1
+ R2 |   6        (-x+3)
+
+```
+
+Then you can get the **Polynomial** as a function is by using the `.getFunction()` method, which will return a fully usable lamda function
+
+So to substitute for each element we are goind to use the `.forEach()` method and define a new function `substitute` which given a number it will substitute it into any Polynomial it finds
+
+```python
+import pythematics.polynomials as pl
+
+x = pl.x
+
+def substitute(expression ,number):
+    if not type(expression) == type(x):
+        return expression #if not a Polynomial simply return the expression
+    return expression.getFunction()(term)
+```
+And now since we know everything, we can complete our function
+
+```
+def eigenvectors(matrix):
+    char_pol = CharacteristicPolynomial(matrix) #Find the Characteristic Polynomials and the sub Matrix
+    char_pol_roots = char_pol[0].roots(iterations=50) #Find the roots of the 1st element (Polynomial)
+    sub_matrix = char_pol[1] #The 0th element is the sub matrix
+    output = Vector0(dimensions=matrix.__len__()[0]) #Our Target is the 0 Vector of N dimensions 
+    unknowns = [i for i in range(matrix.__len__()[0]) #The names of our 'unknowns'
+    eigen_dict = {} #The Dictionary in which we will store the Values with their Vectors
+    for root in char_pol_roots:
+          m_0 = sub.forEach(lambda num : substitute(num,root)) #Substitute the Eigen Values in the Lamda scaled Identity Matrix
+        eigen_vector = m_0.solve(output,unknowns,useRef=True) #Solve the linear system
+        eigen_vector = Vector([eigen_vector.get(sol) for sol in eigen_vector])
+        eigen_dict[root] = eigen_vector #Eigen value has a coressponding Vector
+        #Insert into the dictionary the root with it's eigen Vector
+```
+Each **eigenvalue** has **infinite** coressponding **eigenvectors** but we are only goind to return one for the sake of simplicity (You can find them by instead of substituting the number **1** to use another Polynomial to get a formula, while Solving the **Linear Equations**)
+
+
+To test our function we're going to use The following simple **2x2** Matrix
+
+> ![Eigen Example Matrix](http://www.sciweavers.org/upload/Tex2Img_1599685273/render.png)
+
+```python
+from pythematics.linear import *
+
+A = Matrix([
+    [4,1],
+    [6,3]
+])
+
+vs = EigenVectors(A)
+for item in vs:
+    print(A*vs[item])
+    print(item*vs[item])
+```
+
+- **Output**
+
+```cs
+ CI |   C1
+ R1 | -0.33
+ R2 |   1
+
+2 x 1 Matrix
+
+
+R1| (-0.3333333333333333+0j)
+R2| (1+0j)
+
+2 x 1 Vector array
+
+
+ CI |   C1
+ R1 |   3
+ R2 |   6
+
+2 x 1 Matrix
+
+
+R1| (3+0j)
+R2| (6+0j)
+
+2 x 1 Vector array
+```
+
+And in fact it is correct (**despite** a small floating point Error in the first **Vector**)
+
+### Aditional Methods
+
+**Methods** and their corresponding **functions** for Matrix Manipulation
+
+|Method|Functional |Description|
+|-------------------|---|---|
+|`.inverse()`     | `inverse`   |Finds the Inverse of a square Matrix   |
+|`.ref()`| `ref`  | Returns the REF of a Matrix   |
+|`.determinant()`         |`determinant`   | Finds the Determinant of a square Matrix  |
+|`.transpose()` |`adjugate`   |Returns the passed Matrix Transposed   |
+|`cofactors()`    | `MatrixOfCofactors`  |Returns the Matrix of cofactors of a Matrix   |
+|`.minors()`    |`MatrixOfMinors`   |Returns the Matrix of Minors of a Matrix   |
+|`.trace()`      |`Trace`   |Returns the sum of the diagnals   |
+|  None         |`IdenityMatrix`   |Returns the Identity Matrix of N dimensions   |
+| `.swap`          |    `SwapNoCopy`              | Swaps 2 rows of a given Matrix                    |
+
+**Methods** for Solving systems of Equations
+
+|Name|function |Description|
+|-------------------|---|---|
+|Row Reduction     | `.solve(useRef=True)` and `solveREF`   |Solves using row Reduction   |
+|Cramer's rule| `.solve` and `solveCramer`  | Finds determinants recursively|
+
+**Vector** Operations - Methods for manipulation
+
+|Method|Functional |Description|
+|-------------------|---|---|
+|`.dot()` or by * operator     | `dot`   |Dot Product of 2 Vectors|
+|`.cross()`| `cross`  | Cross Product of 2 3D Vectors|
+|`.magnitude()`         |`magnitude`   | Magnitude of a Vector |
+|`.AngleVector()`         |`AngleBetweenVectors`   | Returns the angle between 2 Vectors |
+

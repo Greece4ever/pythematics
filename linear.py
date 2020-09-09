@@ -1037,3 +1037,4 @@ if __name__ == "__main__":
     for item in vs:
         print(A*vs[item])
         print(item*vs[item])
+
