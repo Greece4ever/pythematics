@@ -27,6 +27,8 @@
 
 from .basic import isNumber,isInteger,isComplex
 from . import polynomials as pl
+from .trigonometric import arccos
+from .powers import sqrt
 from .num_theory import complex_polar
 import re
 from typing import Union,Any,Dict,Tuple
@@ -61,6 +63,9 @@ class Vector:
 
     def getSize(self):
         return self.rows
+
+    def __getitem__(self,index):
+        return self.matrix[index]
 
     def __add__(self,value):
         empty = []
@@ -453,20 +458,48 @@ class Matrix:
         self.rawMatrix()[Row2] = val_0
 
     def solve(self,Output : Vector,unknowns : Union[tuple,list],useRef=False) -> dict:
+        """Solves the system of linear equations represented by the current Matrix\n
+           An 'Output' Vector should be provided in order for the augmented Matrix to complete,\n
+           and also the Name of the unknowns should be provided in order to receive the solutions in order\n
+           You can also specify useRef=bool on wheter you want to use Row reduction, (if it is et to false
+           it uses Cramer's rule)
+
+           EXAMPLE : 
+            A = Matrix([
+                [1,2],
+                [3,4]
+            ])
+
+            unknowns = ('x','y')
+            output = Vector([5,11])
+            solution = A.solve(output,unknowns)
+            print(solution)
+
+           OUTPUT :
+            {'x': 1.0, 'y': 2.0}
+        """
         if not useRef:
             return SolveCramer(self,unknowns,Output)
         return solveREF(self,unknowns,Output)
 
     def ref(self):
+        """Returns the Redcued Echelon Form of the Matrix"""
         return ref(self)
 
     def CharacteristicPolynomial(self):
+        """Returns a Polynomial whose Roots are
+           the eigenvalues of that Matrix
+        """
         return CharacteristicPolynomial(self)
 
     def eigen_values(self,iterations : int = 50):
+        """Find the eigenvalues of the Matrix
+           given that it is square\n
+        """
         return eigenValues(self,iterations)
 
     def rank(self):
+        """Returns the number of linearly independent rows"""
         return rank(self)
 
     def forEach(self,function : callable,applyChanges : bool = False) -> Union['Matrix',None]:
@@ -972,15 +1005,50 @@ def EigenVectors(square_maxtirx : Matrix,iterations : int = 50) -> Dict[Union[co
         eigen_values_vectors[root] = eigen_vector #Eigen value has a coressponding Vector
     return eigen_values_vectors
 
+
+def magnitude(vector : Vector) -> Union[float,int]:
+    components = []
+    for i in range(len(vector)):
+        components.append(vector[i]**2)
+    return sqrt(sum(components))
+
+def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = False) -> Union[float,int]:
+    a : Vector = vector_0
+    b : Vector = vector_1
+    div : float = a.dot(b) / (magnitude(a) * magnitude(b))
+    return arccos(div,degrees=degrees)
+
 if __name__ == "__main__":    
     A = Matrix([
         [1,2],
         [3,4]
     ])
 
-    unknowns = ('x','y')
-    output = Vector([5,11])
-    solution1 = A.solve(output,unknowns)
-    solution2 = A.solve(output,unknowns,useRef=True)
-    print(solution1)
-    print(solution2)
+    B = Matrix([
+        [1,2,3,4],
+        [5,6,7,8]
+    ])
+
+    w = Vector([
+        1,2,3
+    ])
+
+    v = Vector([
+        4,5,6
+    ])
+
+
+    angle = (w*v) / (magnitude(w)*magnitude(v)) #Computing the Angle between to Vectors
+
+    print(A*B)
+    print(A+A) #SAME DIMENSIONS
+    print(w.cross(v))
+    print(arccos(angle))
+
+    # unknowns = ('x','y')
+    # output = Vector([5,11])
+    # solution1 = A.solve(output,unknowns)
+    # solution2 = A.solve(output,unknowns,useRef=True)
+    # print(solution1)
+    # print(solution2)
+
