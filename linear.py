@@ -249,6 +249,12 @@ class Matrix:
         """Returns a tuple containng number of rows and collumns (rows,collumns)"""
         return (self.rows,self.collumns) # (number of rows,number of collumns)
 
+    def __eq__(self,value):
+        if type(value) in (type(self),Vector):
+            array_item = value.rawMatrix() if type(value) == type(self) else value.getMatrix()
+            return self.rawMatrix() == array_item
+        return NotImplemented
+
     def __str__(self):
         print("")
         x = [item[:] for item in self.matrix]
@@ -1004,7 +1010,7 @@ def EigenVectors(square_maxtirx : Matrix,iterations : int = 50) -> Dict[Union[co
     for root in eigen_values:
         m_0 = sub.forEach(lambda num : substitute(num,root)) #Substitute the Eigen Values in the Lamda scaled Identity Matrix
         eigen_vector = m_0.solve(output,unknowns,useRef=True) #Solve the linear system
-        eigen_vector = Vector([sol for sol in eigen_vector])
+        eigen_vector = Vector([eigen_vector.get(sol) for sol in eigen_vector])
         eigen_values_vectors[root] = eigen_vector #Eigen value has a coressponding Vector
     return eigen_values_vectors
 
@@ -1022,4 +1028,12 @@ def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = F
     return arccos(div,degrees=degrees)
 
 if __name__ == "__main__":    
-    pass
+    A = Matrix([
+        [4,1],
+        [6,3]
+    ])
+
+    vs = EigenVectors(A)
+    for item in vs:
+        print(A*vs[item])
+        print(item*vs[item])
