@@ -9,8 +9,6 @@
 
 from typing import Union,Any
 
-UNITY = complex(1,1)
-
 def product(*args : Union[float,int]) -> Union[float,int]:
     """Returns the product of float or ints
         product(3,4,5) -> 60
@@ -61,29 +59,14 @@ def isInteger(num : Union[float,int]) -> bool:
         return True
     return False
 
-def ModifyComplex(num : Any) -> Union[complex,bool]:
+def isComplex(num : Any) -> bool:
+    """Returns a boolean on wheter or not a passed in argument really is a complex number
+    """
     try:
-        g = complex(num)
-        if round(g.imag,2) == 0:
-            return g.real
-        return g
+        num_complex : complex = complex(num)
+        return num_complex.real != num_complex
     except:
         return False
-
-def round_num(num : Union[int,float]) -> str:
-    if num != int(num):
-        float_rounded = round(float(num),2)
-        if len(str(float_rounded)) >= 7:
-            value = f'{float_rounded:.0e}'
-        else:
-            value = f'{float_rounded:>4}'
-    else:
-        if len(str(num)) >= 7:
-            value = f'{int(num):.0e}'
-        else:
-            value = f'{int(num):>3}'
-    return value
-
 
 def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
     """

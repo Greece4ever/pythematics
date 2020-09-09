@@ -25,7 +25,7 @@
         *** Various combinations of the above
 """
 
-from .basic import isNumber,isInteger,ModifyComplex,round_num
+from .basic import isNumber,isInteger,isComplex
 from . import polynomials as pl
 from .num_theory import complex_polar
 import re
@@ -116,6 +116,16 @@ class Vector:
             return self.__mul__(scalar)
         raise TypeError("Cannot perform '*' operation on Vector with {}")
 
+    def __round__(self,ndigits : int = 1):
+        __tmp__ : list = []
+        for item in self.getMatrix(): 
+            if type(item) is complex:
+                rounded = complex(round(item.real),round(item.imag))
+            else:
+                rounded = round(item,ndigits)
+            __tmp__.append(rounded)
+        return Vector(__tmp__)
+
     def dot(self,Vector) -> Union[float,int]:
         return self.__mul__(Vector) 
 
@@ -185,7 +195,7 @@ class Matrix:
                     if not isNumber(num) and not type(num) == type(epsilon) and not type(num) == complex:
                         raise TypeError("Row : {} , does not contain an argument or {} or {} but instead {}!".format(matrix.index(row),type(1),type(1.0),type(num)))
             else:
-                raise ValueError("Every argument inside the base array which is considered as a row should be of type {} not {}".format(list,type(matrix)))
+                raise ValueError("Every argument inside the base array which is considered as a row should be of type {} (Your array had at least one element that was not of type {})".format(list,list))
         if len(self.ROW_LENGTHS) != self.ROW_LENGTHS.count(self.ROW_LENGTHS[0]):
             raise ValueError("All rows of a matrix shall only be of same size. not {}".format(self.ROW_LENGTHS))
 
@@ -232,7 +242,7 @@ class Matrix:
         return (self.rows,self.collumns) # (number of rows,number of collumns)
 
     def __str__(self):
-        print("Rounded Matrix :\n")
+        print("")
         x = [item[:] for item in self.matrix]
         k = 0
         for item in x:
@@ -314,6 +324,21 @@ class Matrix:
             print(f' R{j-1} |',cols_t.format(*NEW_ARRAY))
             j+=1
         return f'\n{self.rows} x {self.collumns} Matrix\n'
+
+    def __round__(self,ndigits : int = 1) -> "Matrix":
+        __tmp__ : list = [[] for item in self.rawMatrix()]
+        i = 0
+        for row in self.rawMatrix():
+            for item in row: 
+                if type(item) is complex:
+                    rounded = complex(round(item.real),round(item.imag))
+                else:
+                    rounded = round(item,ndigits)
+
+                __tmp__[i].append(rounded)
+            i+=1
+        return Matrix(__tmp__)
+
 
     def __rmul__(self,scalar):
         """Matrix multiplication by scalar"""
@@ -942,34 +967,20 @@ def EigenVectors(square_maxtirx : Matrix,iterations : int = 50) -> Dict[Union[co
     eigen_values_vectors = {}
     for root in eigen_values:
         m_0 = sub.forEach(lambda num : substitute(num,root)) #Substitute the Eigen Values in the Lamda scaled Identity Matrix
-        eigen_vector = m_0.solve(output,unknowns) #Solve the linear system
+        eigen_vector = m_0.solve(output,unknowns,useRef=True) #Solve the linear system
         eigen_vector = Vector([sol for sol in eigen_vector])
         eigen_values_vectors[root] = eigen_vector #Eigen value has a coressponding Vector
     return eigen_values_vectors
 
 if __name__ == "__main__":    
-    
-    unknowns = ('x','y')
-
-    # print(A)
-    # print(A.ref())
-    # print(A.rank())
-
-    C = Matrix([ #Infinite Solutions
-        [2,4,8],
-        [1,2,4]
-        ])
-
-    B = Matrix([
-        [1,2],
-        [2,4]
-    ])
-
     A = Matrix([
-        [2,4],
-        [1,2]
+        [1,2],
+        [3,4]
     ])
 
-    print(SolveCramer(A,('x','y'),Vector([8,4])))
-
-    # print(SolveCramer(Y,unknowns,Vector([3,4])))
+    unknowns = ('x','y')
+    output = Vector([5,11])
+    solution1 = A.solve(output,unknowns)
+    solution2 = A.solve(output,unknowns,useRef=True)
+    print(solution1)
+    print(solution2)
