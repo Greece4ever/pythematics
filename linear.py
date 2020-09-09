@@ -97,7 +97,7 @@ class Vector:
             the dot product is returned
         """
         empty = []
-        if isNumber(value) or type(value) == complex: #Scalar
+        if isNumber(value) or type(value) == complex or type(value) == epsilon: #Scalar
             for item in self.matrix:
                 empty.append(value*item)
             return Vector(empty)
@@ -117,7 +117,7 @@ class Vector:
         return (-1) * self
 
     def __rmul__(self,scalar : Union[int,float]):
-        if type(scalar) in (int,float,complex):
+        if type(scalar) in (int,float,complex,type(epsilon)):
             return self.__mul__(scalar)
         raise TypeError("Cannot perform '*' operation on Vector with {}")
 
@@ -347,7 +347,7 @@ class Matrix:
 
     def __rmul__(self,scalar):
         """Matrix multiplication by scalar"""
-        if type(scalar) in (int,float,complex):
+        if type(scalar) in (int,float,complex,type(epsilon)):
             new_matrix = [[] for i in range(self.rows)] #Add the rows
             i = 0
             for row in self.matrix:
@@ -393,7 +393,7 @@ class Matrix:
         return Matrix(new_matrix)
 
     def __mul__(self,value):
-        if type(value) in (int,float,complex):
+        if type(value) in (int,float,complex,type(epsilon)):
             return self.__rmul__(value)
         if type(value) == Vector:
             vector_to_matrix = Matrix([[item] for item in value.getMatrix()])
@@ -1019,31 +1019,11 @@ def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = F
     return arccos(div,degrees=degrees)
 
 if __name__ == "__main__":    
-    A = Matrix([
-        [1,2],
-        [3,4]
-    ])
-
-    B = Matrix([
-        [1,2,3,4],
-        [5,6,7,8]
-    ])
-
-    w = Vector([
-        1,2,3
-    ])
-
-    v = Vector([
-        4,5,6
-    ])
+    A = IdenityMatrix(dimensions=3)
+    x = pl.x
+    print(x*A)
 
 
-    angle = (w*v) / (magnitude(w)*magnitude(v)) #Computing the Angle between to Vectors
-
-    print(A*B)
-    print(A+A) #SAME DIMENSIONS
-    print(w.cross(v))
-    print(arccos(angle))
 
     # unknowns = ('x','y')
     # output = Vector([5,11])
