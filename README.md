@@ -97,19 +97,20 @@ Here you were Presented with some of the **capabilites** of this library but the
 
 ## Table of Contents
 
-- [**Working with Polynomials**](#TODO)
-  - [Getting to know the basics by solving 2 equations](#TODO1.1)
-     - [Basic Linear Equation](#TODO3)
-     - [More complex equations with fractions](#TODO4)
-  - [Root finding methods (Generalised)](#TODO5)
-  - [Delving deeper into Polynomials](#TODO6)
+- [**Working with Polynomials**](working-with-polynomials)
+  - [Getting to know the basics by solving 2 equations](#getting-down-to-the-interesting-stuff)
+     - [Basic Linear Equation](#first-degree-linear-equation)
+     - [More complex equations with fractions](#second-Example-with-polynomial-division)
+  - [Root finding methods (Generalised)](#root-finding-methods)
+  - [Delving deeper into Polynomials](#delving-deeper-into-polynomials)
 
-- [**Linear Algebra Operations**](#TODO2)
-   - [Some Very Basic Operations (Adittion, Subraction,Multiplication and Vector Products)](#TODO7)
-   - [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix](#TODO8)
-        - [The Determinant](#TODO9)
-        - [Solving Linear Equations](#TODO10)
-    - [List of useful Additional Methods](#TODO11)
+- [**Linear Algebra Operations**](#linear-algebra)
+   - [Some Very Basic Operations (Adittion, Subraction,Multiplication and Vector Products)](#basic-operations)
+   - [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix(#learning-the-operations-by-finding-the-eigen-vectors---values-of-a-matrix)
+        - [The Determinant](#determinant-in-detail)
+        - [Solving Linear Equations](#linear-systems-of-equations)
+        - [Mapping Each Element of a Matrix](#mapping-items-of-a-matrix)
+    - [List of useful Additional Methods](#aditional-methods)
 
 
 ## Working with Polynomials
@@ -364,12 +365,20 @@ That's **exactly** what this submodule aims to simplify and automate while givin
 
 ### Table of contents (Linear Algebra)
 
-- [Some Very Basic Operations (**Adittion**, **Subraction**,**Multiplication** and Vector **Products**)](#basic-operations)
-- [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix](#learning-the-operations-by-finding-the-eigen-vectors---values-of-a-matrix)
-   - [Finding the determinant of a Square Matrix](#determinant-in-detail)
-   - [Solving Linear Systems of Equations](#linear-systems-of-equations)
-   - [Mapping Each Element of a Matrix](#TODO1)
-- [List of extra **usefull** operations (**Inverse**,**Cofactors**,**Transpose** ...)](#TODO4)
+- [**Working with Polynomials**](working-with-polynomials)
+  - [Getting to know the basics by solving 2 equations](#getting-down-to-the-interesting-stuff)
+     - [Basic Linear Equation](#first-degree-linear-equation)
+     - [More complex equations with fractions](#second-Example-with-polynomial-division)
+  - [Root finding methods (Generalised)](#root-finding-methods)
+  - [Delving deeper into Polynomials](#delving-deeper-into-polynomials)
+
+- [**Linear Algebra Operations**](#linear-algebra)
+   - [Some Very Basic Operations (Adittion, Subraction,Multiplication and Vector Products)](#basic-operations)
+   - [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix(#learning-the-operations-by-finding-the-eigen-vectors---values-of-a-matrix)
+        - [The Determinant](#determinant-in-detail)
+        - [Solving Linear Equations](#linear-systems-of-equations)
+        - [Mapping Each Element of a Matrix](#mapping-items-of-a-matrix)
+    - [List of useful Additional Methods](#aditional-methods)
 
 ## Basic Operations
 
