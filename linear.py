@@ -293,7 +293,7 @@ class Matrix:
                     if Number(item):
                         if type(item) == complex:
                             y = complex_polar(item)
-                            NEW_ARRAY.append(f"({round(y[0])},{round(y[1])})")
+                            NEW_ARRAY.append(f"({round(y[0],2)},{round(y[1],2)})")
                             continue
                         CACHE.append('{: <10}'.format(round(item,4)))
                         continue
@@ -318,7 +318,7 @@ class Matrix:
                     if val.imag != 0:                    
                         com_val = complex(val)
                         y = complex_polar(com_val)
-                        NEW_ARRAY.append(f"({round(y[0])},{round(y[1])})")
+                        NEW_ARRAY.append(f"({round(y[0],2)},{round(y[1],2)})")
                         continue
 
                     test = val.real
@@ -1045,13 +1045,4 @@ def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = F
     return arccos(div,degrees=degrees)
 
 if __name__ == "__main__":
-    from .random import random_complex   
-    d = [[] for i in range(10)]
-    for i in range(10):
-        for _ in range(10):
-            rnd = random_complex(1,500)
-            d[i].append(rnd)
-            print(rnd)
-
-    A = Matrix(d)
-    print(A)
+    pass    

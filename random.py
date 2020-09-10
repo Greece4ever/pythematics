@@ -59,9 +59,9 @@ def randint(start : Union[float,int],end : Union[float,int]) -> float:
     """Returns a random integer given a minimun and a maximun value"""
     return round(randrange(start,end))
 
-def random_complex(start,end) -> complex:
+def random_complex(factor : Union[float,int] = 1) -> complex:
     """Returns a random complex number scaled by a factor"""
-    return complex(randrange(start,end),randrange(start,end))
+    return random() * complex(1,1) * factor
 
 if __name__ == "__main__": 
     pass
