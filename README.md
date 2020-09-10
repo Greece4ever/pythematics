@@ -6,7 +6,7 @@ The main **field** that this library aims to enhance to Python is **Polynomials*
 
 **Imagine** that you wanted to solve a super-complex Equation like the following
 
-> ![Complicated Equation](http://www.sciweavers.org/upload/Tex2Img_1599688663/render.png)
+> ![Complicated Equation](Latex/base/complicated_equation.png)
 
 The only hard thing would be to write down the equation in code
 
@@ -55,7 +55,7 @@ Another thing  this library is **greatly** capable of doing is pretty much every
 
 Let's consider the Following System of **5** Linear equations
 
-> ![Complicated System Of Equations](http://www.sciweavers.org/upload/Tex2Img_1599691669/render.png)
+> ![Complicated System Of Equations](Latex/base/complicated_matrix.png)
 
 We can easily solve that system by transforming it into the **Coefficient** Matrix and passing Outputs we want to get a seperate instance of **Vector**
 
@@ -821,4 +821,3 @@ And in fact it is correct (**despite** a small floating point Error in the first
 |`.cross()`| `cross`  | Cross Product of 2 3D Vectors|
 |`.magnitude()`         |`magnitude`   | Magnitude of a Vector |
 |`.AngleVector()`         |`AngleBetweenVectors`   | Returns the angle between 2 Vectors |
-
