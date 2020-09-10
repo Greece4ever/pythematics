@@ -357,32 +357,4 @@ def reduceCoefficients(polynomial : Polynomial) -> Polynomial:
 x = PolString("x")
 
 if __name__ == "__main__":
-    #First Long Term
-    numerator0 = x**2 * (3*x**8 + 7*x**4 + 2*x**11 - 13*x**5) + 7
-    denominator0 = x**2 + 3*x**3 + 1
-
-    #Second Long Term
-    numerator1 = x**4+x**3+x**2+x 
-    denominator1 = x+1
-
-    side2 = x**2 + 3*x + 4 #Second side of the equation
-
-    #Get rid of the fractions
-    lcm_mul = LCM_POL(
-        denominator0,denominator1
-    )
-
-    frac_0 = (numerator0 * lcm_mul) / denominator0 #First Fraction
-    frac_1 = (numerator1 * lcm_mul) / denominator1 #Second Fraction
-    side2 *= lcm_mul #Multplie the other side as well
-    side1 = frac_0[0] - frac_1[0]
-    final_polynomial = side1-side2
-    roots = final_polynomial.roots(iterations=300)
-    for root in roots:
-        print(root)
-        func_root = final_polynomial.getFunction()(root)
-        print(func_root)
-        print("\n")
-
-    # print(final_polynomial)
-    # print(roots)
+    pass

@@ -1034,4 +1034,14 @@ def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = F
     return arccos(div,degrees=degrees)
 
 if __name__ == "__main__":   
-    pass
+    A = Matrix([ #The Matrix
+        [1,2,3], 
+        [4,7,8],
+        [5,10,11]
+    ])
+
+    unknowns = ('x','y','z') #Our Varaibles
+    Output = Vector([10,15,25]) #Our Target Output
+
+    print(A.solve(Output,unknowns)) #Using Cramer's rule of the determinants
+    print(A.solve(Output,unknowns,useRef=True)) #Using Row Reduction

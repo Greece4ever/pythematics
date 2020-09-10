@@ -743,7 +743,7 @@ Each **eigenvalue** has **infinite** coressponding **eigenvectors** but we are o
 
 To test our function we're going to use The following simple **2x2** Matrix
 
-> ![Eigen Example Matrix](http://www.sciweavers.org/upload/Tex2Img_1599685273/render.png)
+> ![Eigen Example Matrix](Latex/linear/eigen_matrix.png)
 
 ```python
 from pythematics.linear import *
