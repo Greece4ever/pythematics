@@ -223,4 +223,25 @@ def SecantMethod(function : callable,starting_point_0 : Union[float,int],startin
     return x_1
 
 if __name__ == "__main__":
-    pass
+    from .constants import e
+
+    def f(x):
+        return e**x 
+
+    def Taylor(function,center):
+        f : callable = function
+        a : float = center
+        def expansion(x):
+            tmp : list = []
+            tmp.append(derivative(f,a))
+            for n in range(1,60):
+                diff = nthDerivative(f,a,n)
+                print(f'{a} : {diff}')
+                numerator = (x-a)
+                tmp.append(numerator / factorial(n))
+            return sum(tmp)
+        return expansion
+
+    
+    e_x = Taylor(f,1)
+    print(e_x(1))

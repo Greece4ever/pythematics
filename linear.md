@@ -1,11 +1,11 @@
 # Linear Algebra
 
-> There is hardly any theory which is more elementary (than linear algebra), in spite of the fact that generations of professors and textbook writers have obscured its simplicity by preposterous calculations with matrices.
+> There is hardly any theory which is more elementary (than linear algebra), in spite of the fact that generations of professors and textbook writers have obscured its simplicity by preposterous calculations with matrices. - Foundations of Modern Analysis, Vol. 1
 
 That's **exactly** what this submodule aims to simplify and automate while giving a visual interpretation of what it is doing.
 
 
-### Table of contents
+### Table of contents (Linear Algebra)
 
 - [Some Very Basic Operations (**Adittion**, **Subraction**,**Multiplication** and Vector **Products**)](#basic-operations)
 - [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix](#learning-the-operations-by-finding-the-eigen-vectors---values-of-a-matrix)

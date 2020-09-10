@@ -1034,22 +1034,4 @@ def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = F
     return arccos(div,degrees=degrees)
 
 if __name__ == "__main__":   
-    A = Matrix([
-    [5,3,4,7,13],
-    [1,5,7,13,2],  
-    [9,1,3,8,7,],
-    [1,1,1,1,1],
-    [2,2,3,4,5]
-    ])
-
-    unknowns = ('x','y','z','q','p')
-    Output = Vector([10,15,20,25,30])
-
-
-    print(A.solve(
-        Output,unknowns,useRef=True
-    ))
-
-    print(A.solve(
-        Output,unknowns,useRef=False
-    ))
+    pass
