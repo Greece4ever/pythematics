@@ -20,7 +20,7 @@ from .num_theory import isEven,isOdd
 from typing import Union,Tuple,Optional
 from . import trigonometric as trig
 
-INFINITESIMAL = 1 / 100000 #For limit approximation (1e-5)
+INFINITESIMAL = 1 / 10000 #For limit approximation (1e-5)
 
 def compose(function_0 : callable,function_1 : callable,point : Optional[Union[float,int]]) -> Union[callable,float]:
     comp = lambda x: function_0(function_1(x))
@@ -172,9 +172,10 @@ def nthDerivative(f : callable,x : float,order : int) -> float:
        going to cause a recursive infinite loop,\n
        NOTE : No checking is done to ensure that order >= 1\n
     """
+    h = INFINITESIMAL
     if order == 1:
         return derivative(f,x)
-    return ( nthDerivative(f,x+INFINITESIMAL,order-1) - nthDerivative(f,x,order-1) ) /INFINITESIMAL
+    return ( nthDerivative(f,x+h,order-1) - nthDerivative(f,x,order-1) ) / h
 
 def integral(f : callable,x : Union[float,int],approximation : float = 0.01,target : float = 0.0000001) -> float:
     """
@@ -202,7 +203,6 @@ def NewtonMethod(function : callable,starting_point : Union[float,int],iteration
     """Newton's method for root aproximation"""
     x = starting_point
     for _ in range(iterations):
-        print(x)
         f_div = function(x) / derivative(function,x)
         x -= f_div
     return x
@@ -223,25 +223,4 @@ def SecantMethod(function : callable,starting_point_0 : Union[float,int],startin
     return x_1
 
 if __name__ == "__main__":
-    from .constants import e
-
-    def f(x):
-        return e**x 
-
-    def Taylor(function,center):
-        f : callable = function
-        a : float = center
-        def expansion(x):
-            tmp : list = []
-            tmp.append(derivative(f,a))
-            for n in range(1,60):
-                diff = nthDerivative(f,a,n)
-                print(f'{a} : {diff}')
-                numerator = (x-a)
-                tmp.append(numerator / factorial(n))
-            return sum(tmp)
-        return expansion
-
-    
-    e_x = Taylor(f,1)
-    print(e_x(1))
+    pass

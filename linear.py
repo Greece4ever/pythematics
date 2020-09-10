@@ -25,7 +25,7 @@
         *** Various combinations of the above
 """
 
-from .basic import isNumber,isInteger,isComplex
+from .basic import isNumber,isInteger,isComplex,Number
 from . import polynomials as pl
 from .trigonometric import arccos
 from .powers import sqrt
@@ -128,7 +128,7 @@ class Vector:
         __tmp__ : list = []
         for item in self.getMatrix(): 
             if type(item) is complex:
-                rounded = complex(round(item.real),round(item.imag))
+                rounded = complex(round(item.real,ndigits),round(item.imag,ndigits))
             else:
                 rounded = round(item,ndigits)
             __tmp__.append(rounded)
@@ -143,7 +143,7 @@ class Vector:
     def magnitude(self):
         return magnitude(self)
     
-    def AngleVector(vector1 : "Vector",degrees : bool = False) -> float:
+    def AngleVector(self,vector1 : "Vector",degrees : bool = False) -> float:
         return AngleBetweenVectors(self,vector1,degrees)
 
     # def cross(self,Vector)
@@ -270,8 +270,9 @@ class Matrix:
             if len(item) > 8:
                 x[k] = item[1:9]
                 x[k].append("...")
-                x[k].append(self.cols[-1][j])
+                x[k].append(self.cols[-1][k])
                 j+=1
+        
             k+=1
         k = 0        
         y = []    
@@ -287,7 +288,17 @@ class Matrix:
         for item in x:
             if j > 9:
                 print("\n   .........")
-                print(f' R{len(x)-1}|',*[round(item,4) for item in x[-1]])
+                CACHE = []
+                for item in x[-1]:
+                    if Number(item):
+                        if type(item) == complex:
+                            y = complex_polar(item)
+                            NEW_ARRAY.append(f"({round(y[0])},{round(y[1])})")
+                            continue
+                        CACHE.append('{: <10}'.format(round(item,4)))
+                        continue
+                    CACHE.append('{: <10}'.format(item))
+                print(f' R{len(x)-1}|',*CACHE)
                 break
             item[0] = f'\t{item[0]}'
             if j==1:
@@ -298,14 +309,14 @@ class Matrix:
                 continue
             NEW_ARRAY = []
             for val in item:
+                if "..." in str(val):
+                    NEW_ARRAY.append(val)
+                    continue
                 if not 'deg' in str(val):
                     val = complex(val)
 
                     if val.imag != 0:                    
                         com_val = complex(val)
-                        real = f'{com_val.real}'
-                        imag = f'{com_val.imag}'
-                        # NEW_ARRAY.append(f'{real}+{imag}j')
                         y = complex_polar(com_val)
                         NEW_ARRAY.append(f"({round(y[0])},{round(y[1])})")
                         continue
@@ -1033,15 +1044,14 @@ def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = F
     div : float = a.dot(b) / (magnitude(a) * magnitude(b))
     return arccos(div,degrees=degrees)
 
-if __name__ == "__main__":   
-    A = Matrix([ #The Matrix
-        [1,2,3], 
-        [4,7,8],
-        [5,10,11]
-    ])
+if __name__ == "__main__":
+    from .random import random_complex   
+    d = [[] for i in range(10)]
+    for i in range(10):
+        for _ in range(10):
+            rnd = random_complex(1,500)
+            d[i].append(rnd)
+            print(rnd)
 
-    unknowns = ('x','y','z') #Our Varaibles
-    Output = Vector([10,15,25]) #Our Target Output
-
-    print(A.solve(Output,unknowns)) #Using Cramer's rule of the determinants
-    print(A.solve(Output,unknowns,useRef=True)) #Using Row Reduction
+    A = Matrix(d)
+    print(A)

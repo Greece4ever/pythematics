@@ -7,7 +7,7 @@
         ** isRoot(function,x1,x2) -> bool # Given a function and 2 points, returns a boolean on wheter there is a root in that interval
 """
 
-from typing import Union,Any
+from typing import Union,Any,Tuple
 
 def product(*args : Union[float,int]) -> Union[float,int]:
     """Returns the product of float or ints
@@ -68,6 +68,17 @@ def isComplex(num : Any) -> bool:
     except:
         return False
 
+
+def Number(x : Any) -> Union[None,Tuple[int,float,complex]]:
+    try:
+        item = complex(x)
+        if item.imag == 0:
+            return item.real
+        return item
+    except:
+        return None
+
+
 def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
     """
         Given a function and 2 points in the x axis,\n
@@ -77,4 +88,4 @@ def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
     return function(x_0)*function(x_1)
 
 if __name__ == "__main__":
-    pass
+    print(Number("5j"))

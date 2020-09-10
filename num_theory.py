@@ -13,6 +13,7 @@ from .basic import product
 from typing import Union,Tuple
 from . import functions
 from .trigonometric import arctan
+from .constants import pi
 
 def isEven(num : int) -> bool:
     """Returns True if a number can be divded by 2"""
@@ -152,9 +153,11 @@ def complex_polar(z : complex):
     """
     a = z.real;b= z.imag
     r = (a**2 + b**2)**(1/2)
-    theta = arctan(b / a,iterations=300)
-    return [r,theta]
+    theta = arctan(b / a,iterations=50)
+    if a < 0:
+        theta += pi
+    return [r,theta] # r * e**(i*theta)
 
 
 if __name__ == "__main__": 
-    print(complex_polar(complex(3,5)))
+    pass
