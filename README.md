@@ -106,7 +106,7 @@ Here you were Presented with some of the **capabilites** of this library but the
 
 - [**Linear Algebra Operations**](#linear-algebra)
    - [Some Very Basic Operations (Adittion, Subraction,Multiplication and Vector Products)](#basic-operations)
-   - [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix(#learning-the-operations-by-finding-the-eigen-vectors---values-of-a-matrix)
+   - [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix](#learning-the-operations-by-finding-the-eigen-vectors---values-of-a-matrix)
         - [The Determinant](#determinant-in-detail)
         - [Solving Linear Equations](#linear-systems-of-equations)
         - [Mapping Each Element of a Matrix](#mapping-items-of-a-matrix)
@@ -374,7 +374,7 @@ That's **exactly** what this submodule aims to simplify and automate while givin
 
 - [**Linear Algebra Operations**](#linear-algebra)
    - [Some Very Basic Operations (Adittion, Subraction,Multiplication and Vector Products)](#basic-operations)
-   - [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix(#learning-the-operations-by-finding-the-eigen-vectors---values-of-a-matrix)
+   - [Learning The fundamental Operations while finding the Eigen-Vectors and Eigen-Values of a Matrix](#learning-the-operations-by-finding-the-eigen-vectors---values-of-a-matrix)
         - [The Determinant](#determinant-in-detail)
         - [Solving Linear Equations](#linear-systems-of-equations)
         - [Mapping Each Element of a Matrix](#mapping-items-of-a-matrix)
