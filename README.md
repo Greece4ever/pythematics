@@ -66,7 +66,7 @@ Let's consider the Following System of **5** Linear equations
 
 > ![Complicated System Of Equations](Latex/base/complicated_matrix.png)
 
-We can easily solve that system by transforming it into the **Coefficient** Matrix and passing Outputs we want to get a seperate instance of **Vector**
+We can easily solve that system by transforming the equations  into the **Coefficient** Matrix,giving a tuple containing the name we choose for our each one of our **Unknowns** and passing the **Outputs** of each equation as a separate instance of the class  **Vector** 
 
 
 ```python
@@ -98,7 +98,7 @@ print(A.solve(
 {'x': 10.791457286432161, 'y': 7.851758793969849, 'z': 28.09045226130653, 'q': -17.110552763819097, 'p': -4.623115577889447}
 ```
 
-Here you were Presented with some of the **capabilites** of this library but there's a lot more than you can do, and in fact **Pythematics** has it's own developed mathematical principes and can works as a typical math library since it includes it's own  
+Here you were Presented with some of the **capabilites** of this library but there's a lot more than you can do, and in fact **Pythematics** can also act as a **totally** basic math library since it includes (Too name a few) a:
 - **Trigonometric** Module `trigonometric.py`
 - **Random** Module `random.py`
 - **Powers-Functions** Module `powers.py`-`functions.py`
@@ -120,7 +120,11 @@ Here you were Presented with some of the **capabilites** of this library but the
         - [Solving Linear Equations](#linear-systems-of-equations)
         - [Mapping Each Element of a Matrix](#mapping-items-of-a-matrix)
     - [List of useful Additional Methods](#aditional-methods)
-
+- [**Additional** functions-methods for computations](#additional-computational-methods)
+  - [Using **Integration** and **differentiation** to solve common problems](#using-the-derivative-to-approximate-roots)
+    - [**Newton**'s method for computing roots](#integration-and-derivation)
+    - [The **Area** under a curve](#area-under-a-curve)
+  - [Using The **GCD** to convert a floating point value into **integer** Division](using-the-gcd-to-convert-a-float-to-an-integer-fraction)
 
 ## Working with Polynomials
 > Determining the roots of polynomials, or "solving algebraic equations", is among the oldest problems in mathematics. However, the elegant and practical notation we use today only developed beginning in the 15th century. Before that, equations were written out in words. For example, an algebra problem from the Chinese Arithmetic in Nine Sections, circa 200 BCE, begins "Three sheafs of good crop, two sheafs of mediocre crop, and one sheaf of bad crop are sold for 29 dou." We would write 3x + 2y + z = 29. - Wikipedia
@@ -830,3 +834,91 @@ And in fact it is correct (**despite** a small floating point Error in the first
 |`.cross()`| `cross`  | Cross Product of 2 3D Vectors|
 |`.magnitude()`         |`magnitude`   | Magnitude of a Vector |
 |`.AngleVector()`         |`AngleBetweenVectors`   | Returns the angle between 2 Vectors |
+
+
+## Additional Computational Methods
+> A few examples on other parts of the library that are worth a mention
+
+## Integration and Derivation
+
+### Using the Derivative To approximate roots
+
+Using the `pythematics.functions.derivative` function you can find the derivative of any given function at a specific point
+
+```python
+from pythematics.functions import derivative
+
+print(derivative(lambda x : x**2,1))
+```
+This outputs `2.000099999999172`, which despite the small floating point error is in fact correct
+
+We can now take advantage of this and start approximating roots using **Newton's Method** which is defined as follows
+
+> ![Newton Method](Latex/base/NewtonMethod.png)
+
+Essentialy what this means is that the next term of `x` will be equal to `x` minus it's function divided by it's derivative
+
+```python
+from pythematics.functions import derivative
+
+def Newton(f : callable,x : float,iterations):
+    for _ in range(iterations):
+        x -= f(x) / derivative(f,x)
+    return x
+        
+f = lambda x : x**2 - 2 #The root of this function is the sqrt(2)
+
+print(Newton(f,1,50))
+```
+The approximation is `1.414213562373095` which indeed is very close to `sqrt(2)`
+
+You can also compute higher order derivatives using `nthDerivative` but the sequence quickly diverges at around derivatives of order `4` due to **floating error**
+
+### Area Under a Curve
+
+This is really straight-forward and is made just to introduce the `integral` function, in fact all you have to do is pick a function and two points calculate the integral a two points and subtract the One from the other
+
+```
+from pythematics.functions import integral
+
+function = lambda x : x # x**2 / 2
+
+def AreaUnderCurve(f : callable,x1 : float,x2 : float) -> float:
+    p1 = x1;
+    p2 = x2;
+    if x1 > x2:
+        x1 = p2;
+        x2 = p1;
+    return abs(integral(f,x1) - integral(f,x2));
+
+
+print(integral(function,1))  #0.5
+print(integral(function,2)) #2
+print(AreaUnderCurve(function,1,2))
+```
+- `0.49500010000000016` for 1
+- `1.9900002000000012` for 2
+- `-1.495000100000001` for the differnce
+
+Of course again, there is a an error.
+
+
+## Using the GCD to convert a float to an integer fraction
+> The greatest common divisor (**GCD**) of two or more integers, which are not all zero, is the largest positive integer that divides each of the integers **equally**. - Wikipedia
+
+When you see a **decimal** number the easiest way to convert it to an integer fraction is by multiplying it by `1e+n` (Pythonic scientific notation) where `n = number of numbers after the "."` so `1.4142` would be `14142 / 1000 `
+
+But this can be simplified even more if you find a number that equally divides the **numerator** and the **denominator** and since `GCD` returns the **greatest** number, we have to repeat this proccess until this number is `1`
+
+```python
+def IntegerDivision(num : float) -> Tuple[int]:
+    dec_num = len(str(num).split(".")[1])
+    expon = 10 ** dec_num
+    nom_denom = (expon * num,expon) #Simplified by 10 to an exponent simplification
+    g_c_d = GCD(nom_denom[0],nom_denom[1]) #Their GCD
+    while g_c_d > 1:
+        nom_denom = (nom_denom[0] / g_c_d , nom_denom[1] / g_c_d) #Simplify them by the GCd
+        g_c_d = GCD(nom_denom[0],nom_denom[1])
+    return (int(nom_denom[0]),int(nom_denom[1])) #Get rid of the .0 from the float division
+```
+Another very similar function to `GCD` is the `LCM` which stands for the **Least Common Multiple**, a function in which you check what the is lowest number that can be divided by all the arguments passed in.
