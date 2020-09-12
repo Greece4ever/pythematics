@@ -2,13 +2,22 @@
 
 >**Pythematics** is a zero-dependency math library for Python that aims extends some Mathematical fields that are seemingly abandoned by other libraries while offering a fully **Pythonic** experience.
 
-The main **field** that this library aims to enhance to Python is **Polynomials** in a way that allows for super-complicated and **high** degree equations to be solved giving all **Reall** and **Complex** Solutions as well as combining it with fields such as **Linear Algebra** and allowing for **Matrix**-**Polynomial** Manipulation methods like finding **Eigenvalues** and **Eigenvectors**.
+The main **field** that this library aims to enhance to Python is **Polynomials** in a way that allows for super-complicated and **high** degree equations to be solved giving all **Reall** and **Complex** Solutions as well as combining it with fields such as **Linear Algebra** and allowing for **Matrix**-**Polynomial** Manipulation methods like finding **Eigenvalues** and **Eigenvectors** of a given Matrix.
+
+You can easily install the lastest and most stable version of **pythematics** using python's package manager **pip**
+
+```sql
+pip install pythematics
+```
+**Cloning** the github reporsitory will give you the **latest** development version but it is not recommended.
+
+## A brief Introduction
 
 **Imagine** that you wanted to solve a super-complex Equation like the following
 
 > ![Complicated Equation](Latex/base/complicated_equation.png)
 
-The only hard thing would be to write down the equation in code
+Here the following code is an example of how you could easily handle an equation, even of this type with the only hard part being writting it down.
 
 ```python
 import pythematics.polynomials as pl
@@ -49,7 +58,7 @@ And in just a few **mili-seconds** We are able to get the following results from
 Every single Result is a complex number that looks something like this `(1.032132131e-14+3.312312e-15j)` which means it's that number raised to the **-14th** Power which is ultimately very close to zero
 
 
-The output was so long that it did not fit into the screen so check [here](#todo) for the Outputs
+The output was long enough, that it did not fit into the screen, but you can see the exact **Output** [here](https://github.com/Greece4ever/pythematics/blob/master/Examples/complicated_equation_output.txt).
 
 Another thing  this library is **greatly** capable of doing is pretty much every **Linear Algebra Operation**
 
