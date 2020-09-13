@@ -357,6 +357,24 @@ def reduceCoefficients(polynomial : Polynomial) -> Polynomial:
 
 x = PolString("x")
 
+#Functions for Multionmial Operations
+
+def filterDuplicate(l1 : Union[list,tuple]) -> Union[list,tuple]:
+    l_cop : Union[tuple,list] = deepcopy(l1)
+    i : int = 0
+    for item in l1:
+        if l_cop.count(item) > 1:
+            l_cop.pop(item)
+        i+=1
+    return l_cop
+
+def findCommon(l1 : list,l2 : list) -> list:
+    DUPS : list = []
+    for item in l1:
+        if item in l2:
+            DUPS.append(item)
+    return filterDuplicate(DUPS)
+
 #Inheretance from class 'Polynomial' would be useless here
 class Multinomial:
     """
@@ -454,7 +472,7 @@ class Multinomial:
             added.setConst(self.constant + value)
             return added
         elif type(value) == self.MP:
-            return "ADDING"
+            ... #TODO
         return NotImplemented
     
     def __radd__(self,value):
@@ -473,15 +491,74 @@ class Multinomial:
         return -self + value
 
     def __mul__(self,value):
+        copy_matrix : list = deepcopy(self.coefficients)
         if type(value) in (complex,int,float):
             const : Union[float,complex] = self.constant * value
-            copy_matrix : list = deepcopy(self.coefficients)
             for term in copy_matrix:
                 term[1][0][0] *= value #We Only need to multiply One Term (the coefficient of the term)
             copy_matrix.append([const])
             return Multinomial(copy_matrix)
         elif type(value) == self.MP:
-            pass
+            BASE_ARRAY : list = []
+            for term in copy_matrix:
+                for item in value.coefficients:
+                    common = findCommon(term[0],item[0])
+                    common_index = [[term[0].index(I_AM_RUNNING_OUT_OF_VARIABLE_NAMES),term[0].index(I_AM_RUNNING_OUT_OF_VARIABLE_NAMES)] for I_AM_RUNNING_OUT_OF_VARIABLE_NAMES in common]
+                    NEW_ARR = [[com for com in common],[[] for com in common]]
+                    print(NEW_ARR)
+                    #Handle Commonly Shared Values
+                    for var in common:
+                        #Indexes
+                        i1 = term[0].index(var)
+                        i2 = item[0].index(var)
+
+                        #Values TO Compute
+                        cAe1 = term[1][i1]
+                        cAe2 = item[1][i2]
+
+                        #Computed Operations
+                        base = cAe1[0] * cAe2[0] #Bases
+                        expo = cAe1[1] + cAe2[1] #Powers
+
+                        NEW_ARR[1][NEW_ARR[0].index(var)].append(base)
+                        NEW_ARR[1][NEW_ARR[0].index(var)].append(expo)
+                    
+                    dep_copy_term = [list(item) for item in deepcopy(term)]
+                    dep_copy_val = [list(item) for item in deepcopy(item)]
+
+                    print(dep_copy_term,"DEEP1")
+                    print(dep_copy_val,"DEPP2")
+                    print(common_index)
+
+                    #Pop common Values and be left with non-common
+                    for thing in common_index:
+                        print(thing[0],thing[1])
+                        # Term
+                        dep_copy_term[0].pop(thing[0])
+                        dep_copy_term[1].pop(thing[0])
+                        
+                        # Value
+                        dep_copy_val[0].pop(thing[1])
+                        dep_copy_val[1].pop(thing[1])
+
+                    #Append The remaining in term
+                    for trm in dep_copy_term:    
+                        NEW_ARR[0].append(trm) 
+                        NEW_ARR[1].append(trm)
+
+                    #Append the remaining in value
+                    for trm in dep_copy_val:
+                        NEW_ARR[0].append(trm)
+                        NEW_ARR[1].append(trm)
+                BASE_ARRAY.append(NEW_ARR)
+
+                    
+
+
+
+            
+            return NEW_ARR
+
         return NotImplemented
 
     def __rmul__(self,value): #Multiplication order does not matter
@@ -489,7 +566,6 @@ class Multinomial:
 
     def __neg__(self):
         return (-1) * self
-
 
     def getFunction(self):
         valid_python : str = re.sub(r"\^(\d+)",r"**(\1)".replace("^",''),self.__str__(useSymbol=True))
@@ -506,19 +582,15 @@ class Multinomial:
 
 
 if __name__ == "__main__":
-    # P = Multinomial([
-    #     [('x','y','z'),([5,3],[3,4],[5,6])],
-    #     [('x','y','z'),([2,1],[3,2],[7,8])],
-    #     [('x','y','z'),([4,5],[1,2],[9,5])],  
-               
-    # ])
+    P = Multinomial([
+        [('x','y','z'),([3,4],[5,6],[7,8])],               
+    ])
 
     Q = Multinomial([
-        [('x','y'),([1,2],[1,2])],
+        [('x','y'),([1,2],[8,9])],
         [5]
     ])
 
-    print(Q)
-    print(5-Q)
+    print(P*Q)
 
 
