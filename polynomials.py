@@ -1,8 +1,8 @@
 #Relative imports
 from .random import random_complex;from .basic import isNumber,isInteger;from .basic import product; 
 #Built-in imports
-from typing import Union
-import re
+from typing import Union,List,Tuple #Typing hints
+import re #For Recognising PolString
 
 NUMBER_REGEX = r"(((\-)|(\+))?\d+((\.)\d+)?)"
 
@@ -356,5 +356,69 @@ def reduceCoefficients(polynomial : Polynomial) -> Polynomial:
 
 x = PolString("x")
 
+
+class AbstractPolynomial:
+    def __init__(self,coefficients : List[List[Tuple[Union[str,float]]]]) -> None:
+        # assert isinstance(variables,list)
+        # for var in variables:
+        #     assert isinstance(var,string), "Unknown variables must be {} values not {}.".format(str,type(var))
+        #     assert len(var) == 1, "Unknown variables must of length 1 not {} (Found in)".format(len(var),var)
+        # self.unknowns = variables
+        self.coefficients = coefficients
+        self.unknowns : list = None
+        self.ExtractUnknowns()
+
+    def ExtractUnknowns(self) -> Union[None,list]:
+        """
+        Validate if Ab-Polynomial is in correct form
+        """
+        if self.unknowns is not None:
+            return self.unknowns
+        j : int = 0
+        UNKNOWNS : list = []
+        for term in self.coefficients:
+            assert (len(term[0]) == len(term[1])), "Index {}: Invalid Unknown - [Coefficient,Power] Relation ({} elements have {} terms making them not equal)".format(j,len(term[0]),len(term[1]))
+            assert ([len(co_pow) for co_pow in term[1]].count(2) == len(term[1])), "All [Coeffcient,Power] lists must be of lenght 2!"
+            for unknown in term[0]:
+                if not unknown in UNKNOWNS:
+                    UNKNOWNS.append(unknown)
+            j+=1
+        self.unknowns = UNKNOWNS
+        
+
+    def __str__(self):
+        POLS : list = []
+        for term in self.coefficients:
+            TMP_POL : list = []
+            unknowns = term[0]
+            values = term[1]
+            i : int = 0
+            for unknown in unknowns:
+                istLast : bool = i != (len(unknowns)-1)
+                expression : str = f'{values[i][0]}{unknown}^{values[i][1]}'
+                expression = expression + "" if not istLast else expression + "*"
+                TMP_POL.append(expression)
+                i+=1
+            POLS.append(f'({"".join(TMP_POL)})')
+        return "Abstract Polynomial : " + " + ".join(POLS)
+    
+    def getFunction(self):
+        return f"{','.join(P.unknowns)} : {str(self).replace('^','**')}"
+
+
+# xyz+x2y2z2+
+# xyz 
+# xy**2 
+# x**5 + x**4 + x**3
+#
+
+
 if __name__ == "__main__":
-    pass
+    P = AbstractPolynomial([
+        [('x','y','z'),([5,3],[3,4],[5,6])],
+        [('x','y','z'),([2,1],[3,2],[7,8])],
+        [('x','y','z'),([4,5],[1,2],[9,5])], 
+    ])
+
+    print(P)
+    print(','.join(P.ExtractUnknowns()))
