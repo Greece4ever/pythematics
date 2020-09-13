@@ -3,6 +3,7 @@ from .random import random_complex;from .basic import isNumber,isInteger;from .b
 #Built-in imports
 from typing import Union,List,Tuple #Typing hints
 import re #For Recognising PolString
+from copy import deepcopy #For Deepcoing Array of array of ...
 
 NUMBER_REGEX = r"(((\-)|(\+))?\d+((\.)\d+)?)"
 
@@ -356,7 +357,7 @@ def reduceCoefficients(polynomial : Polynomial) -> Polynomial:
 
 x = PolString("x")
 
-
+#Inheretance from class 'Polynomial' would be useless here
 class Multinomial:
     """
         **** Multivariable Polynomial *****
@@ -375,9 +376,16 @@ class Multinomial:
         #     assert len(var) == 1, "Unknown variables must of length 1 not {} (Found in)".format(len(var),var)
         # self.unknowns = variables
         self.coefficients = coefficients
+        if type(self.coefficients[-1][0]) not in (float,int,complex):
+            self.constant = 0
+        else:
+            self.constant = self.coefficients.pop(-1)[0]
         self.unknowns : list = None
         self.MP = type(self)
         self.ExtractUnknowns()
+    
+    def setConst(self,value):
+        self.constant = value
 
     def ExtractUnknowns(self) -> Union[None,list]:
         """
@@ -387,7 +395,9 @@ class Multinomial:
             return self.unknowns
         j : int = 0
         UNKNOWNS : list = []
-        for term in self.coefficients:
+        coeff_copy = [item[:] for item in self.coefficients]
+        coeff_copy.pop(-1) 
+        for term in coeff_copy:
             assert (len(term[0]) == len(term[1])), "Index {}: Invalid Unknown - [Coefficient,Power] Relation ({} elements have {} terms making them not equal)".format(j,len(term[0]),len(term[1]))
             assert ([len(co_pow) for co_pow in term[1]].count(2) == len(term[1])), "All [Coeffcient,Power] lists must be of lenght 2!"
             for unknown in term[0]:
@@ -396,8 +406,24 @@ class Multinomial:
                     UNKNOWNS.append(unknown)
             j+=1
         self.unknowns = UNKNOWNS
-        
 
+    def RemoveZeros(self) -> None:
+        for term in self.coefficients:
+            SCALARS : list = []
+            k : int = 0
+            for t2 in term[1]:
+                if t2[1] == 0:
+                    SCALARS.append(t2[1])
+                    t2[1].pok(k)
+                    t2[0].pop(k)
+                k+=1
+            scalar_product : Union[float,int] = product(SCALARS)
+            if len(t2[0]) > 0: #There are some remaning values
+                t2[1][0][0] *= scalar_product
+                continue
+            else:
+                self.coefficients[-1] += scalar_product #All the terms are raised to the 0th power making the constants
+            
     def __str__(self,useSymbol : bool = False):
         POLS : list = []
         for term in self.coefficients:
@@ -416,12 +442,17 @@ class Multinomial:
                 TMP_POL.append(expression)
                 i+=1
             POLS.append(f'({"".join(TMP_POL)})')
-        return "Abstract Polynomial : " + " + ".join(POLS)
+            joined = " + ".join(POLS)
+            if self.constant != 0:
+                sign = " + " if self.constant >=0 else ""
+                joined+= f'{sign}{str(self.constant).replace("-"," - ")}'
+        return "Multivariable Polynomial : " + joined
     
     def __add__(self,value):
-        print("ADDING")
         if type(value) in (complex,int,float):
-            return "ADDING"
+            added = Multinomial(self.coefficients)
+            added.setConst(self.constant + value)
+            return added
         elif type(value) == self.MP:
             return "ADDING"
         return NotImplemented
@@ -431,7 +462,9 @@ class Multinomial:
     
     def __sub__(self,value):
         if type(value) in (complex,int,float):
-            pass
+            reduced = Multinomial(self.coefficients)
+            reduced.setConst(self.constant - value)
+            return reduced
         elif type(value) == self.MP:
             pass
         return NotImplemented
@@ -441,12 +474,17 @@ class Multinomial:
 
     def __mul__(self,value):
         if type(value) in (complex,int,float):
-            pass
+            const : Union[float,complex] = self.constant * value
+            copy_matrix : list = deepcopy(self.coefficients)
+            for term in copy_matrix:
+                term[1][0][0] *= value #We Only need to multiply One Term (the coefficient of the term)
+            copy_matrix.append([const])
+            return Multinomial(copy_matrix)
         elif type(value) == self.MP:
             pass
         return NotImplemented
 
-    def __rmul__(self,value):
+    def __rmul__(self,value): #Multiplication order does not matter
         return self.__mul__(value)
 
     def __neg__(self):
@@ -468,16 +506,19 @@ class Multinomial:
 
 
 if __name__ == "__main__":
-    P = Multinomial([
-        [('x','y','z'),([5,3],[3,4],[5,6])],
-        [('x','y','z'),([2,1],[3,2],[7,8])],
-        [('x','y','z'),([4,5],[1,2],[9,5])], 
-    ])
+    # P = Multinomial([
+    #     [('x','y','z'),([5,3],[3,4],[5,6])],
+    #     [('x','y','z'),([2,1],[3,2],[7,8])],
+    #     [('x','y','z'),([4,5],[1,2],[9,5])],  
+               
+    # ])
 
     Q = Multinomial([
-        [('A','a'),([1,2],[1,2])]
+        [('x','y'),([1,2],[1,2])],
+        [5]
     ])
 
+    print(Q)
+    print(5-Q)
 
-    print(Q+3)
 
