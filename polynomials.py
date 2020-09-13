@@ -357,7 +357,17 @@ def reduceCoefficients(polynomial : Polynomial) -> Polynomial:
 x = PolString("x")
 
 
-class AbstractPolynomial:
+class Multinomial:
+    """
+        **** Multivariable Polynomial *****
+
+        P = Multinomial([
+        [('x','y','z'),([5,3],[3,4],[5,6])],
+        [('x','y','z'),([2,1],[3,2],[7,8])],
+        [('x','y','z'),([4,5],[1,2],[9,5])], 
+        ])
+    """
+
     def __init__(self,coefficients : List[List[Tuple[Union[str,float]]]]) -> None:
         # assert isinstance(variables,list)
         # for var in variables:
@@ -366,6 +376,7 @@ class AbstractPolynomial:
         # self.unknowns = variables
         self.coefficients = coefficients
         self.unknowns : list = None
+        self.MP = type(self)
         self.ExtractUnknowns()
 
     def ExtractUnknowns(self) -> Union[None,list]:
@@ -381,12 +392,13 @@ class AbstractPolynomial:
             assert ([len(co_pow) for co_pow in term[1]].count(2) == len(term[1])), "All [Coeffcient,Power] lists must be of lenght 2!"
             for unknown in term[0]:
                 if not unknown in UNKNOWNS:
+                    assert (len(unknown) == 1),f"Unknown must be of length 1 not {len(unknown)} ({unknown})"
                     UNKNOWNS.append(unknown)
             j+=1
         self.unknowns = UNKNOWNS
         
 
-    def __str__(self):
+    def __str__(self,useSymbol : bool = False):
         POLS : list = []
         for term in self.coefficients:
             TMP_POL : list = []
@@ -394,16 +406,58 @@ class AbstractPolynomial:
             values = term[1]
             i : int = 0
             for unknown in unknowns:
+                expression : str
                 istLast : bool = i != (len(unknowns)-1)
-                expression : str = f'{values[i][0]}{unknown}^{values[i][1]}'
+                if not useSymbol:
+                    expression = f'{values[i][0]}{unknown}^{values[i][1]}'
+                else:
+                    expression = f'{values[i][0]}*{unknown}^{values[i][1]}'
                 expression = expression + "" if not istLast else expression + "*"
                 TMP_POL.append(expression)
                 i+=1
             POLS.append(f'({"".join(TMP_POL)})')
         return "Abstract Polynomial : " + " + ".join(POLS)
     
+    def __add__(self,value):
+        print("ADDING")
+        if type(value) in (complex,int,float):
+            return "ADDING"
+        elif type(value) == self.MP:
+            return "ADDING"
+        return NotImplemented
+    
+    def __radd__(self,value):
+        return self.__add__(value)
+    
+    def __sub__(self,value):
+        if type(value) in (complex,int,float):
+            pass
+        elif type(value) == self.MP:
+            pass
+        return NotImplemented
+
+    def __rsub__(self,value): #5-Muli
+        return -self + value
+
+    def __mul__(self,value):
+        if type(value) in (complex,int,float):
+            pass
+        elif type(value) == self.MP:
+            pass
+        return NotImplemented
+
+    def __rmul__(self,value):
+        return self.__mul__(value)
+
+    def __neg__(self):
+        return (-1) * self
+
+
     def getFunction(self):
-        return f"{','.join(P.unknowns)} : {str(self).replace('^','**')}"
+        valid_python : str = re.sub(r"\^(\d+)",r"**(\1)".replace("^",''),self.__str__(useSymbol=True))
+        valid_python : str = valid_python.split(":")[-1]
+        __lambda__ : str = f"lambda {','.join(self.unknowns)} : {valid_python}"
+        return eval(__lambda__)
 
 
 # xyz+x2y2z2+
@@ -414,11 +468,16 @@ class AbstractPolynomial:
 
 
 if __name__ == "__main__":
-    P = AbstractPolynomial([
+    P = Multinomial([
         [('x','y','z'),([5,3],[3,4],[5,6])],
         [('x','y','z'),([2,1],[3,2],[7,8])],
         [('x','y','z'),([4,5],[1,2],[9,5])], 
     ])
 
-    print(P)
-    print(','.join(P.ExtractUnknowns()))
+    Q = Multinomial([
+        [('A','a'),([1,2],[1,2])]
+    ])
+
+
+    print(Q+3)
+
