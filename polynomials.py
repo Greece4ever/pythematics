@@ -658,9 +658,8 @@ class Multinomial:
 
                     BASE_ARRAY.append(NEW_ARR)
 
-
             return Multinomial(BASE_ARRAY)
-
+        
         return NotImplemented
 
     def __rmul__(self,value): #Multiplication order does not matter
@@ -673,6 +672,9 @@ class Multinomial:
 
     def __neg__(self):
         return (-1) * self
+
+    def __eq__(self,value):
+        return self.coefficients == value.coefficients
 
     def getFunction(self):
         valid_python : str = re.sub(r"\^(\d+)",r"**(\1)".replace("^",''),self.__str__(useSymbol=True))
@@ -689,12 +691,9 @@ def symbol(letter : str):
         ]
     ])
 
-# xyz+x2y2z2+
-# xyz 
-# xy**2 
-# x**5 + x**4 + x**3
-#
-
-
 if __name__ == "__main__":
-    pass
+    a = symbol('a')
+    b = symbol('b')
+
+    res = (a**2+b**2)
+    print(res)
