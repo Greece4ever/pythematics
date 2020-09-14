@@ -505,7 +505,6 @@ class Multinomial:
                     common = findCommon(term[0],item[0])
                     common_index = [[term[0].index(I_AM_RUNNING_OUT_OF_VARIABLE_NAMES),term[0].index(I_AM_RUNNING_OUT_OF_VARIABLE_NAMES)] for I_AM_RUNNING_OUT_OF_VARIABLE_NAMES in common]
                     NEW_ARR = [[com for com in common],[[] for com in common]]
-                    print(NEW_ARR)
                     #Handle Commonly Shared Values
                     for var in common:
                         #Indexes
@@ -523,41 +522,40 @@ class Multinomial:
                         NEW_ARR[1][NEW_ARR[0].index(var)].append(base)
                         NEW_ARR[1][NEW_ARR[0].index(var)].append(expo)
                     
-                    dep_copy_term = [list(item) for item in deepcopy(term)]
-                    dep_copy_val = [list(item) for item in deepcopy(item)]
 
-                    print(dep_copy_term,"DEEP1")
-                    print(dep_copy_val,"DEPP2")
-                    print(common_index)
 
-                    #Pop common Values and be left with non-common
-                    for thing in common_index:
-                        print(thing[0],thing[1])
-                        # Term
-                        dep_copy_term[0].pop(thing[0])
-                        dep_copy_term[1].pop(thing[0])
-                        
-                        # Value
-                        dep_copy_val[0].pop(thing[1])
-                        dep_copy_val[1].pop(thing[1])
+                    # term_eval = [ #The Non-Common Items
+                    #     [val_ for val_ in item[0] if val_ not in common],
+                    # ]
 
-                    #Append The remaining in term
-                    for trm in dep_copy_term:    
-                        NEW_ARR[0].append(trm) 
-                        NEW_ARR[1].append(trm)
+                    VAL_ARRAY : List[list] = [[],[]] # Containing values in item
+                    VAL2_ARRAY : List[list] = [[],[]] # Containing values in term
 
-                    #Append the remaining in value
-                    for trm in dep_copy_val:
-                        NEW_ARR[0].append(trm)
-                        NEW_ARR[1].append(trm)
-                BASE_ARRAY.append(NEW_ARR)
 
+                    for __val__ in item[0]: 
+                        if __val__ not in common:
+                            VAL_ARRAY[0].append(__val__)
+                            VAL_ARRAY[1].append(item[1][item[0].index(__val__)])
                     
+                    for __val__ in term[0]: 
+                        if __val__ not in common:
+                            VAL2_ARRAY[0].append(__val__)
+                            VAL2_ARRAY[1].append(term[1][term[0].index(__val__)])
 
 
+                    if len(VAL_ARRAY[0]) > 0:
+                        for cpp in VAL_ARRAY[0]:
+                            NEW_ARR[0].append(cpp)
+                            NEW_ARR[1].append(VAL_ARRAY[1][VAL_ARRAY[0].index(cpp)])
+    
+                    if len(VAL2_ARRAY[0]) > 0 :
+                        for cpp in VAL2_ARRAY[0]:
+                            NEW_ARR[0].append(cpp)
+                            NEW_ARR[1].append(VAL2_ARRAY[1][VAL2_ARRAY[0].index(cpp)])
 
-            
-            return NEW_ARR
+                    BASE_ARRAY.append([NEW_ARR])
+
+            return Multinomial([NEW_ARR])
 
         return NotImplemented
 
@@ -583,13 +581,15 @@ class Multinomial:
 
 if __name__ == "__main__":
     P = Multinomial([
-        [('x','y','z'),([3,4],[5,6],[7,8])],               
+        [('x','y'),([3,4],[5,6],[7,8])],               
     ])
 
     Q = Multinomial([
-        [('x','y'),([1,2],[8,9])],
+        [('x','y'),([1,2],[8,9],[5,7])],
         [5]
     ])
+
+
 
     print(P*Q)
 
