@@ -656,9 +656,10 @@ class Multinomial:
                             NEW_ARR[0].append(cpp)
                             NEW_ARR[1].append(VAL2_ARRAY[1][VAL2_ARRAY[0].index(cpp)])
 
-                    BASE_ARRAY.append([NEW_ARR])
+                    BASE_ARRAY.append(NEW_ARR)
 
-            return Multinomial([NEW_ARR])
+
+            return Multinomial(BASE_ARRAY)
 
         return NotImplemented
 
@@ -696,13 +697,4 @@ def symbol(letter : str):
 
 
 if __name__ == "__main__":
-
-    x = symbol('x')
-    y = symbol('y')
-    b_cof = x + y
-
-    print(
-        (x*y)**x
-    ) 
-
-
+    pass
