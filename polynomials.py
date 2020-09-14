@@ -375,6 +375,44 @@ def findCommon(l1 : list,l2 : list) -> list:
             DUPS.append(item)
     return filterDuplicate(DUPS)
 
+def ArrayContainsDuplicate(array : list) -> bool:
+    for item in array:
+        if array.count(item) > 1:
+            return True
+    return False
+
+def DoesContainSameElements(l1 : Union[list,tuple],l2 : Union[list,tuple]):
+    """Only if there are no duplicates"""
+    if len(l1) != len(l2):
+        return False
+    true_ar = []
+    for item in l1:
+        true_ar.append(item in l2)
+    return true_ar.count(True) == len(l1)
+
+def ValueToDict(l1):
+    __tmp__ : dict = {}
+    for item in l1[0]:
+        __tmp__[item] = l1[1][l1[0].index(item)]
+    return __tmp__
+
+def shortArrays(l1 : Union[list,tuple],l2 : Union[list,tuple]):
+    a1 : list = [ [] , [] ]
+    a2 : list = [ [] , [] ]
+    c1 : list = list(l1[0])
+    c2 : list = list(l2[0])
+    c1.sort() #Copy 1 short
+    c2.sort() #Copy 2 short
+    d1 : dict = ValueToDict(l1)
+    d2 : dict = ValueToDict(l2)
+    for item in c1:
+        a1[1].append(d1.get(item))
+    a1[0] = c1
+    for item in c2:
+        a2[1].append(d2.get(item))
+    a2[0] = c2
+    return a1,a2
+
 #Inheretance from class 'Polynomial' would be useless here
 class Multinomial:
     """
@@ -387,7 +425,7 @@ class Multinomial:
         ])
     """
 
-    def __init__(self,coefficients : List[List[Tuple[Union[str,float]]]]) -> None:
+    def __init__(self,coefficients : List[List[Tuple[Union[str,float]]]],summation : bool = True) -> None:
         # assert isinstance(variables,list)
         # for var in variables:
         #     assert isinstance(var,string), "Unknown variables must be {} values not {}.".format(str,type(var))
@@ -398,6 +436,23 @@ class Multinomial:
             self.constant = 0
         else:
             self.constant = self.coefficients.pop(-1)[0]
+        j = 0
+        for unknown in self.coefficients:
+            len_array = [len(term) for term in unknown[1]]
+            assert len_array.count(2) == len(len_array) , f"Index {j} : All [Coeffcient,Power] lists must be of lenght 2!"
+            assert (len(unknown[0]) == len(unknown[1])),  "Index {}: Invalid Unknown - [Coefficient,Power] Relation ({} elements have {} terms making them not equal)".format(j,len(unknown[0]),len(unknown[1]))
+            if ArrayContainsDuplicate(unknown[0]):
+                raise TypeError(f" {unknown[0]} : One Unknown was declared more than once.")
+            j+=1
+        
+        
+        if len(self.coefficients) > 1 and summation:
+            v1 = Multinomial([self.coefficients[0]])
+            for item in self.coefficients[1:len(self.coefficients)]:
+                v1 = v1.__add__(Multinomial([item]),returnDict=True)
+                v1 = Multinomial(v1,summation=False)
+            self.coefficients = v1.coefficients
+
         self.unknowns : list = None
         self.MP = type(self)
         self.ExtractUnknowns()
@@ -416,8 +471,6 @@ class Multinomial:
         coeff_copy = [item[:] for item in self.coefficients]
         coeff_copy.pop(-1) 
         for term in coeff_copy:
-            assert (len(term[0]) == len(term[1])), "Index {}: Invalid Unknown - [Coefficient,Power] Relation ({} elements have {} terms making them not equal)".format(j,len(term[0]),len(term[1]))
-            assert ([len(co_pow) for co_pow in term[1]].count(2) == len(term[1])), "All [Coeffcient,Power] lists must be of lenght 2!"
             for unknown in term[0]:
                 if not unknown in UNKNOWNS:
                     assert (len(unknown) == 1),f"Unknown must be of length 1 not {len(unknown)} ({unknown})"
@@ -449,30 +502,86 @@ class Multinomial:
             unknowns = term[0]
             values = term[1]
             i : int = 0
+            mul : Union[float,int]
+            if not useSymbol:
+                mul = product(*[inf[0] for inf in term[1]])
             for unknown in unknowns:
                 expression : str
                 istLast : bool = i != (len(unknowns)-1)
                 if not useSymbol:
-                    expression = f'{values[i][0]}{unknown}^{values[i][1]}'
+                    expo = values[i][1]
+                    if expo == 1:
+                        expo = ""
+                    else:
+                        expo = f"^{expo}"
+                    expression = f' {unknown}{expo} '
                 else:
                     expression = f'{values[i][0]}*{unknown}^{values[i][1]}'
                 expression = expression + "" if not istLast else expression + "*"
                 TMP_POL.append(expression)
                 i+=1
-            POLS.append(f'({"".join(TMP_POL)})')
+            POLS.append(f'{str(mul) + "*" if mul !=1 else ""}({"".join(TMP_POL)})')
             joined = " + ".join(POLS)
             if self.constant != 0:
                 sign = " + " if self.constant >=0 else ""
                 joined+= f'{sign}{str(self.constant).replace("-"," - ")}'
         return "Multivariable Polynomial : " + joined
     
-    def __add__(self,value):
+    def __add__(self,value,returnDict : bool = False):
         if type(value) in (complex,int,float):
             added = Multinomial(self.coefficients)
             added.setConst(self.constant + value)
             return added
         elif type(value) == self.MP:
-            ... #TODO
+            constant = self.constant + value.constant
+            listToMultionimial : list = []
+            copy_2 : list = deepcopy(value.coefficients)
+            copy_1 : list = deepcopy(self.coefficients)
+            term : Union[list,tuple]
+            i : int = 0
+            for term in self.coefficients:
+                k : int = 0
+                #NOTE : THE TERMS MUST BE UNIQUE FROM THE BEGGINING
+                for item in value.coefficients:
+                    #If both tuples have the same coefficients 
+                    if DoesContainSameElements(term[0],item[0]):
+                        arr1 : list
+                        arr2 : list
+                        arr1,arr2 = shortArrays(item,term)
+                        #Get Their Powers
+                        pows1 = [item[1] for item in arr1[1]] 
+                        pows2 = [item[1] for item in arr2[1]]
+                        #Only if their powers are equal
+                        if pows1 == pows2: 
+                            __tmp__ : list = deepcopy(arr1)
+                            w_sum = 1
+                            for coefficient in term[1]:
+                                w_sum *= coefficient[0]
+
+                            copy_2[k] = None
+                            copy_1[i] = None
+                            __tmp__[1][0][0] += w_sum
+                            listToMultionimial.append(__tmp__)
+                            break
+                    k+=1
+                i+=1
+            #Append The Remaining items
+            for item in copy_2:
+                if item is not None:
+                    listToMultionimial.append(item)
+
+            for item in copy_1:
+                if item is not None:
+                    listToMultionimial.append(item)
+
+            listToMultionimial.append([constant])
+
+
+            if returnDict:
+                return listToMultionimial
+            
+            return Multinomial(listToMultionimial)
+    
         return NotImplemented
     
     def __radd__(self,value):
@@ -484,11 +593,11 @@ class Multinomial:
             reduced.setConst(self.constant - value)
             return reduced
         elif type(value) == self.MP:
-            pass
+            return -value + self 
         return NotImplemented
 
-    def __rsub__(self,value): #5-Muli
-        return -self + value
+    def __rsub__(self,value): 
+        return -self + value  
 
     def __mul__(self,value):
         copy_matrix : list = deepcopy(self.coefficients)
@@ -503,7 +612,6 @@ class Multinomial:
             for term in copy_matrix:
                 for item in value.coefficients:
                     common = findCommon(term[0],item[0])
-                    common_index = [[term[0].index(I_AM_RUNNING_OUT_OF_VARIABLE_NAMES),term[0].index(I_AM_RUNNING_OUT_OF_VARIABLE_NAMES)] for I_AM_RUNNING_OUT_OF_VARIABLE_NAMES in common]
                     NEW_ARR = [[com for com in common],[[] for com in common]]
                     #Handle Commonly Shared Values
                     for var in common:
@@ -522,11 +630,6 @@ class Multinomial:
                         NEW_ARR[1][NEW_ARR[0].index(var)].append(base)
                         NEW_ARR[1][NEW_ARR[0].index(var)].append(expo)
                     
-
-
-                    # term_eval = [ #The Non-Common Items
-                    #     [val_ for val_ in item[0] if val_ not in common],
-                    # ]
 
                     VAL_ARRAY : List[list] = [[],[]] # Containing values in item
                     VAL2_ARRAY : List[list] = [[],[]] # Containing values in term
@@ -562,6 +665,11 @@ class Multinomial:
     def __rmul__(self,value): #Multiplication order does not matter
         return self.__mul__(value)
 
+    def __pow__(self,value):
+        if type(value) == int:
+            return product(*[self for i in range(value)])
+        return NotImplemented
+
     def __neg__(self):
         return (-1) * self
 
@@ -572,6 +680,14 @@ class Multinomial:
         return eval(__lambda__)
 
 
+def symbol(letter : str):
+    return Multinomial([
+        [
+            ([letter]),
+            ([1,1],)
+        ]
+    ])
+
 # xyz+x2y2z2+
 # xyz 
 # xy**2 
@@ -580,17 +696,13 @@ class Multinomial:
 
 
 if __name__ == "__main__":
-    P = Multinomial([
-        [('x','y'),([3,4],[5,6],[7,8])],               
-    ])
 
-    Q = Multinomial([
-        [('x','y'),([1,2],[8,9],[5,7])],
-        [5]
-    ])
+    x = symbol('x')
+    y = symbol('y')
+    b_cof = x + y
 
-
-
-    print(P*Q)
+    print(
+        (x*y)**x
+    ) 
 
 
