@@ -692,8 +692,4 @@ def symbol(letter : str):
     ])
 
 if __name__ == "__main__":
-    a = symbol('a')
-    b = symbol('b')
-
-    res = (a**2+b**2)
-    print(res)
+    pass

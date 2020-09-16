@@ -158,6 +158,19 @@ def complex_polar(z : complex):
         theta += pi
     return [r,theta] # r * e**(i*theta)
 
+def Bin10(x : int):
+    """Integer of base 10 to base 2"""
+    if not int(x) == float(x):
+        raise TypeError("{} cannot be interperetd as {}".format(type(x),int))
+    cdiv : int = x
+    MODS = []
+    while cdiv != 1:
+        div,mod = divmod(cdiv,2)
+        MODS.append(mod)
+        cdiv = div
+    MODS.append(cdiv)
+    return "".join(list(reversed([str(item) for item in MODS])))
+
 
 if __name__ == "__main__": 
     pass

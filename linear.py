@@ -32,6 +32,7 @@ from .powers import sqrt
 from .num_theory import complex_polar
 import re
 from typing import Union,Any,Dict,Tuple
+from . import random as rn
 
 WHITESPACE = ' '
 
@@ -1044,5 +1045,20 @@ def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = F
     div : float = a.dot(b) / (magnitude(a) * magnitude(b))
     return arccos(div,degrees=degrees)
 
+def randomMatrix(size : tuple) -> Matrix:
+    """Generates a random matrix
+      given a tuple in the format
+      (rows,collumns)
+    """
+    s = [[] for _ in range(size[1])]
+    for r in range(size[0]):
+        i = 0
+        for c in range(size[1]):
+            s[i].append(rn.random())
+            i+=1
+    return Matrix(s)
+
+
+
 if __name__ == "__main__":
-    pass    
+    pass

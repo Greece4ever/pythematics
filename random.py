@@ -63,5 +63,6 @@ def random_complex(factor : Union[float,int] = 1) -> complex:
     """Returns a random complex number scaled by a factor"""
     return random() * complex(1,1) * factor
 
+
 if __name__ == "__main__": 
     pass
