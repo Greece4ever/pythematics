@@ -129,7 +129,7 @@ class Polynomial:
                 #Add to the greater
                 array_2[i] += array_1[i]
             return checkPolynomial(array_2)
-        raise TypeError("Cannot add Polynomial with {}".format(type(value)))
+        return NotImplemented
 
     def __radd__(self,value): #Right add
         """For adding something to a polynomial (int + Polynomial)"""
@@ -143,7 +143,7 @@ class Polynomial:
             return Polynomial([eq_copy.get(item) for item in eq_copy])
         elif type(value) == type(self):
             return self + (-1 * value)
-        raise TypeError("Cannot perform subtraction on Polynomial with {}".format(type(value)))
+        return NotImplemented
 
     def __rsub__(self,value): #Right sub
         return -self + value
@@ -178,9 +178,12 @@ class Polynomial:
 
     def __pow__(self,value : int) -> Union['Polynomial',float]:
         if not type(value) == int:
-            raise TypeError("Cannot perform polynomial exponentiation with {}".format(type(value)))
+            return NotImplemented
         return product(*[self for i in range(value)])
     
+    def __div__(self,value):
+        return self.__truediv__(value)
+
     def __truediv__(self,value : [int,float,complex,"Polynomial"]) -> Union[float,"Polynomial"]:
         """
             Handling division by a scalar or by a Polynomial
@@ -200,7 +203,8 @@ class Polynomial:
                 new_dict[item] = new_dict[item] / value 
             return checkPolynomial([new_dict.get(item) for item in new_dict])
 
-        elif type(value) == self.type: #Polynomial division
+        #Polynomial division
+        elif type(value) == self.type: 
             RESULT_DICT = {}
             if self.degree < value.deg():
                 raise ValueError("Cannot divide Polynomial of degree {} with one of {} (The first polynomial must have a higher degree ({} < {})  )".format(self.degree,value.deg(),self.degree,value.deg()))
@@ -228,7 +232,7 @@ class Polynomial:
                 
 
             return [PolynomialFromDict(RESULT_DICT),self_copy] #Polynomial with reminder
-        raise TypeError("Cannot divide Polynomial with {}".format(type(value)))
+        return NotImplemented
 
     def roots(self,iterations : int) -> complex:
         """It returns an list of complex numbers that are it roots or are approximately very close to them

@@ -35,6 +35,9 @@ from typing import Union,Any,Dict,Tuple
 from . import random as rn
 
 WHITESPACE = ' '
+EXCEPTION_MSG : callable = lambda method : f"{method} method was not defined for at least one element in the Matrix.\n(Caused from performing the {method} operation on two elements whose {method} method returns NotImplemented"
+EXCEPTION_MSG_v : callable = lambda method : f"{method} method was not defined for at least one element in the Vector.\n(Caused from performing the {method} operation on two elements whose {method} method returns NotImplemented"
+
 
 
 epsilon = pl.x #epsilon = lamda 
@@ -79,7 +82,10 @@ class Vector:
             for i in range(self.getSize()):
                 empty.append(value.getMatrix()[i] + self.getMatrix()[i])
             return Vector(empty)
-        return self.forEach(lambda y : y + value)
+        try:
+            return self.forEach(lambda y : y + value)
+        except:
+            raise EXCEPTION_MSG_v('__add__')
 
     def __radd__(self,value):
         return self.__add__(value)
@@ -92,7 +98,10 @@ class Vector:
             for i in range(self.getSize()):
                 empty.append(value.getMatrix()[i] - self.getMatrix()[i])
             return Vector(empty)
-        return self.forEach(lambda y : y - value)
+        try:
+            return self.forEach(lambda y : y - value)
+        except:
+            raise ValueError(EXCEPTION_MSG_v("__sub__"))
 
     def __rsub__(self,value):
         return -self + value 
@@ -108,10 +117,13 @@ class Vector:
         empty = []
 
         #Scalar or anything else
-        if type(value) not in (type(self),Matrix): 
-            for item in self.matrix:
-                empty.append(value*item)
-            return Vector(empty)
+        if type(value) not in (type(self),Matrix):
+            try: 
+                for item in self.matrix:
+                    empty.append(value*item)
+                return Vector(empty)
+            except:
+                raise ValueError(EXCEPTION_MSG_v("__mul__"))
 
         #Vector of same dimensions
         elif type(value) == type(self):
@@ -129,22 +141,34 @@ class Vector:
         return NotImplemented #Redefine with __rmul__
     
     def __div__(self,value):
-        return (1/value)*self
+        try:
+            return (1/value)*self
+        except:
+            raise ValueError(EXCEPTION_MSG_v("__div__"))
 
     def __truediv__(self,value):
         return self.__div__(value)
 
     def __rdiv__(self,value): 
-        return self.forEach(lambda y : value / y)
+        try:
+            return self.forEach(lambda y : value / y)
+        except:
+            raise ValueError("__rdiv__")
 
     def __rtruediv__(self,value):
         return self.__rdiv__(value)
 
     def __pow__(self,value):
-        return self.forEach(lambda y : y**value)
+        try:
+            return self.forEach(lambda y : y**value)
+        except:
+            raise ValueError(EXCEPTION_MSG_v("__pow__"))
 
     def __rpow__(self,value):
-        return self.forEach(lambda y : value**y)
+        try:
+            return self.forEach(lambda y : value**y)
+        except:
+            raise ValueError(EXCEPTION_MSG_v("__rpow__"))
 
     def __neg__(self):
         return (-1) * self
@@ -413,13 +437,16 @@ class Matrix:
             #Special case where it is a vector
             if type(scalar) == Vector:
                 return self.__mul__(adjugate(Matrix(scalar.getMatrix())))
-            new_matrix = [[] for i in range(self.rows)] #Add the rows
-            i = 0
-            for row in self.matrix:
-                for constant in row:
-                    new_matrix[i].append(constant * scalar)
-                i+=1
-            return Matrix(new_matrix)
+            try:
+                new_matrix = [[] for i in range(self.rows)] #Add the rows
+                i = 0
+                for row in self.matrix:
+                    for constant in row:
+                        new_matrix[i].append(constant * scalar)
+                    i+=1
+                return Matrix(new_matrix)
+            except:
+                raise ValueError(EXCEPTION_MSG("__mul__"))
 
         #Type is Matrix
         else:
@@ -437,20 +464,26 @@ class Matrix:
         """
         #Scalar Operations call .forEach
         if type(Matrx) != type(self):
-            return self.forEach(lambda item : item + Matrx)
+            try:
+                return self.forEach(lambda item : item + Matrx)
+            except:
+                raise ValueError(EXCEPTION_MSG("__add__"))
 
         #Row-Collumn Equality (Matrix Addition)
         if self.__len__() != Matrx.__len__():
             raise ValueError("Rows and Collumns must be equal! {} != {}".format(self.__len__(),Matrx.__len__()))
         new_matrix = [[] for row in range(self.rows)]
-        i = 0
-        for row in self.matrix:
-            k = 0 
-            for num in row:
-                new_matrix[i].append(num+Matrx.rawMatrix()[i][k])
-                k +=1
-            i+=1
-        return Matrix(new_matrix)
+        try:
+            i = 0
+            for row in self.matrix:
+                k = 0 
+                for num in row:
+                    new_matrix[i].append(num+Matrx.rawMatrix()[i][k])
+                    k +=1
+                i+=1
+            return Matrix(new_matrix)
+        except:
+            raise ValueError(EXCEPTION_MSG("__add__"))
 
     def __radd__(self,value):
         return self.__add__(value)
@@ -467,20 +500,26 @@ class Matrix:
         #Even though not Mathematically defined subtracting a scalar from a Matrix will apply the .foreach method
         if type(Matrx) != type(self):
             scalar = Matrx #Identify the value as a scalar
-            return self.forEach(lambda item : item - scalar)
+            try:
+                return self.forEach(lambda item : item - scalar)
+            except:
+                raise ValueError(EXCEPTION_MSG("__sub__"))
 
         #Rows and Collumns must be equal in order to add Matrices    
         if self.__len__() != Matrx.__len__():
             raise ValueError("Rows and Collumns must be equal! {} != {}".format(self.__len__(),Matrx.__len__()))
-        new_matrix = [[] for row in range(self.rows)]
-        i = 0
-        for row in self.matrix:
-            k = 0 
-            for num in row:
-                new_matrix[i].append(num-Matrx.rawMatrix()[i][k])
-                k +=1
-            i+=1
-        return Matrix(new_matrix)
+        try:
+            new_matrix = [[] for row in range(self.rows)]
+            i = 0
+            for row in self.matrix:
+                k = 0 
+                for num in row:
+                    new_matrix[i].append(num-Matrx.rawMatrix()[i][k])
+                    k +=1
+                i+=1
+            return Matrix(new_matrix)
+        except:
+            raise ValueError(EXCEPTION_MSG("__sub__"))
 
     def __mul__(self,value):
         """
@@ -501,28 +540,37 @@ class Matrix:
             col_0 = value.__len__()
             if row_0[1] != col_0[0]: 
                 raise ValueError(f"\nCannot multiply a {row_0[0]} x {row_0[1]} with a {col_0[0]} x {col_0[1]} Matrix,\nMatrix 1 must have the same number of rows as the number of collumns in Matrix 2 \n({row_0[1]} != {col_0[0]})")
-            new_matrix = [[] for i in range(row_0[0])]
-            COLS_M2 = value.collsAll()
-            j = 0
-            for row in self.matrix:
-                for collumn in COLS_M2:
-                    iterations = 0
-                    total = 0
-                    for scalar in collumn:
-                        total += scalar*row[iterations]
-                        iterations+=1
-                    new_matrix[j].append(total)
-                j+=1
-            return Matrix(new_matrix)
+            try:
+                new_matrix = [[] for i in range(row_0[0])]
+                COLS_M2 = value.collsAll()
+                j = 0
+                for row in self.matrix:
+                    for collumn in COLS_M2:
+                        iterations = 0
+                        total = 0
+                        for scalar in collumn:
+                            total += scalar*row[iterations]
+                            iterations+=1
+                        new_matrix[j].append(total)
+                    j+=1
+                return Matrix(new_matrix)
+            except:
+                raise EXCEPTION_MSG("__mul__")
 
     def __div__(self,scalar):
         """Division by scalar (inverse of scalar time the matrix)"""
         if type(scalar) != type(self):
-            return (1 / scalar) * self
+            try:
+                return (1 / scalar) * self
+            except:
+                raise ValueError(EXCEPTION_MSG("__div__"))
         return NotImplemented
 
     def __rdiv__(self,value):
-        return self.forEach(lambda x : value / x)
+        try:
+            return self.forEach(lambda x : value / x)
+        except:
+            raise ValueError(EXCEPTION_MSG("__rdiv__"))
 
     def __truediv__(self,value):
         """Division by scalar"""
@@ -533,13 +581,19 @@ class Matrix:
 
     def __pow__(self,value):
         if type(value) != type(self):
-            return self.forEach(lambda x : x**value)
+            try:
+                return self.forEach(lambda x : x**value)
+            except:
+                raise ValueError(EXCEPTION_MSG("__pow__"))
         return NotImplemented
 
     def __rpow__(self,value):
         if type(value) == type(self):
             return NotImplemented
-        return self.forEach(lambda x : value**x)
+        try:
+            return self.forEach(lambda x : value**x)
+        except:
+            raise ValueError(EXCEPTION_MSG("__rpow__"))
 
     def __getitem__(self,index):
         """Return an element of the matrix
@@ -1174,4 +1228,5 @@ def randomVector(size : int) -> Vector:
 
 
 if __name__ == "__main__":
-    pass
+    w = Vector([1,2,3])
+    print(3*(pl.x + w))
