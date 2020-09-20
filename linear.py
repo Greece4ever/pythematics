@@ -25,7 +25,7 @@
         *** Various combinations of the above
 """
 
-from .basic import isNumber,isInteger,isComplex,Number
+from .basic import isNumber,isInteger,isComplex,Number,product
 from . import polynomials as pl
 from .trigonometric import arccos
 from .powers import sqrt
@@ -79,7 +79,10 @@ class Vector:
             for i in range(self.getSize()):
                 empty.append(value.getMatrix()[i] + self.getMatrix()[i])
             return Vector(empty)
-        return NotImplemented
+        return self.forEach(lambda y : y + value)
+
+    def __radd__(self,value):
+        return self.__add__(value)
 
     def __sub__(self,value):
         empty = []
@@ -89,8 +92,10 @@ class Vector:
             for i in range(self.getSize()):
                 empty.append(value.getMatrix()[i] - self.getMatrix()[i])
             return Vector(empty)
-        else:
-            return NotImplemented
+        return self.forEach(lambda y : y - value)
+
+    def __rsub__(self,value):
+        return -self + value 
 
     def __len__(self):
         return self.rows
@@ -101,29 +106,51 @@ class Vector:
             the dot product is returned
         """
         empty = []
-        if isNumber(value) or type(value) == complex or type(value) == type(epsilon): #Scalar
+
+        #Scalar or anything else
+        if type(value) not in (type(self),Matrix): 
             for item in self.matrix:
                 empty.append(value*item)
             return Vector(empty)
+
+        #Vector of same dimensions
         elif type(value) == type(self):
             if value.getSize() != self.getSize():
                 raise ValueError("Cannot multiply non equal-size collumns ({} with {})".format(value.getSize(),self.getSize()))
             for num in range(self.getSize()):
                 empty.append(value.getMatrix()[num] * self.getMatrix()[num])
             return sum(empty)
+
+        #Another Matrix
         elif type(value) == Matrix:
             vector_to_matrix = Matrix([[item] for item in self.getMatrix()])
             return vector_to_matrix * value
 
         return NotImplemented #Redefine with __rmul__
+    
+    def __div__(self,value):
+        return (1/value)*self
+
+    def __truediv__(self,value):
+        return self.__div__(value)
+
+    def __rdiv__(self,value): 
+        return self.forEach(lambda y : value / y)
+
+    def __rtruediv__(self,value):
+        return self.__rdiv__(value)
+
+    def __pow__(self,value):
+        return self.forEach(lambda y : y**value)
+
+    def __rpow__(self,value):
+        return self.forEach(lambda y : value**y)
 
     def __neg__(self):
         return (-1) * self
 
     def __rmul__(self,scalar : Union[int,float]):
-        if type(scalar) in (int,float,complex,POLY):
-            return self.__mul__(scalar)
-        raise TypeError("Cannot perform '*' operation on Vector with {}")
+        return self.__mul__(scalar)
 
     def __round__(self,ndigits : int = 1):
         __tmp__ : list = []
@@ -147,7 +174,10 @@ class Vector:
     def AngleVector(self,vector1 : "Vector",degrees : bool = False) -> float:
         return AngleBetweenVectors(self,vector1,degrees)
 
-    # def cross(self,Vector)
+    def forEach(self,function : callable) -> 'Vector':
+        return Vector([
+            function(element) for element in self.getMatrix()
+        ])
 
 class Matrix:
     """
@@ -1137,15 +1167,11 @@ def randomMatrix(size : tuple) -> Matrix:
             i+=1
     return Matrix(s)
 
+def randomVector(size : int) -> Vector:
+    return Vector([
+        rn.random() for _ in range(size)
+    ])
+
 
 if __name__ == "__main__":
-    
-    # A = Matrix([
-    #     [1,2,3],
-    #     [4,5,6],
-    #     [7,8,9]
-    # ])
-
-
-    w = Vector([1,2,3,4])
-    print(w*5)
+    pass
