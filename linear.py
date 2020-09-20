@@ -238,6 +238,7 @@ class Matrix:
         return self.cols[index]
     
     def is_square(self) -> bool:
+        """Wheter a matrix has the same number of rows as collumns"""
         return self.isSquare
 
     def collsAll(self) -> list:
@@ -257,12 +258,14 @@ class Matrix:
         return (self.rows,self.collumns) # (number of rows,number of collumns)
 
     def __eq__(self,value):
+        """Return equality if the arrays are equal"""
         if type(value) in (type(self),Vector):
             array_item = value.rawMatrix() if type(value) == type(self) else value.getMatrix()
             return self.rawMatrix() == array_item
         return NotImplemented
 
     def __str__(self):
+        """The method called when printing a matrix"""
         print("")
         x = [item[:] for item in self.matrix]
         k = 0
@@ -358,6 +361,7 @@ class Matrix:
         return f'\n{self.rows} x {self.collumns} Matrix\n'
 
     def __round__(self,ndigits : int = 1) -> "Matrix":
+        """Method for rounding a Matrix"""
         __tmp__ : list = [[] for item in self.rawMatrix()]
         i = 0
         for row in self.rawMatrix():
@@ -371,10 +375,14 @@ class Matrix:
             i+=1
         return Matrix(__tmp__)
 
-
     def __rmul__(self,scalar):
-        """Matrix multiplication by scalar"""
-        if type(scalar) in (int,float,complex,type(epsilon)):
+        """Matrix multiplication by scalar or Matrix (rside)"""
+
+        #Multiply Every element of the Matrix by the scalar
+        if type(scalar) != type(self):
+            #Special case where it is a vector
+            if type(scalar) == Vector:
+                return self.__mul__(adjugate(Matrix(scalar.getMatrix())))
             new_matrix = [[] for i in range(self.rows)] #Add the rows
             i = 0
             for row in self.matrix:
@@ -382,16 +390,26 @@ class Matrix:
                     new_matrix[i].append(constant * scalar)
                 i+=1
             return Matrix(new_matrix)
-        elif type(scalar) == Vector:
-            return self.__mul__(adjugate(Matrix(scalar.getMatrix())))
-        raise TypeError("You may only multiply a {} object with either a {} or a {}".format(type(self),int,float))
 
+        #Type is Matrix
+        else:
+            return self.__mul__(scalar)
+                
     def __neg__(self):
+        """return -Matrix"""
         return (-1) * self
     
     def __add__(self,Matrx):
+        """
+        Return the sum beetween two Matrices,
+        Even though not Mathematically defined, adding a scalar to a Matrix will apply the .forEach method,
+        since it is very commonly used in operations
+        """
+        #Scalar Operations call .forEach
         if type(Matrx) != type(self):
-            raise ValueError("A Matrix may only be added with another Matrix not {}!".format(type(Matrx)))
+            return self.forEach(lambda item : item + Matrx)
+
+        #Row-Collumn Equality (Matrix Addition)
         if self.__len__() != Matrx.__len__():
             raise ValueError("Rows and Collumns must be equal! {} != {}".format(self.__len__(),Matrx.__len__()))
         new_matrix = [[] for row in range(self.rows)]
@@ -404,9 +422,24 @@ class Matrix:
             i+=1
         return Matrix(new_matrix)
 
+    def __radd__(self,value):
+        return self.__add__(value)
+
+    def __rsub__(self,value):
+        return -self + value
+
     def __sub__(self,Matrx):
+        """
+        Return the difference beetween two Matrices,
+        Even though not Mathematically defined, subtracting a scalar from a Matrix will apply the .foreach method,
+        since it is very commonly used in operations
+        """
+        #Even though not Mathematically defined subtracting a scalar from a Matrix will apply the .foreach method
         if type(Matrx) != type(self):
-            raise ValueError("A Matrix may only be added with another Matrix not {}!".format(type(Matrx)))
+            scalar = Matrx #Identify the value as a scalar
+            return self.forEach(lambda item : item - scalar)
+
+        #Rows and Collumns must be equal in order to add Matrices    
         if self.__len__() != Matrx.__len__():
             raise ValueError("Rows and Collumns must be equal! {} != {}".format(self.__len__(),Matrx.__len__()))
         new_matrix = [[] for row in range(self.rows)]
@@ -420,30 +453,76 @@ class Matrix:
         return Matrix(new_matrix)
 
     def __mul__(self,value):
-        if type(value) in (int,float,complex,type(epsilon)):
+        """
+        Matrix multiplication by another Matrix or scalar
+        """
+        #Any other value or scalar
+        if type(value) not in (Vector,type(self)):
             return self.__rmul__(value)
-        if type(value) == Vector:
+        
+        #Vector
+        elif type(value) == Vector:
             vector_to_matrix = Matrix([[item] for item in value.getMatrix()])
             return self * vector_to_matrix
-        row_0 = self.__len__()
-        col_0 = value.__len__()
-        if row_0[1] != col_0[0]: 
-            raise ValueError(f"\nCannot multiply a {row_0[0]} x {row_0[1]} with a {col_0[0]} x {col_0[1]} Matrix,\nMatrix 1 must have the same number of rows as the number of collumns in Matrix 2 \n({row_0[1]} != {col_0[0]})")
-        new_matrix = [[] for i in range(row_0[0])]
-        COLS_M2 = value.collsAll()
-        j = 0
-        for row in self.matrix:
-            for collumn in COLS_M2:
-                iterations = 0
-                total = 0
-                for scalar in collumn:
-                    total += scalar*row[iterations]
-                    iterations+=1
-                new_matrix[j].append(total)
-            j+=1
-        return Matrix(new_matrix)
+        
+        #Matrix Multiplication
+        else:
+            row_0 = self.__len__()
+            col_0 = value.__len__()
+            if row_0[1] != col_0[0]: 
+                raise ValueError(f"\nCannot multiply a {row_0[0]} x {row_0[1]} with a {col_0[0]} x {col_0[1]} Matrix,\nMatrix 1 must have the same number of rows as the number of collumns in Matrix 2 \n({row_0[1]} != {col_0[0]})")
+            new_matrix = [[] for i in range(row_0[0])]
+            COLS_M2 = value.collsAll()
+            j = 0
+            for row in self.matrix:
+                for collumn in COLS_M2:
+                    iterations = 0
+                    total = 0
+                    for scalar in collumn:
+                        total += scalar*row[iterations]
+                        iterations+=1
+                    new_matrix[j].append(total)
+                j+=1
+            return Matrix(new_matrix)
+
+    def __div__(self,scalar):
+        """Division by scalar (inverse of scalar time the matrix)"""
+        if type(scalar) != type(self):
+            return (1 / scalar) * self
+        return NotImplemented
+
+    def __rdiv__(self,value):
+        return self.forEach(lambda x : value / x)
+
+    def __truediv__(self,value):
+        """Division by scalar"""
+        return self.__div__(value)
+
+    def __rtruediv__(self, value):
+        return self.__rdiv__(value)
+
+    def __pow__(self,value):
+        if type(value) != type(self):
+            return self.forEach(lambda x : x**value)
+        return NotImplemented
+
+    def __rpow__(self,value):
+        if type(value) == type(self):
+            return NotImplemented
+        return self.forEach(lambda x : value**x)
 
     def __getitem__(self,index):
+        """Return an element of the matrix
+
+            A = Matrix([
+                [1,2,3],
+                [4,5,6],
+                [7,8,9]
+            ])
+
+            In [1]: A[0][2]
+            Out[1]: 3  
+        """
         return self.rawMatrix()[index]
 
     def appendCollumn(self,collumn : list) -> None:
@@ -1051,14 +1130,21 @@ def randomMatrix(size : tuple) -> Matrix:
       (rows,collumns)
     """
     s = [[] for _ in range(size[1])]
-    for r in range(size[0]):
+    for _ in range(size[0]):
         i = 0
-        for c in range(size[1]):
+        for __ in range(size[1]):
             s[i].append(rn.random())
             i+=1
     return Matrix(s)
 
 
-
 if __name__ == "__main__":
-    pass
+    
+    def sigmoid(x):
+        return 1 / (1+2.718**(-x))
+
+    A = Matrix([
+        [1,2,3],
+        [4,5,6],
+        [7,8,9]
+    ])
