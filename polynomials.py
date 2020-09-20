@@ -423,14 +423,13 @@ class Multinomial:
         [('x','y','z'),([2,1],[3,2],[7,8])],
         [('x','y','z'),([4,5],[1,2],[9,5])], 
         ])
+
+        An Extension of the Polynomial class allowing for operations,
+        with unknown variables that are not the same
+
     """
 
     def __init__(self,coefficients : List[List[Tuple[Union[str,float]]]],summation : bool = True) -> None:
-        # assert isinstance(variables,list)
-        # for var in variables:
-        #     assert isinstance(var,string), "Unknown variables must be {} values not {}.".format(str,type(var))
-        #     assert len(var) == 1, "Unknown variables must of length 1 not {} (Found in)".format(len(var),var)
-        # self.unknowns = variables
         self.coefficients = coefficients
         if type(self.coefficients[-1][0]) not in (float,int,complex):
             self.constant = 0
@@ -494,7 +493,7 @@ class Multinomial:
                 continue
             else:
                 self.coefficients[-1] += scalar_product #All the terms are raised to the 0th power making the constants
-            
+
     def __str__(self,useSymbol : bool = False):
         POLS : list = []
         for term in self.coefficients:
@@ -514,7 +513,7 @@ class Multinomial:
                         expo = ""
                     else:
                         expo = f"^{expo}"
-                    expression = f' {unknown}{expo} '
+                    expression = f'{unknown}{expo}'
                 else:
                     expression = f'{values[i][0]}*{unknown}^{values[i][1]}'
                 expression = expression + "" if not istLast else expression + "*"
@@ -600,6 +599,9 @@ class Multinomial:
         return -self + value  
 
     def __mul__(self,value):
+        """
+        Multinomial Multiplication by any value
+        """
         copy_matrix : list = deepcopy(self.coefficients)
         if type(value) in (complex,int,float):
             const : Union[float,complex] = self.constant * value
