@@ -46,9 +46,6 @@ POLY = type(epsilon) #<class 'pythematics.polynomials.Polynomial'>
 
 class Vector:
     def __init__(self,array):
-        for item in array:
-            if not isNumber(item) and type(item) != complex and type(item) != POLY:
-                raise ValueError("Vector arguments must be a list of {} , {} , {} or {} not {}".format(int,float,complex,POLY,type(item)))
         self.matrix = array
         self.rows = len(self.matrix)
         self.collumns = 1
@@ -60,6 +57,9 @@ class Vector:
             if 'deg' in str(item): #Check if polynomial
                 item = re.sub(r"\s+",'',str(item).split(":")[-1])
                 item = f'({item})'
+            elif 'Multivariable' in str(item): #Check if multinomial
+                item = re.sub(r"\s+",'',str(item).split(":")[-1])
+                item = f'{item}'
             print(f'R{i}| {item:>3}')
             i+=1
         s2 = "\n{} x {} Vector array\n".format(self.rows,self.collumns)
@@ -122,7 +122,7 @@ class Vector:
                 for item in self.matrix:
                     empty.append(value*item)
                 return Vector(empty)
-            except:
+            except Exception:
                 raise ValueError(EXCEPTION_MSG_v("__mul__"))
 
         #Vector of same dimensions
@@ -260,9 +260,6 @@ class Matrix:
         for row in matrix:
             if type(row) == list:
                 self.ROW_LENGTHS.append(len(row))
-                for num in row:
-                    if not isNumber(num) and not type(num) == type(epsilon) and not type(num) == complex:
-                        raise TypeError("Row : {} , does not contain an argument or {} or {} but instead {}!".format(matrix.index(row),type(1),type(1.0),type(num)))
             else:
                 raise ValueError("Every argument inside the base array which is considered as a row should be of type {} (Your array had at least one element that was not of type {})".format(list,list))
         if len(self.ROW_LENGTHS) != self.ROW_LENGTHS.count(self.ROW_LENGTHS[0]):
@@ -274,7 +271,7 @@ class Matrix:
         self.isSquare = self.rows == self.collumns
 
         self.cols = []
-        for j in range(self.ROW_LENGTHS[0]):
+        for _ in range(self.ROW_LENGTHS[0]):
             self.cols.append([])
 
         for row in self.matrix:
@@ -370,7 +367,7 @@ class Matrix:
                 if "..." in str(val):
                     NEW_ARRAY.append(val)
                     continue
-                if not 'deg' in str(val):
+                if not 'deg' in str(val) and not 'Multivariable' in str(val):
                     val = complex(val)
 
                     if val.imag != 0:                    
@@ -401,12 +398,15 @@ class Matrix:
                     ws_pol = str(val).split(":")[-1]
                     no_ws_pol = re.sub(r"\s+",r"",ws_pol)
                     finale = f'({no_ws_pol})'
-                    if len(finale) <= 7:
-                        NEW_ARRAY.append(f'({no_ws_pol})')
-                    elif 7 < len(finale) <= 9 :
-                        NEW_ARRAY.append(f'{no_ws_pol}')
+                    if not 'Multivariable' in str(val):
+                        if len(finale) <= 7:
+                            NEW_ARRAY.append(f'({no_ws_pol})')
+                        elif 7 < len(finale) <= 9 :
+                            NEW_ARRAY.append(f'{no_ws_pol}')
+                        else:
+                            NEW_ARRAY.append(f'({no_ws_pol})')
                     else:
-                        NEW_ARRAY.append(f'({no_ws_pol})')
+                        NEW_ARRAY.append(f'{no_ws_pol}')
 
             
             cols_t = " ".join(["{: <10}" for _ in range(len(NEW_ARRAY))])
@@ -1138,7 +1138,6 @@ def solveREF(matrix : Matrix,unknowns : Union[tuple,list],Output: Vector, onFail
         m+=1
     return result
 
-
 def Vector0(dimensions : int) -> Vector:
     return Vector([0 for _ in range(dimensions)])
 
@@ -1195,7 +1194,6 @@ def EigenVectors(square_maxtirx : Matrix,iterations : int = 50) -> Dict[Union[co
         eigen_values_vectors[root] = eigen_vector #Eigen value has a coressponding Vector
     return eigen_values_vectors
 
-
 def magnitude(vector : Vector) -> Union[float,int]:
     components = []
     for i in range(len(vector)):
@@ -1226,7 +1224,5 @@ def randomVector(size : int) -> Vector:
         rn.random() for _ in range(size)
     ])
 
-
 if __name__ == "__main__":
-    w = Vector([1,2,3])
-    print(3*(pl.x + w))
+    pass
