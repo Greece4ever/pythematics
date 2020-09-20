@@ -709,7 +709,7 @@ def MatrixOfMinors(matrix : Matrix) -> Matrix:
         i = 0 
         reduced = [item[:] for item in matrix_array]
         reduced.pop(j)
-        for num in row:
+        for _ in row:
             x = removeCollumn(Matrix(reduced),i)
             DETERMINANTS[j].append(determinant(x))
             i+=1
@@ -1140,11 +1140,12 @@ def randomMatrix(size : tuple) -> Matrix:
 
 if __name__ == "__main__":
     
-    def sigmoid(x):
-        return 1 / (1+2.718**(-x))
+    # A = Matrix([
+    #     [1,2,3],
+    #     [4,5,6],
+    #     [7,8,9]
+    # ])
 
-    A = Matrix([
-        [1,2,3],
-        [4,5,6],
-        [7,8,9]
-    ])
+
+    w = Vector([1,2,3,4])
+    print(w*5)
