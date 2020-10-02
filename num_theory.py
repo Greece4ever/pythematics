@@ -171,6 +171,19 @@ def Bin10(x : int):
     MODS.append(cdiv)
     return "".join(list(reversed([str(item) for item in MODS])))
 
+class I64:
+    def __init__(self,bits : list):
+        self.bits = bits
+    
+    def __str__(self):
+        return "".join(self.bits)
+
+    def __add__(self,value):
+        if(type(value)==type(self)):
+            return I64(bin_add(self.bits,value.bits))
+        return NotImplemented
+
+
 adds = {
     ('0','0') : '0',
     ('0','1') : '1',
@@ -187,6 +200,10 @@ stypes = {
     '11' : '1'
 }
 
+# 11100
+# 10110
+
+# Integer Addition
 def bin_add(x,y,reverse : bool = True):
     if reverse:   
         x = x[::-1];y = y[::-1]
@@ -212,6 +229,13 @@ def bin_add(x,y,reverse : bool = True):
         bins.extend(max_num[i+1:])
 
     bins.reverse();return "".join(bins)
+
+# Integer Multiplication
+def bin_mul(x,y):
+    total = I64(['0'])
+    for _ in range(y):
+        total += x
+    return total
 
 
 
