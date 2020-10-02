@@ -171,6 +171,49 @@ def Bin10(x : int):
     MODS.append(cdiv)
     return "".join(list(reversed([str(item) for item in MODS])))
 
+adds = {
+    ('0','0') : '0',
+    ('0','1') : '1',
+    ('1','0') : '1',
+    ('1','1') : '10',
+    ('10','0') : '10',
+    ('10','1') : '11'
+}
+
+stypes = {
+    '10' : '1',
+    '1' : '0',
+    '0' : '0',
+    '11' : '1'
+}
+
+def bin_add(x,y,reverse : bool = True):
+    if reverse:   
+        x = x[::-1];y = y[::-1]
+    l1,l2 = len(x),len(y)
+    iterations = min(l1,l2)
+    shift : str = '0'
+    bins : list = []
+    for i in range(iterations):
+        shifted = adds.get((x[i],shift))
+        res = adds.get((shifted,y[i]))
+        shift = stypes.get(res)
+        bins.append(res[-1])
+    
+    if(shift!='0'):
+        max_num = x if l2 == iterations else y  
+        if(l1==l2):
+            bins.append(shift)
+        else:
+            added = bin_add(max_num[i+1:],shift,reverse=False)
+            bins.append(added)
+    else:
+        max_num = x if l2 == iterations else y
+        bins.extend(max_num[i+1:])
+
+    bins.reverse();return "".join(bins)
+
+
 
 if __name__ == "__main__": 
     pass
