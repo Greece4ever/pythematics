@@ -63,6 +63,10 @@ def random_complex(factor : Union[float,int] = 1) -> complex:
     """Returns a random complex number scaled by a factor"""
     return random() * complex(1,1) * factor
 
+#Get random modulus and addition
+modulus = randrange(1,69969)
+addition = randrange(5,96958)
 
 if __name__ == "__main__": 
-    pass
+    for i in range(100):
+        print(random())

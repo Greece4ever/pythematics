@@ -237,7 +237,5 @@ def bin_mul(x,y):
         total += x
     return total
 
-
-
 if __name__ == "__main__": 
     pass
