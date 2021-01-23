@@ -65,6 +65,9 @@ class Vector:
         s2 = "\n{} x {} Vector array\n".format(self.rows,self.collumns)
         return s2
 
+    def __repr__(self):
+        return self.__str__()
+
     def getMatrix(self):
         return self.matrix
 
@@ -413,6 +416,9 @@ class Matrix:
             print(f' R{j-1} |',cols_t.format(*NEW_ARRAY))
             j+=1
         return f'\n{self.rows} x {self.collumns} Matrix\n'
+
+    def __repr__(self):
+        return self.__str__()
 
     def __round__(self,ndigits : int = 1) -> "Matrix":
         """Method for rounding a Matrix"""

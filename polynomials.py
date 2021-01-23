@@ -1,5 +1,8 @@
 #Relative imports
-from .random import random_complex;from .basic import isNumber,isInteger;from .basic import product; 
+from .random import random_complex
+from .basic import isNumber,isInteger
+from .basic import product; 
+
 #Built-in imports
 from typing import Union,List,Tuple #Typing hints
 import re #For Recognising PolString
@@ -8,38 +11,96 @@ from copy import deepcopy #For Deepcoing Array of array of ...
 NUMBER_REGEX = r"(((\-)|(\+))?\d+((\.)\d+)?)"
 
 class Polynomial:
+    use_unicode = True
+
+    SUPER_SCRIPT = {
+        "2" : '\u00b2',
+        "3": '\u00b3',
+        "3": "³",
+        "4": "⁴",
+        "5": "⁵", 
+        "6": "⁶",
+        "7": "⁷", 
+        "8": "⁸", 
+        "9": "⁹"
+    }
+
+    def get_pow(self, item):
+        if Polynomial.use_unicode:
+            return "x" + self.super_script(item)
+        return f"x^{item}"
+
+    def super_script(self, num):
+        q = ""
+        for item in str(num):
+            q += Polynomial.SUPER_SCRIPT.get(item)
+        return q
+
     def __init__(self,coefficients : list):
         degrees = {}
         i = 0
         coefficients = EnsureDegree(coefficients)
+        
         for coefficient in coefficients:
             degrees[i] = coefficient
             i+=1
+        
         if coefficients.count(0) == len(coefficients):
             degrees = {0 : 0}
+
         if len(coefficients) == 1:
             degrees = {0 : coefficients[0]}
+        
         self.degree = i-1
         self.equation = degrees
         self.array = coefficients
-        self.function = eval("lambda x :" + self.__str__(useSymbol=True).split(":")[1].strip().replace("^","**"))
+
+        self._function = None
         self.type = type(self)
+
+        self.string = None
+
+    @property
+    def function(self):
+        if self._function is None:
+            self._function = lambda x: sum([self.equation[c] * pow(x, c) for c in self.equation])
+        return self._function
+
+    def getFunction(self): 
+        # deprecated
+        return self.function
 
     def eq(self):
         return self.equation
 
+    def __gt__(self, value):
+        return self.comp_func(value, lambda x, y: x > y)
+    
+    def __lt__(self, value):
+        gt = self.__gt__(value)
+        return {i: not gt[i] for i in gt}
+
+    def comp_func(self, value, comp: callable):
+        diff = self - value
+        if isinstance(value, type(self)):
+            return diff.comp_func(0, comp)
+        return PolynomialInequality(diff, 0, comp=comp)        
+
+    def __ge__(self, value):
+        return self.comp_func(value, lambda x, y: x >= y)
+
+    def __le__(self, value):
+        return self.comp_func(value, lambda x, y: x <= y)
+
     def arr(self):
         return self.array
-
-    def getFunction(self):
-        return self.function
 
     def deg(self):
         return self.degree
 
     def __str__(self,useSymbol : bool = False):
-        if useSymbol:
-            return self.__old_str__(useSymbol=True)
+        if self.string is not None:
+            return self.string
 
         eq = []
         j = 0
@@ -60,51 +121,40 @@ class Polynomial:
             if re.sub(r"\s+","",target) in ("-1","1") and item !=0: #Remove the 1 if it is not a constant
                 target = target.replace("1","")
             
-            use_pow = "x^" + str(item) if item not in (0,1) else "x" if item == 1  else "" #handle exponentiation
+            
+            use_pow = self.get_pow(item) if item not in (0,1) else "x" if item == 1  else "" #handle exponentiation
             eq.append(f'{sign} {target}{"*" if useSymbol else ""}{use_pow} ')
             j+=1
         Joined = "".join(list(reversed(eq))).strip()
         if Joined.strip()[-1] == "*":
             Joined = Joined[:-1]
-        return f'Polynomial of degree {self.degree} : {Joined}'  
-    
 
-    def __old_str__(self,useSymbol): 
-        """The unreadable old str method which needs to stay in there in order for the lamda getfunc to work"""
-        eq = []
-        j = 0
-        for item in self.equation:  
-            if self.equation.get(item) == 0:
-                continue
-            eq.append(f'{"+" if j != len(self.equation)-1 and not "-" in str(self.equation.get(item)) else ""  } {"(" if "j" in str(self.equation.get(item)) else ""}{str(self.equation.get(item)).replace("-","- ")}{")" if "j" in str(self.equation.get(item)) else ""}{"*" if useSymbol else ""}{"x^" + str(item) if item not in (0,1) else "x" if item == 1  else ""} ')
-            j+=1
-        Joined = "".join(list(reversed(eq))).strip()
-        if Joined.strip()[-1] == "*":
-            Joined = Joined[:-1]
-        return f'Polynomial of degree {self.degree} : {Joined}'   
+        self.string = f'Polynomial of degree {self.degree} : {Joined}'
+        return self.string
+    
 
     __repr__ = __str__
 
-    def diffrentiate(self,getFunction: bool = False):
+    def diffrentiate(self):
         derivate = {}
         for term in self.equation:
             derivate[term-1] = (term)*self.equation.get(term)
         derivate.pop(-1)
-        if not getFunction:
-            return Polynomial([derivate.get(item) for item in derivate])
-        return eval("lambda x : " + Polynomial(derivate).__str__(useSymbol=True).split(":")[1].strip().replace("^","**"))
+        return Polynomial([derivate.get(item) for item in derivate])
 
-    def integrate(self,getFunction: bool = False):
+    def integrate(self):
         integral = {}
         for term in self.equation:
             integral[term+1] = round(1 / (term+1),3) * self.equation.get(term) if term !=0 else self.equation.get(term)
-        if not getFunction:
-            for i in range(max(list(integral))):
-                if i not in integral:
-                    integral[i] = 0
-            returntype = list(integral)
-            returntype.sort()
-            return Polynomial([integral.get(item) for item in returntype])
+            
+        for i in range(max(list(integral))):
+            if i not in integral:
+                integral[i] = 0
+        
+        returntype = list(integral)
+        returntype.sort()
+        
+        return Polynomial([integral.get(item) for item in returntype])
 
     def __neg__(self):
         return -1 * self
@@ -234,10 +284,7 @@ class Polynomial:
             return [PolynomialFromDict(RESULT_DICT),self_copy] #Polynomial with reminder
         return NotImplemented
 
-    def roots(self,iterations : int) -> complex:
-        """It returns an list of complex numbers that are it roots or are approximately very close to them
-           WARNING : THIS FUNCTION IS NOT STABLE AND REQUIRES ADJUSTING (OVERFLOW ERRORS DUE TO VERY LOW NUMBERS ARE COMMON)
-        """
+    def roots(self, iterations : int) -> complex:
         reduced_pol = reduceCoefficients(self) #Make the leading coefficient 0
         result = applyKruger(reduced_pol.getFunction(),self.degree,iterations)
         return result
@@ -459,7 +506,15 @@ class Multinomial:
         self.unknowns : list = None
         self.MP = type(self)
         self.ExtractUnknowns()
-    
+        
+        self._function = None
+
+    @property
+    def function(self):
+        if self.function is None:
+            self._function = self.getFunction()
+        return self._function
+
     def setConst(self,value):
         self.constant = value
 
@@ -497,6 +552,9 @@ class Multinomial:
                 continue
             else:
                 self.coefficients[-1] += scalar_product #All the terms are raised to the 0th power making the constants
+
+    def __repr__(self):
+        return self.__str__()
 
     def __str__(self,useSymbol : bool = False):
         POLS : list = []
@@ -689,13 +747,51 @@ class Multinomial:
         return eval(__lambda__)
 
 
-def symbol(letter : str):
-    return Multinomial([
-        [
-            ([letter]),
-            ([1,1],)
-        ]
-    ])
+def symbol(*letters):
+    l = []
+    for letter in letters:
+        l.append( 
+            Multinomial([
+                [
+                    ([letter]),
+                    ([1,1],)
+                ]
+            ])
+        )
+    if len(l) == 1:
+        return l[0]
+    return l
 
+def group(y: list):
+    q = []
+    for i in range(len(y)-1):
+        q.append([y[i], y[i+1]])
+    return q
+
+
+def findInterval(pol: Polynomial, x): # pol > x => pol - x > 0
+    roots = (pol - x).roots(5000)
+    roots = [root.real for root in roots if abs(root.imag) < 10e-10]
+    roots.sort(); roots.insert(0, roots[0] - 5); roots.append(roots[-1] + 5)
+    roots = group(roots)
+    return roots
+
+def findRanges(pol, interval: list, comp=lambda x, y: x > y):
+    q = []
+    for item in interval:
+        num = item[1] - ((item[1] - item[0]) / 2)
+        q.append(comp(pol.function(num), 0))
+    interval[0][0] =   -float('inf')
+    interval[-1][-1] = float('inf')
+    return {tuple(interval[i]): q[i] for i in range(len(interval))}
+
+def PolynomialInequality(pol: Polynomial, x, comp=lambda x, y: x > 6):
+    return findRanges(pol, findInterval(pol, x), comp)
+
+def intersect(a, b):
+    if a[0] > b[1] or b[0] > b[1]:
+        return []
+    return [max(a[0], b[0]), min(a[1], b[1])]
+    
 if __name__ == "__main__":
     pass
