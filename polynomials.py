@@ -8,32 +8,38 @@ from typing import Union,List,Tuple # Type hints
 import re # For Recognising PolString
 from copy import deepcopy # For Deepcoing Array of array of ...
 
+___debug___ = True
+if ___debug___:
+    from pprint import pprint
+
 NUMBER_REGEX = r"(((\-)|(\+))?\d+((\.)\d+)?)"
+
+SUPER_SCRIPT = {
+    "2" : '\u00b2',
+    "3": "³",
+    "4": "⁴",
+    "5": "⁵", 
+    "6": "⁶",
+    "7": "⁷", 
+    "8": "⁸", 
+    "9": "⁹"
+}
+
+def super_script(num):
+    q = ""
+    for item in str(num):
+        q += SUPER_SCRIPT.get(item, "")
+    return q
+
+
+def get_pow(self, item, symbol: str="x"):
+    if self.__class__.use_unicode:
+        return symbol + super_script(item)
+    return f"{symbol}^{item}"
+
 
 class Polynomial:
     use_unicode = True
-
-    SUPER_SCRIPT = {
-        "2" : '\u00b2',
-        "3": "³",
-        "4": "⁴",
-        "5": "⁵", 
-        "6": "⁶",
-        "7": "⁷", 
-        "8": "⁸", 
-        "9": "⁹"
-    }
-
-    def get_pow(self, item):
-        if Polynomial.use_unicode:
-            return "x" + self.super_script(item)
-        return f"x^{item}"
-
-    def super_script(self, num):
-        q = ""
-        for item in str(num):
-            q += Polynomial.SUPER_SCRIPT.get(item)
-        return q
 
     def __init__(self, coefficients : list):
         degrees = {}
@@ -132,7 +138,7 @@ class Polynomial:
                 target = target.replace("1","")
             
             
-            use_pow = self.get_pow(item) if item not in (0,1) else "x" if item == 1  else "" # handle exponentiation
+            use_pow = get_pow(self, item) if item not in (0,1) else "x" if item == 1  else "" # handle exponentiation
             eq.append(f'{sign} {target}{"*" if useSymbol else ""}{use_pow} ')
             j+=1
         Joined = "".join(list(reversed(eq))).strip()
@@ -323,7 +329,7 @@ def checkPolynomial(pol_list : list):
         return pol_list[0]
     return Polynomial(pol_list)
     
-def applyKruger(function : callable,degree : int,iterations : int):
+def applyKruger(function : callable, degree : int, iterations : int, ContinueOnFail=False):
     APPROXIMATIONS = {}
     # Get our starting points
     for i in range(0,degree):
@@ -333,8 +339,10 @@ def applyKruger(function : callable,degree : int,iterations : int):
     try:
         for i in range(iterations):
             APPROXIMATIONS = kerner_durand(APPROXIMATIONS,function)
-    except:
+    except Exception as err:
         print("Root Calclualtion Failed")
+        if not ContinueOnFail:
+            raise RuntimeError("Failed to calcuate Roots because of [" + err.__class__.__name__ + " " + str(err) + "]" )
         APPROXIMATIONS = INITIAL
         applyKruger(function,degree,iterations)
     # for visual purposes
@@ -490,7 +498,11 @@ class Multinomial:
         with unknown variables that are not the same
     """
 
-    def __new__(cls, coefficients : List[List[Tuple[Union[str,float]]]], summation : bool = True) -> None:
+    use_unicode = True
+
+    # Multinomial Creation
+    def __new__(cls, coefficients : List[List[Tuple[Union[str,float]]]], check=True, summation : bool = True) -> None: 
+        
         constant = 0
 
         if type(coefficients[-1][0]) in (float, int, complex):
@@ -505,29 +517,37 @@ class Multinomial:
                 raise TypeError(f" {unknown[0]} : One Unknown was declared more than once.")
             j+=1
 
-        if len(coefficients) > 1 and summation:
-            v1 = Multinomial([coefficients[0]])
-            for item in coefficients[1:len(coefficients)]:
-                v1 = v1.__add__(Multinomial([item]),returnDict=True)
-                v1 = Multinomial(v1,summation=False)
-            coefficients = v1.coefficients
 
+        if len(coefficients) > 1 and summation:
+            v1 = Multinomial([coefficients[0]], check=False)
+            for item in coefficients[1:len(coefficients)]:
+                v1 = v1.__add__(Multinomial([item], check=False), returnDict=True)
+                v1 = Multinomial(v1, check=False, summation=False)
+            coefficients = v1.coefficients
+        
         for item in coefficients:
             for unit in item[1]:
                 if unit[0] == 0:
                     coefficients.remove(item)
 
-        if not coefficients:
+        if not coefficients and check:
             return constant
         
         instance = super().__new__(cls)
 
         instance.unknowns, instance._function  = None, None
         instance.coefficients = coefficients
+        instance.coeff_cache = {}
         instance.constant = constant
         instance.ExtractUnknowns()
         
         return instance
+
+
+    def __getitem__(self, index):
+        if index not in self.coeff_cache:
+            self.coeff_cache[index] = Multinomial([self.coefficients[index]])
+        return self.coeff_cache[index]
 
 
     @property
@@ -598,20 +618,24 @@ class Multinomial:
                 mul = product(*[inf[0] for inf in term[1]])
             for unknown in unknowns:
                 expression : str
-                istLast : bool = i != (len(unknowns)-1)
                 if not useSymbol:
                     expo = values[i][1]
-                    if expo == 1:
-                        expo = ""
-                    else:
-                        expo = f"^{expo}"
-                    expression = f'{unknown}{expo}'
+                    expression = get_pow(self, expo, unknown)
                 else:
                     expression = f'{values[i][0]}*{unknown}^{values[i][1]}'
-                expression = expression + "" if not istLast else expression + "*"
                 TMP_POL.append(expression)
                 i+=1
-            POLS.append(f'{str(mul) + "*" if mul !=1 else ""}({"".join(TMP_POL)})')
+
+            TERM = ""
+            if mul == -1:
+                TERM += "-"
+            elif mul != 1:
+                TERM += f"{mul}"
+
+            TERM += "".join(TMP_POL)
+
+            POLS.append(TERM)
+
             joined = " + ".join(POLS)
             if self.constant != 0:
                 sign = " + " if self.constant >=0 else ""
@@ -619,7 +643,7 @@ class Multinomial:
         return "Multivariable Polynomial : " + joined
 
 
-    def __add__(self,value,returnDict : bool = False):
+    def __add__(self,value, returnDict : bool = False):
         if type(value) in (complex,int,float):
             added = Multinomial(self.coefficients)
             added.setConst(self.constant + value)
@@ -699,21 +723,24 @@ class Multinomial:
         """
         Multinomial Multiplication by any value
         """
-        copy_matrix : list = deepcopy(self.coefficients)
+        copy_matrix: list = deepcopy(self.coefficients)
+        constant = 0
         if type(value) in (complex, int, float):
-            const : Union[float,complex] = self.constant * value
+            const: Union[float, complex] = self.constant * value
             for term in copy_matrix:
                 term[1][0][0] *= value # We Only need to multiply One Term (the coefficient of the term)
             copy_matrix.append([const])
             return Multinomial(copy_matrix)
         elif type(value) == self.__class__:
-            BASE_ARRAY : list = []
+            BASE_ARRAY: list = []
             for term in copy_matrix:
                 for item in value.coefficients:
-                    common = findCommon(term[0],item[0])
+                    common = findCommon(term[0], item[0])
                     NEW_ARR = [[com for com in common],[[] for com in common]]
+                    
                     # Handle Commonly Shared Values
                     for var in common:
+                    
                         # Indexes
                         i1 = term[0].index(var)
                         i2 = item[0].index(var)
@@ -756,7 +783,18 @@ class Multinomial:
                             NEW_ARR[1].append(VAL2_ARRAY[1][VAL2_ARRAY[0].index(cpp)])
 
                     BASE_ARRAY.append(NEW_ARR)
-            return Multinomial(BASE_ARRAY)
+
+                    const_val = Multinomial([term]) * value.constant
+
+                    if isinstance(const_val, int):
+                        constant += const_val
+                    else:
+                        BASE_ARRAY += const_val.coefficients
+                    
+                        
+            _mul_ = Multinomial(BASE_ARRAY) + self.constant * value
+            _mul_.constant += constant
+            return _mul_
         return NotImplemented
 
 
@@ -848,6 +886,8 @@ def mul_get_function(mul: "Multinomial"):
         return total
     return func
 
+a, b, c = symbol('a', 'b', 'c')
+print((a+b)**3)
 
 if __name__ == "__main__":
     pass
