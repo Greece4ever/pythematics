@@ -89,3 +89,4 @@ def isRoot(function : callable,x_0 : float,x_1 : float) -> bool:
 
 if __name__ == "__main__":
     print(Number("5j"))
+

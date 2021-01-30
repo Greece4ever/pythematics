@@ -15,7 +15,6 @@ class Polynomial:
 
     SUPER_SCRIPT = {
         "2" : '\u00b2',
-        "3": '\u00b3',
         "3": "³",
         "4": "⁴",
         "5": "⁵", 
@@ -65,6 +64,9 @@ class Polynomial:
         if self._function is None:
             self._function = lambda x: sum([self.equation[c] * pow(x, c) for c in self.equation])
         return self._function
+
+    def __call__(self, x0: Union[float, int]) -> float:
+        return self.function(x0)
 
     def getFunction(self): 
         # deprecated
@@ -721,9 +723,7 @@ class Multinomial:
                             NEW_ARR[1].append(VAL2_ARRAY[1][VAL2_ARRAY[0].index(cpp)])
 
                     BASE_ARRAY.append(NEW_ARR)
-
             return Multinomial(BASE_ARRAY)
-        
         return NotImplemented
 
     def __rmul__(self,value): #Multiplication order does not matter
@@ -793,5 +793,23 @@ def intersect(a, b):
         return []
     return [max(a[0], b[0]), min(a[1], b[1])]
     
-if __name__ == "__main__":
+
+def matmul(x: Multinomial, y: Multinomial):
     pass
+
+
+if __name__ == "__main__":
+    def __get_function(mul: Multinomial):
+        params = {value: index for index, value in enumerate(mul.unknowns)}
+        def func(*args):
+            total = 0
+            for part in mul.coefficients:
+                sigma = 0
+                for i in range(len(part[0])):
+                    mtplier = part[1][i][0]
+                    powr = part[1][i][1]
+                    value = args[params.get(part[0][i])]
+                    sigma += mtplier * pow(value, powr)
+                total += sigma
+            return total
+        return func

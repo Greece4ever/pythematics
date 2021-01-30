@@ -19,3 +19,10 @@ from . import random
 from . import polynomials
 from . import num_theory
 from . import trigonometric
+
+from .trigonometric import sin, cos, tan, asin, acos, atan
+from .linear import Matrix, Vector
+from .polynomials import Polynomial, Multinomial
+from .num_theory import LCM, GCD, isPrime
+from .basic import comaSplitNumber
+from .polynomials import x, symbol, Polynomial, Multinomial

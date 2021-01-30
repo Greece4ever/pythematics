@@ -12,7 +12,7 @@
 from .basic import product
 from typing import Union,Tuple
 from . import functions
-from .trigonometric import arctan
+from .trigonometric import atan
 from .constants import pi
 
 def isEven(num : int) -> bool:
@@ -153,7 +153,7 @@ def complex_polar(z : complex):
     """
     a = z.real;b= z.imag
     r = (a**2 + b**2)**(1/2)
-    theta = arctan(b / a,iterations=50)
+    theta = atan(b / a,iterations=50)
     if a < 0:
         theta += pi
     return [r,theta] # r * e**(i*theta)
@@ -171,71 +171,71 @@ def Bin10(x : int):
     MODS.append(cdiv)
     return "".join(list(reversed([str(item) for item in MODS])))
 
-class I64:
-    def __init__(self,bits : list):
-        self.bits = bits
-    
-    def __str__(self):
-        return "".join(self.bits)
-
-    def __add__(self,value):
-        if(type(value)==type(self)):
-            return I64(bin_add(self.bits,value.bits))
-        return NotImplemented
-
-
-adds = {
-    ('0','0') : '0',
-    ('0','1') : '1',
-    ('1','0') : '1',
-    ('1','1') : '10',
-    ('10','0') : '10',
-    ('10','1') : '11'
-}
-
-stypes = {
-    '10' : '1',
-    '1' : '0',
-    '0' : '0',
-    '11' : '1'
-}
-
-# 11100
-# 10110
-
-# Integer Addition
-def bin_add(x,y,reverse : bool = True):
-    if reverse:   
-        x = x[::-1];y = y[::-1]
-    l1,l2 = len(x),len(y)
-    iterations = min(l1,l2)
-    shift : str = '0'
-    bins : list = []
-    for i in range(iterations):
-        shifted = adds.get((x[i],shift))
-        res = adds.get((shifted,y[i]))
-        shift = stypes.get(res)
-        bins.append(res[-1])
-    
-    if(shift!='0'):
-        max_num = x if l2 == iterations else y  
-        if(l1==l2):
-            bins.append(shift)
-        else:
-            added = bin_add(max_num[i+1:],shift,reverse=False)
-            bins.append(added)
-    else:
-        max_num = x if l2 == iterations else y
-        bins.extend(max_num[i+1:])
-
-    bins.reverse();return "".join(bins)
-
-# Integer Multiplication
-def bin_mul(x,y):
-    total = I64(['0'])
-    for _ in range(y):
-        total += x
-    return total
 
 if __name__ == "__main__": 
-    pass
+    class I64:
+        def __init__(self,bits : list):
+            self.bits = bits
+        
+        def __str__(self):
+            return "".join(self.bits)
+
+        def __add__(self,value):
+            if(type(value)==type(self)):
+                return I64(bin_add(self.bits,value.bits))
+            return NotImplemented
+
+
+    adds = {
+        ('0','0') : '0',
+        ('0','1') : '1',
+        ('1','0') : '1',
+        ('1','1') : '10',
+        ('10','0') : '10',
+        ('10','1') : '11'
+    }
+
+    stypes = {
+        '10' : '1',
+        '1' : '0',
+        '0' : '0',
+        '11' : '1'
+    }
+
+    # 11100
+    # 10110
+
+    # Integer Addition
+    def bin_add(x,y,reverse : bool = True):
+        if reverse:   
+            x = x[::-1];y = y[::-1]
+        l1,l2 = len(x),len(y)
+        iterations = min(l1,l2)
+        shift : str = '0'
+        bins : list = []
+        for i in range(iterations):
+            shifted = adds.get((x[i],shift))
+            res = adds.get((shifted,y[i]))
+            shift = stypes.get(res)
+            bins.append(res[-1])
+        
+        if(shift!='0'):
+            max_num = x if l2 == iterations else y  
+            if(l1==l2):
+                bins.append(shift)
+            else:
+                added = bin_add(max_num[i+1:],shift,reverse=False)
+                bins.append(added)
+        else:
+            max_num = x if l2 == iterations else y
+            bins.extend(max_num[i+1:])
+
+        bins.reverse();return "".join(bins)
+
+    # Integer Multiplication
+    def bin_mul(x,y):
+        total = I64(['0'])
+        for _ in range(y):
+            total += x
+        return total
+

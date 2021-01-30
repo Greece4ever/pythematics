@@ -3,7 +3,7 @@
     It calculates all the functions from scratch,\n
     using some form of 'infinite' summation (Taylor Expansion most of the time)\n
 
-    It can also handle complex numbers in non inverse functions (arc functions):
+    It can also handle complex numbers in non inverse functions (a functions):
         ** for more information on how they are computed see https://www.youtube.com/watch?v=CjQTWtW_x9o
 
     
@@ -19,12 +19,12 @@
             ** sec(x) 
             ** csc(x) 
         - Inverse Trigonometric (Real Only for accurate results):
-            ** arcsin(x)
-            ** arccos(x)
-            ** arctan(x)
-            ** arccot(x)
-            ** arcsec(x) 
-            ** arccsc(x)  
+            ** asin(x)
+            ** acos(x)
+            ** atan(x)
+            ** acot(x)
+            ** asec(x) 
+            ** acsc(x)  
         -- Hyperbolic Trigonometric (Real and Imaginary):
             ** sinh(x)
             ** cosh(x)
@@ -34,10 +34,10 @@
             ** sech(x)
         - Inverse Hyperbolic (Real only for accurate results):
             ** arsinh(x)
-            ** arcosh(x)
+            ** aosh(x)
             ** artanh(x)
-            ** arcoth(x)
-            ** arcsch(x)
+            ** aoth(x)
+            ** asch(x)
             ** arsech(x)
 """
 
@@ -171,11 +171,11 @@ def csc(x: Union[float,complex],degrees=False,iterations : int = 13) -> Union[fl
 
 # Inverse Trigonometric
 
-def arcsin(x : float,iterations : int = 100,degrees : bool = False) -> float:
+def asin(x : float,iterations : int = 100,degrees : bool = False) -> float:
     """
-        Inverse Trigonometric function : Arcsin\n
+        Inverse Trigonometric function : asin\n
         equivalant to the following expression : \n
-        ** x = sin(y) => arcsin(x) = y **\n
+        ** x = sin(y) => asin(x) = y **\n
         if deegrees is set to True it will give the result in degrees\n
         Domain (-1 <= x <= 1)
     """
@@ -194,58 +194,58 @@ def arcsin(x : float,iterations : int = 100,degrees : bool = False) -> float:
         total = toDegrees(total)
     return total
 
-def arccos(x : float,iterations : int = 100,degrees : bool = False) -> float:
+def acos(x : float,iterations : int = 100,degrees : bool = False) -> float:
     """
-        Inverse Trigonometric function : Arccos\n
+        Inverse Trigonometric function : acos\n
         equivalant to the following expression : \n
-        ** x = cos(y) => arccos(x) = y **\n
+        ** x = cos(y) => acos(x) = y **\n
             if deegrees is set to True it will give the result in degrees\n
         Domain (-1 <= x <= 1)
     """
     if not (-1 <= x <= 1):
         raise ValueError("Math domain error not in [-1,1]")
-    result = (pi / 2) - arcsin(x,iterations=iterations)
+    result = (pi / 2) - asin(x,iterations=iterations)
     if degrees:
         result = toDegrees(result)
     return result
 
-def arctan(x : float,iterations : int = 100,degrees : bool = False) -> float:
+def atan(x : float,iterations : int = 100,degrees : bool = False) -> float:
     """
-        Inverse Trigonometric function : Arctangent\n
+        Inverse Trigonometric function : atangent\n
         equivalant to the following expression : \n
-        ** x = tan(y) => arctan(x) = y **\n
+        ** x = tan(y) => atan(x) = y **\n
         if deegrees is set to True it will give the result in degrees\n
         Domain : All real numbers
     """
-    forumlae = arccos(  (1-x**2) / (1 + x**2)    )
+    forumlae = acos(  (1-x**2) / (1 + x**2)    )
     total = 0.5 * forumlae
     if degrees:
         total = toDegrees(total)
     return total
 
-def arccot(x : float,iterations : int = 100,degrees : bool = False):
+def acot(x : float,iterations : int = 100,degrees : bool = False):
     """
-        Inverse Trigonometric function : Arccotangent\n
+        Inverse Trigonometric function : acotangent\n
         equivalant to the following expression : \n
-        ** x = cot(y) => arccot(x) = y **\n
+        ** x = cot(y) => acot(x) = y **\n
         if deegrees is set to True it will give the result in degrees\n
         Domain : All real numbers
     """
-    result = (pi / 2) - arctan(x,iterations=iterations)
+    result = (pi / 2) - atan(x,iterations=iterations)
     if degrees:
         result = toDegrees(result)
     return result
 
-def arcsec(x : float,iterations : int = 100,degrees : bool = False):
+def asec(x : float,iterations : int = 100,degrees : bool = False):
     """
-        Inverse Trigonometric function : Arcsecant\n
+        Inverse Trigonometric function : asecant\n
         equivalant to the following expression : \n
-        ** x = sec(y) => arcsec(x) = y **\n
+        ** x = sec(y) => asec(x) = y **\n
         if deegrees is set to True it will give the result in degrees\n
         Domain : (x <= -1 or x >= 1)
     """
     if (x <= -1) or (x >= 1):
-        res =  arccos(1/x,iterations=iterations)
+        res =  acos(1/x,iterations=iterations)
         if degrees:
             res = toDegrees(res)
         return res
@@ -253,16 +253,16 @@ def arcsec(x : float,iterations : int = 100,degrees : bool = False):
         raise ValueError("Math domain error not in (x <= -1 or x >= 1)")
 
 
-def arccsc(x : float,iterations : int = 100,degrees : bool = False):
+def acsc(x : float,iterations : int = 100,degrees : bool = False):
     """
-        Inverse Trigonometric function : Arccosecant\n
+        Inverse Trigonometric function : acosecant\n
         equivalant to the following expression : \n
-        ** x = csc(y) => arccsc(x) = y **\n
+        ** x = csc(y) => acsc(x) = y **\n
         if deegrees is set to True it will give the result in degrees\n
         Domain : (x <= -1 or x >= 1)
     """
     if (x <= -1) or (x >= 1):
-        result = ( pi / 2 ) - arcsec(x)
+        result = ( pi / 2 ) - asec(x)
         if degrees:
             result = toDegrees(result)
         return result
@@ -325,14 +325,14 @@ def csch(x : float) -> float:
 
 # Inverse Hyperbolic
 
-def arsinh(x : float) -> float:
+def asinh(x : float) -> float:
     """
         Inverse Hyperbolic trigonometric function\n
         Domain : All Real
     """
     return functions.ln(x+powers.sqrt(powers.power(x,2)+1))
 
-def arcosh(x : float) -> float:
+def acosh(x : float) -> float:
     """
         Inverse Hyperbolic trigonometric function
         Domain : [1, +Infinity)
@@ -341,7 +341,7 @@ def arcosh(x : float) -> float:
         raise ValueError("Math domain error [1,+Infinity]")
     return functions.ln(x+powers.sqrt(powers.power(x,2)-1))
 
-def artanh(x : float) -> float:
+def atanh(x : float) -> float:
     """
         Inverse trigonometric function
         Domain (-1 < x < 1)
@@ -350,7 +350,7 @@ def artanh(x : float) -> float:
         raise ValueError("Math domain error not in  (-1,+1)")
     return 0.5*functions.ln((1+x)/(1-x))
 
-def arcoth(x : float) -> float:
+def acoth(x : float) -> float:
     """
         Inverse Hyperbolic trigonometric function
         (-Infinity, −1) and (1, +Infinity)
@@ -359,7 +359,7 @@ def arcoth(x : float) -> float:
         raise ValueError("Math domain error not in  (-Infinity, −1) and (1, +Infinity)")
     return 0.5*functions.ln((x+1)/(x-1))
 
-def arsech(x : float) -> float:
+def asech(x : float) -> float:
     """
         Inverse Hyperbolic trigonometric function
         Domain : (0, 1]
@@ -368,7 +368,7 @@ def arsech(x : float) -> float:
         raise ValueError("Math domain error not in (0, 1]")
     return functions.ln( (1+powers.sqrt(1-powers.power(x,2)) / x ))
 
-def arcsch(x : float) -> float:
+def acsch(x : float) -> float:
     """
         Inverse Hyperbolic trigonometric function
         Domain : All Real Numbers except 0

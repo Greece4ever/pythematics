@@ -103,7 +103,7 @@ def ln(x : float,iterations : int = 100) -> Union[float,complex]:
         imag = x.imag
         suma = pow(real,2) + pow(imag,2)
         reduced_log = ln(suma) / 2
-        inverseTan = complex(0,1) * trig.arctan(imag / real)
+        inverseTan = complex(0,1) * trig.atan(imag / real)
         return reduced_log + inverseTan
 
     raise TypeError("Logarithmic function cannot be evaluated at {}".format(x))

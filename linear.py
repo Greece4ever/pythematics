@@ -27,7 +27,7 @@
 
 from .basic import isNumber,isInteger,isComplex,Number,product
 from . import polynomials as pl
-from .trigonometric import arccos
+from .trigonometric import acos
 from .powers import sqrt
 from .num_theory import complex_polar
 import re
@@ -1210,7 +1210,7 @@ def AngleBetweenVectors(vector_0 : Vector,vector_1 : Vector, degrees  : bool = F
     a : Vector = vector_0
     b : Vector = vector_1
     div : float = a.dot(b) / (magnitude(a) * magnitude(b))
-    return arccos(div,degrees=degrees)
+    return acos(div,degrees=degrees)
 
 def randomMatrix(size : tuple) -> Matrix:
     """Generates a random matrix
