@@ -842,6 +842,8 @@ def group(y: list):
 def findInterval(pol: Polynomial, x): # pol > x => pol - x > 0
     roots = (pol - x).roots(5000)
     roots = [root.real for root in roots if abs(root.imag) < 10e-10]
+    if not roots:
+        return None
     roots.sort(); roots.insert(0, roots[0] - 5); roots.append(roots[-1] + 5)
     roots = group(roots)
     return roots
@@ -857,8 +859,12 @@ def findRanges(pol, interval: list, comp=lambda x, y: x > y):
     return {tuple(interval[i]): q[i] for i in range(len(interval))}
 
 
-def PolynomialInequality(pol: Polynomial, x, comp=lambda x, y: x > 6):
-    return findRanges(pol, findInterval(pol, x), comp)
+def PolynomialInequality(pol: Polynomial, x, comp=lambda x, y: x > y):
+    interval = findInterval(pol, x)
+    if not interval:
+        inf = float('inf')
+        return {(-inf, inf): comp(pol(3), 0)} 
+    return findRanges(pol, interval, comp)
 
 
 def intersect(a, b):
