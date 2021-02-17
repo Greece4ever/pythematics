@@ -4,13 +4,10 @@ from .basic import isNumber,isInteger
 from .basic import product
 
 # Built-in imports
-from typing import Union,List,Tuple # Type hints
+from typing import Any, Union,List,Tuple # Type hints
 import re # For Recognising PolString
 from copy import deepcopy # For Deepcoing Array of array of ...
 
-___debug___ = True
-if ___debug___:
-    from pprint import pprint
 
 NUMBER_REGEX = r"(((\-)|(\+))?\d+((\.)\d+)?)"
 
@@ -72,6 +69,10 @@ class Polynomial:
         if len(coefficients) == 1:
             return coefficients[0]
         return super().__new__(cls)
+
+    def __eq__(self, value):
+        return (self - value).roots(5000)
+        
 
     @property
     def function(self):
@@ -175,7 +176,7 @@ class Polynomial:
     def __neg__(self):
         return -1 * self
 
-    def __add__(self,value : [int,float,complex,'Polynomial']) -> 'Polynomial':
+    def __add__(self,value) -> 'Polynomial':
         eq_copy = self.equation.copy()
         # Scalar
         if type(value) in (int,float,complex):
@@ -201,7 +202,7 @@ class Polynomial:
         """For adding something to a polynomial (int + Polynomial)"""
         return self.__add__(value)
 
-    def __sub__(self,value : [int,float,complex,'Polynomial']) -> Union['Polynomial',float]:
+    def __sub__(self,value) -> Union['Polynomial',float]:
         eq_copy = self.equation.copy()
         # Scalar
         if type(value) in (int,float,complex):
@@ -214,7 +215,7 @@ class Polynomial:
     def __rsub__(self,value): # Right sub
         return -self + value
 
-    def __mul__(self,value : [int,float,complex,"Polynomial"]) -> Union['Polynomial',float]:
+    def __mul__(self,value) -> Union['Polynomial',float]:
         if type(value) in (int,float,complex):
             return checkPolynomial([value * num for num in self.array])
         
@@ -239,7 +240,7 @@ class Polynomial:
 
         return NotImplemented # You can redefine it with __rmul__
 
-    def __rmul__(self,value : [int,float,complex,"Polynomial"]) -> Union['Polynomial',float]: # Right mul
+    def __rmul__(self,value) -> Union['Polynomial',float]: # Right mul
         return self.__mul__(value)
 
     def __pow__(self,value : int) -> Union['Polynomial',float]:
@@ -250,7 +251,7 @@ class Polynomial:
     def __div__(self,value):
         return self.__truediv__(value)
 
-    def __truediv__(self,value : [int,float,complex,"Polynomial"]) -> Union[float,"Polynomial"]:
+    def __truediv__(self,value) -> Union[float,"Polynomial"]:
         """
             Handling division by a scalar or by a Polynomial
 
@@ -340,7 +341,6 @@ def applyKruger(function : callable, degree : int, iterations : int, ContinueOnF
         for i in range(iterations):
             APPROXIMATIONS = kerner_durand(APPROXIMATIONS,function)
     except Exception as err:
-        print("Root Calclualtion Failed")
         if not ContinueOnFail:
             raise RuntimeError("Failed to calcuate Roots because of [" + err.__class__.__name__ + " " + str(err) + "]" )
         APPROXIMATIONS = INITIAL
@@ -620,7 +620,10 @@ class Multinomial:
                 expression : str
                 if not useSymbol:
                     expo = values[i][1]
-                    expression = get_pow(self, expo, unknown)
+                    if expo == 1:
+                        expression = unknown
+                    else:    
+                        expression = get_pow(self, expo, unknown)
                 else:
                     expression = f'{values[i][0]}*{unknown}^{values[i][1]}'
                 TMP_POL.append(expression)
@@ -893,7 +896,6 @@ def mul_get_function(mul: "Multinomial"):
     return func
 
 a, b, c = symbol('a', 'b', 'c')
-print((a+b)**3)
 
 if __name__ == "__main__":
     pass
